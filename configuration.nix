@@ -8,6 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./modules/core/networking.nix
     ];
 
   # Bootloader.
@@ -20,34 +21,6 @@
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  networking.hosts = {
-    "10.10.10.10" = [
-      "server.local"
-      "files.local"
-      "music.local"
-      "movies.local"
-      "n8n.local"
-      "npm.local"
-      "notes.local"
-      "prowlarr.local"
-      "radarr.local"
-      "sonarr.local"
-      "torrent.local"
-      "ai.local"
-      "transfer.local"
-      "browser.local"
-      "bazarr.local"
-      "sync.local"
-      "shlink.local"
-      "office.local"
-      "now.local"
-      "unmanic.local"
-    ];
-  };
-
-  # Enable networking
-  networking.networkmanager.enable = true;
 
   # Set your time zone.
   time.timeZone = "Asia/Jakarta";
@@ -72,7 +45,7 @@
   
   # Pipewire Linux audio stack
   services.pipewire = {
-  enable = true;
+    enable = true;
 
     # ALSA Support audio
     alsa.enable = true;
@@ -111,6 +84,7 @@
     networkmanagerapplet
 
     # Browser
+    brave
 
     # File manager & archive
     thunar
