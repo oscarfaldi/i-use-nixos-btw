@@ -29,6 +29,9 @@
     # Media controls
     playerctl
 
+    # Polkit authentication agent
+    mate.mate-polkit
+
     # Qt Wayland support
     qt5.qtwayland
     qt6.qtwayland
