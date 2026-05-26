@@ -10,6 +10,11 @@
     xdg-desktop-portal-gtk
     xdg-utils
 
+    # File manager
+    thunar
+    thunar-archive-plugin
+    thunar-volman
+
     # Bar & launcher
     waybar
     fuzzel
