@@ -8,6 +8,9 @@
     nano
     wget
 
+    # Audio center
+    pavucontrol
+
     # Browser
     brave
 
@@ -15,6 +18,7 @@
     kdePackages.okular
 
     # Notes & sync
+    mousepad
     obsidian
     syncthing
 
