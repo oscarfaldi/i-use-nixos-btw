@@ -14,6 +14,9 @@
     thunar
     thunar-archive-plugin
     thunar-volman
+    nfs-utils
+    gvfs-nfs
+    gvfs
 
     # Bar & launcher
     waybar
