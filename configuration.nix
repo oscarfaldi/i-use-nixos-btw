@@ -123,6 +123,17 @@
 
   # List services that you want to enable:
 
+  # Syncthing file synchronization service
+  services.syncthing = {
+    enable = true;
+
+    user = "oscarfaldi";
+    dataDir = "/home/oscarfaldi";
+    configDir = "/home/oscarfaldi/.config/syncthing";
+
+    openDefaultPorts = true;
+  };
+
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
 
