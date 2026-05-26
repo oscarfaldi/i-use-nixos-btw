@@ -12,7 +12,7 @@
     brave
 
     # PDF reader
-    okular
+    kdePackages.okular
 
     # Notes & sync
     obsidian
