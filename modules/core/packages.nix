@@ -13,7 +13,6 @@
 
     # NFS compatibility
     nfs-utils
-    gvfs-nfs
     gvfs
 
     # Audio center
@@ -32,6 +31,9 @@
     syncthing
 
     # Image compatibility
+    ffmpeg
+    ffmpegthumbnailer
+    tumbler
     libwebp
     libavif
 
