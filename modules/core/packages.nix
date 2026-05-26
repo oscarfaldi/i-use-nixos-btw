@@ -3,6 +3,9 @@
 {
   environment.systemPackages = with pkgs; [
 
+    # Power button    
+    wlogout
+
     # Editors & terminal utils
     git
     nano
