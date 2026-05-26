@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
+# Local domains for NAS reverse proxy services
 {
-  # Local domains for NAS reverse proxy services
   networking.hosts = {
     "10.10.10.10" = [
       "server.local"
