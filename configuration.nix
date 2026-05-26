@@ -18,7 +18,7 @@
   # NetworkManager for internet / normal LAN
   networking.networkmanager.enable = true;
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "arizona"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -86,21 +86,20 @@
     nano
     wget
 
-    # Network
-    networkmanagerapplet
-
     # Browser
     brave
 
+    # Image compatibility
+    libwebp
+    libavif
+
     # File manager & archive
-    thunar
     file-roller
     unzip
     p7zip
     unrar
 
     # Terminal ecosystem
-    alacritty
     fastfetch
     btop
     zoxide
@@ -109,31 +108,6 @@
     fzf
     ripgrep
     fd
-
-    # Media & thumbnails
-    pavucontrol
-    mpv
-    qimgv
-    ffmpegthumbnailer
-    tumbler
-
-    # Clipboard
-    wl-clipboard
-
-    # Fonts
-    nerd-fonts.jetbrains-mono
-    noto-fonts
-    noto-fonts-cjk
-    noto-fonts-emoji
-
-    # Misc GUI apps
-    mousepad
-    gnome-calculator
-
-    # NAS / filesystem
-    nfs-utils
-    gvfs
-    gvfs-nfs
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
