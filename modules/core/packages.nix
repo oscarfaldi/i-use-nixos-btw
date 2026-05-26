@@ -7,6 +7,7 @@
     git
     nano
     wget
+    zsh
     alacritty
     neovim
     vimPlugins.LazyVim
