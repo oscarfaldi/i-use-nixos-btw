@@ -8,6 +8,11 @@
     nano
     wget
 
+    # NFS compatibility
+    nfs-utils
+    gvfs-nfs
+    gvfs
+
     # Audio center
     pavucontrol
 
