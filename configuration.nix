@@ -6,9 +6,21 @@
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
+      # Hardware configuration
       ./hardware-configuration.nix
-      ./modules/core/networking.nix
+
+      # Core modules
+      ./modules/core/packages.nix
+      ./modules/core/hosts.nix
+      ./modules/core/nic.nix
+      ./modules/core/mounts.nix
+      ./modules/core/font.nix
+
+      # Desktop modules
+      ./modules/desktop/niri.nix
+      ./modules/desktop/nvidia.nix
+      ./modules/desktop/greeter.nix
     ];
 
   # Bootloader.
