@@ -22,8 +22,9 @@
     # PDF reader
     kdePackages.okular
 
-    # Notes & sync
+    # Words, notes & sync
     mousepad
+    onlyoffice-desktopeditors
     obsidian
     syncthing
 
