@@ -43,6 +43,21 @@
   # Set your time zone.
   time.timeZone = "Asia/Jakarta";
 
+  # Power management daemon
+  services.upower.enable = true;
+
+  # Virtual filesystem support for network drives, USB, trash, and sidebar integration
+  services.gvfs.enable = true;
+
+  # Enable USB automount and removable media support
+  services.udisks2.enable = true;
+
+  # Thumbnail generation service for images, videos, and documents in Thunar
+  services.tumbler.enable = true;
+
+  # Enable dconf for GTK applications and settings persistence
+  programs.dconf.enable = true;
+
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
 
