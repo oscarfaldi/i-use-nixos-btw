@@ -1,9 +1,6 @@
 { config, pkgs, ... }:
 
 {
-  # NetworkManager for internet / normal LAN
-  networking.networkmanager.enable = true;
-
   # Local domains for NAS reverse proxy services
   networking.hosts = {
     "10.10.10.10" = [
