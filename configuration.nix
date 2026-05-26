@@ -80,41 +80,7 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    
-    # Editors & terminal utils
-    git
-    nano
-    wget
-
-    # Browser
-    brave
-
-    # PDF editor and reader
-    okular
-
-    # Markdown text editor
-    obsidian
-    syncthing
-
-    # Image compatibility
-    libwebp
-    libavif
-
-    # File manager & archive
-    file-roller
-    unzip
-    p7zip
-    unrar
-
-    # Terminal ecosystem
-    fastfetch
-    btop
-    zoxide
-    eza
-    bat
-    fzf
-    ripgrep
-    fd
+    ...
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
