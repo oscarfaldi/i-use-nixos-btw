@@ -1,6 +1,8 @@
 { config, pkgs, ... }:
 
+{
   # Intel X540-T2 10G direct NAS connection
+
   networking.interfaces.enp4s0f0.ipv4.addresses = [
     {
       address = "10.10.20.11";
