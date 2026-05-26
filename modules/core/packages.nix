@@ -7,6 +7,9 @@
     git
     nano
     wget
+    alacritty
+    neovim
+    vimPlugins.LazyVim
 
     # NFS compatibility
     nfs-utils
