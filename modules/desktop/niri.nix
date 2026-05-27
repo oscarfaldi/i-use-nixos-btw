@@ -14,6 +14,7 @@
     xfce.thunar
     xfce.thunar-archive-plugin
     xfce.thunar-volman
+    xfce.xfconf
 
     # Bar & launcher
     waybar
@@ -33,9 +34,6 @@
 
     # Media controls
     playerctl
-
-    # Polkit authentication agent
-    mate.mate-polkit
 
     # Qt Wayland support
     qt5.qtwayland
