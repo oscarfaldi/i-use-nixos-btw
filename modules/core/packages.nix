@@ -6,6 +6,9 @@
     # Power button    
     wlogout
 
+    # Network manager
+    networkmanagerapplet
+
     # Editors & terminal utils
     git
     nano
