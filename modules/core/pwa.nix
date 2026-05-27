@@ -1,16 +1,15 @@
 { pkgs, lib, ... }:
 
 let
-  mkPWA = name: url:
+  mkPWA = { name, url, icon }:
     pkgs.makeDesktopItem {
       name = lib.strings.toLower name;
 
       desktopName = name;
 
-      # Open website as dedicated app window
       exec = "chromium --app=${url}";
 
-      icon = "chromium";
+      icon = icon;
 
       categories = [ "Network" ];
     };
@@ -20,9 +19,22 @@ in
   environment.systemPackages = with pkgs; [
     chromium
 
-    # Dedicated web apps
-    (mkPWA "ChatGPT" "https://chatgpt.com")
-    (mkPWA "WhatsApp" "https://web.whatsapp.com")
-    (mkPWA "Gmail" "https://mail.google.com")
+    (mkPWA {
+      name = "ChatGPT";
+      url = "https://chatgpt.com";
+      icon = "/etc/nixos/assets/icons/chatgpt.png";
+    })
+
+    (mkPWA {
+      name = "WhatsApp";
+      url = "https://web.whatsapp.com";
+      icon = "/etc/nixos/assets/icons/whatsapp.png";
+    })
+
+    (mkPWA {
+      name = "Gmail";
+      url = "https://mail.google.com";
+      icon = "/etc/nixos/assets/icons/gmail.png";
+    })
   ];
 }
