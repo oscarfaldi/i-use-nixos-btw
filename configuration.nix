@@ -22,6 +22,7 @@
       ./modules/desktop/polkit.nix
       ./modules/desktop/nvidia.nix
       ./modules/desktop/greeter.nix
+      ./modules/desktop/screenshot.nix
     ];
 
   # Enable flakes and error experimental with new Nix CLI
