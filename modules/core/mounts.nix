@@ -44,7 +44,7 @@
   };
 
   fileSystems."/mnt/nas/mulino" = {
-    device = "10.10.20.10:/mnt/user/mullino";
+    device = "10.10.20.10:/mnt/user/mulino";
     fsType = "nfs";
     options = [ "nfsvers=4" "x-systemd.automount" "noauto" ];
   };
