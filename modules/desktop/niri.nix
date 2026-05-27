@@ -15,7 +15,7 @@
     xfce.thunar-archive-plugin
     xfce.thunar-volman
     xfce.xfconf
-    colloid-icon-theme
+    xfce.xfce4-icon-theme
     librsvg
 
     # Bar & launcher
