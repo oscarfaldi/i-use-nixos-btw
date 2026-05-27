@@ -20,7 +20,7 @@
       # Desktop modules
       ./modules/desktop/niri.nix
       ./modules/desktop/nvidia.nix
-      ./modules/desktop/greeter.nix
+      # ./modules/desktop/greeter.nix
     ];
 
   # Enable flakes and error experimental with new Nix CLI
@@ -56,7 +56,13 @@
   services.tumbler.enable = true;
 
   # Enable dconf for GTK applications and settings persistence
-  programs.dconf.enable = true;
+  programs.dconf.enable = true
+
+  environment.loginShellInit = ''
+  if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    exec dbus-run-session niri
+  fi
+'';
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
