@@ -19,6 +19,7 @@
 
       # Desktop modules
       ./modules/desktop/niri.nix
+      ./modules/desktop/polkit.nix
       ./modules/desktop/nvidia.nix
       ./modules/desktop/greeter.nix
     ];
