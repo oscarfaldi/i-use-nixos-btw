@@ -25,9 +25,6 @@
     # Audio center
     pavucontrol
 
-    # Browser
-    firefox
-
     # PDF reader
     kdePackages.okular
 
