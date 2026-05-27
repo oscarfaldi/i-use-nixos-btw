@@ -17,7 +17,6 @@
     grim -g "$(slurp)" "$FILE"
     EOF
 
-  # Automatically make Niri scripts executable after rebuild.
     chmod +x /home/oscarfaldi/.config/niri/scripts/screenshot.sh
   '';
 }
