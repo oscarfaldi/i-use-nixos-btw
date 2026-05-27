@@ -8,7 +8,7 @@
   };
 
   fileSystems."/mnt/nas/appdata" = {
-    device = "10.10.20.10:/mnt/user/appdata";
+    device = "10.10.20.10:/mnt/cache/appdata";
     fsType = "nfs";
     options = [ "nfsvers=4" "x-systemd.automount" "noauto" ];
   };
