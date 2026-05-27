@@ -46,6 +46,7 @@
     unzip
     p7zip
     unrar
+    xdg-user-dirs
 
     # Terminal ecosystem
     fastfetch
