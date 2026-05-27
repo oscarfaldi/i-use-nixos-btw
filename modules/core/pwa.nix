@@ -1,12 +1,13 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 let
   mkPWA = name: url:
     pkgs.makeDesktopItem {
-      name = builtins.toLower name;
+      name = lib.strings.toLower name;
+
       desktopName = name;
 
-      # Open as dedicated app window
+      # Open website as dedicated app window
       exec = "chromium --app=${url}";
 
       icon = "chromium";
