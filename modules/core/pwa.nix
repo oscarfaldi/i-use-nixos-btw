@@ -1,25 +1,27 @@
 { pkgs, ... }:
 
 let
-  setupPWAs = pkgs.writeShellScriptBin "setup-pwas" ''
-    # Install Firefox PWA runtime
-    firefoxpwa runtime install
+  mkPWA = name: url:
+    pkgs.makeDesktopItem {
+      name = builtins.toLower name;
+      desktopName = name;
 
-    # Create PWAs
-    firefoxpwa site install https://chatgpt.com \
-      --name "ChatGPT"
+      # Open as dedicated app window
+      exec = "chromium --app=${url}";
 
-    firefoxpwa site install https://web.whatsapp.com \
-      --name "WhatsApp"
+      icon = "chromium";
 
-    firefoxpwa site install https://gmail.com \
-      --name "Gmail"
-  '';
+      categories = [ "Network" ];
+    };
+
 in
 {
   environment.systemPackages = with pkgs; [
-    firefox
-    firefoxpwa
-    setupPWAs
+    chromium
+
+    # Dedicated web apps
+    (mkPWA "ChatGPT" "https://chatgpt.com")
+    (mkPWA "WhatsApp" "https://web.whatsapp.com")
+    (mkPWA "Gmail" "https://mail.google.com")
   ];
 }
