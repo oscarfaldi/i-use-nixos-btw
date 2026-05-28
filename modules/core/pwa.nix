@@ -22,19 +22,19 @@ in
     (mkPWA {
       name = "ChatGPT";
       url = "https://chatgpt.com";
-      icon = "/etc/nixos/assets/icons/chatgpt.png";
+      icon = "/etc/nixos/assets/icons/chatgpt.svg";
     })
 
     (mkPWA {
       name = "WhatsApp";
       url = "https://web.whatsapp.com";
-      icon = "/etc/nixos/assets/icons/whatsapp.png";
+      icon = "/etc/nixos/assets/icons/whatsapp.svg";
     })
 
     (mkPWA {
       name = "Gmail";
       url = "https://mail.google.com";
-      icon = "/etc/nixos/assets/icons/gmail.png";
+      icon = "/etc/nixos/assets/icons/gmail.svg";
     })
   ];
 }
