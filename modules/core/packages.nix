@@ -6,6 +6,9 @@
     # Power button    
     wlogout
 
+    # Keyboard mapping
+    keyd
+
     # Network manager
     networkmanagerapplet
 
