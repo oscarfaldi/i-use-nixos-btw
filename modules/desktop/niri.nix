@@ -3,6 +3,14 @@
 {
   programs.niri.enable = true;
 
+  # Bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
+
+  services.blueman.enable = true;
+
   environment.systemPackages = with pkgs; [
 
     # Niri ecosystem
@@ -37,6 +45,13 @@
 
     # Media controls
     playerctl
+
+    # Brightness
+    brightnessctl
+
+    # Bluetooth
+    bluez
+    blueman
 
     # Qt Wayland support
     qt5.qtwayland
