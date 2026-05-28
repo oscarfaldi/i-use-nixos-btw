@@ -25,6 +25,7 @@
     xfce.xfconf
     xfce.xfce4-icon-theme
     librsvg
+    yazi
 
     # Bar & launcher
     waybar
@@ -39,8 +40,7 @@
     swayidle
 
     # Screenshots
-    grim
-    slurp
+    grimshot
 
     # Media controls
     playerctl
