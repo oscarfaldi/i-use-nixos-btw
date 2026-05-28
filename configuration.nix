@@ -42,6 +42,17 @@
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
+  # Tmp filesystem stored in RAM for faster app cache, thumbnails, and browser. Uses RAM dynamically up to 8GB maximum.
+  fileSystems."/tmp" = {
+    device = "tmpfs";
+    fsType = "tmpfs";
+
+    options = [
+      "size=8G"
+      "mode=1777"
+    ];
+  };
+
   # Set your time zone.
   time.timeZone = "Asia/Jakarta";
 
