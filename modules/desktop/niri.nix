@@ -25,7 +25,6 @@
     xfce.xfconf
     xfce.xfce4-icon-theme
     librsvg
-    yazi
 
     # Bar & launcher
     waybar
