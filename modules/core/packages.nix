@@ -58,6 +58,10 @@
     ripgrep
     fd
 
+    # Other tools
+    gparted
+    parabolic
+
     # Media
     mpv
 
