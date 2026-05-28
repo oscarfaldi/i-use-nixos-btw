@@ -10,10 +10,10 @@
     }
   ];
 
-  # networking.interfaces.enp4s0f1.ipv4.addresses = [
-  #  {
-  #    address = "10.10.20.21";
-  #    prefixLength = 24;
-  #  }
-  #];
+  networking.interfaces.enp4s0f1.ipv4.addresses = [
+    {
+      address = "10.10.21.11";
+      prefixLength = 24;
+    }
+  ];
 }
