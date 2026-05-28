@@ -19,7 +19,7 @@
     vimPlugins.LazyVim
 
     # NFS compatibility
-    nfs-utils
+    cifs-utils
     gvfs
 
     # Audio center
