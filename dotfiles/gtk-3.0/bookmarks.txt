@@ -1,0 +1,14 @@
+file:///mnt/nas/oscarfaldi
+file:///mnt/nas/personalbranding
+file:///mnt/nas/academy
+file:///mnt/nas/appdata
+file:///mnt/nas/archive
+file:///mnt/nas/download
+file:///mnt/nas/family
+file:///mnt/nas/games
+file:///mnt/nas/media
+file:///mnt/nas/mulino
+file:///mnt/nas/nutrivibes
+file:///mnt/nas/snapshot
+file:///mnt/nas/toolkit
+file:///mnt/nas/valhalla
