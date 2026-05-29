@@ -20,5 +20,6 @@
     ./niri.nix
     ./alacritty.nix
     ./gtk.nix
+    ./screenshot.nix
   ];
 }
