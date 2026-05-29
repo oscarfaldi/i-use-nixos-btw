@@ -1,0 +1,7 @@
+// ────────────── Startup Applications ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#spawn-sh-at-startup
+
+	spawn-at-startup "waybar"
+	spawn-at-startup "mako"
+	spawn-at-startup "mate-polkit"
+	spawn-at-startup "swayidle"
