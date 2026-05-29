@@ -30,15 +30,6 @@
             volumedown     = "f11";
             volumeup       = "f12";
             
-            fn = "layer(fn_layer)";
-          };
-
-          fn_layer = {
-            config         = "f1";
-            f11            = "f2";
-            f12            = "f3";
-            f10            = "f4";
-            stopcd         = "f5";
         };
       };
     };
