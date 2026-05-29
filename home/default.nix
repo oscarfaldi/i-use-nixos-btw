@@ -24,6 +24,6 @@
   #   ~/.config/niri
   #
   # Home Manager creates a symlink automatically.
-  home.file.".config/niri".source =
+  # home.file.".config/niri".source =
     ../dotfiles/niri;
 }
