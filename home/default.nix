@@ -15,15 +15,10 @@
   # Enable Home Manager itself
   programs.home-manager.enable = true;
 
-  # Deploy ~/.config/niri from repository source
-  #
-  # Source:
-  #   .system/dotfiles/niri
-  #
-  # Target:
-  #   ~/.config/niri
-  #
-  # Home Manager creates a symlink automatically.
-  # home.file.".config/niri".source =
-    ../dotfiles/niri;
+  # Config modules for each packages
+  imports = [
+    ./niri.nix
+    ./alacritty.nix
+    ./gtk.nix
+  ];
 }
