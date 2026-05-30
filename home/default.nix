@@ -24,5 +24,6 @@
     ./fastfetch.nix
     ./thunar.nix
     ./waybar.nix
+    ./btop.nix
   ];
 }
