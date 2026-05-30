@@ -21,6 +21,9 @@
     neovim
     vimPlugins.LazyVim
 
+    # Calculator
+    gnome-calculator
+
     # NFS compatibility
     gvfs
 
