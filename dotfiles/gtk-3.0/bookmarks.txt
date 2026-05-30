@@ -1,14 +1,20 @@
-file:///mnt/nas/oscarfaldi
-file:///mnt/nas/personalbranding
-file:///mnt/nas/academy
-file:///mnt/nas/appdata
-file:///mnt/nas/archive
-file:///mnt/nas/download
-file:///mnt/nas/family
-file:///mnt/nas/games
-file:///mnt/nas/media
-file:///mnt/nas/mulino
-file:///mnt/nas/nutrivibes
-file:///mnt/nas/snapshot
-file:///mnt/nas/toolkit
-file:///mnt/nas/valhalla
+smb://10.10.20.10/oscarfaldi OscarFaldi
+smb://10.10.20.10/personalbranding Personal Branding
+smb://10.10.20.10/academy Academy
+smb://10.10.20.10/appdata AppData
+smb://10.10.20.10/archive Archive
+smb://10.10.20.10/download Download
+smb://10.10.20.10/family Family
+smb://10.10.20.10/games Games
+smb://10.10.20.10/media Media
+smb://10.10.20.10/mulino Mulino
+smb://10.10.20.10/nutrivibes NutriVibes
+smb://10.10.20.10/snapshot Snapshot
+smb://10.10.20.10/toolkit Toolkit
+smb://10.10.20.10/valhalla Valhalla
+-----
+file:///home/oscarfaldi/Downloads Downloads
+file:///home/oscarfaldi/Pictures Pictures
+file:///home/oscarfaldi/Documents Documents
+file:///home/oscarfaldi/Videos Videos
+file:///home/oscarfaldi/Music Music
