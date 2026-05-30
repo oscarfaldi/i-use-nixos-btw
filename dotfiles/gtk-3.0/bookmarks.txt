@@ -1,4 +1,4 @@
-smb://10.10.20.10/oscarfaldi OscarFaldi
+smb://10.10.20.10/oscarfaldi Oscar Faldi
 smb://10.10.20.10/personalbranding Personal Branding
 smb://10.10.20.10/academy Academy
 smb://10.10.20.10/appdata AppData
@@ -8,7 +8,7 @@ smb://10.10.20.10/family Family
 smb://10.10.20.10/games Games
 smb://10.10.20.10/media Media
 smb://10.10.20.10/mulino Mulino
-smb://10.10.20.10/nutrivibes NutriVibes
+smb://10.10.20.10/nutrivibes Nutrivibes
 smb://10.10.20.10/snapshot Snapshot
 smb://10.10.20.10/toolkit Toolkit
 smb://10.10.20.10/valhalla Valhalla
