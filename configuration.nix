@@ -17,6 +17,7 @@
       ./modules/core/keyboard.nix
       ./modules/core/font.nix
       ./modules/core/pwa.nix
+      ./modules/core/games.nix
 
       # Desktop modules
       ./modules/desktop/niri.nix
