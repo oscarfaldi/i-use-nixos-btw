@@ -11,7 +11,6 @@
 
         settings = {
           main = {
-
             # Force proper Function Keys
             brightnessdown = "f1";
             brightnessup   = "f2";
@@ -29,7 +28,7 @@
             mute           = "f10";
             volumedown     = "f11";
             volumeup       = "f12";
-            
+          };
         };
       };
     };
