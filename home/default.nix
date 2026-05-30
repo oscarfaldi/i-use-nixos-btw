@@ -21,5 +21,6 @@
     ./alacritty.nix
     ./gtk.nix
     ./screenshot.nix
+    ./fastfetch.nix
   ];
 }
