@@ -29,25 +29,25 @@ in
     (mkPWA {
       name = "ChatGPT";
       url = "https://chatgpt.com";
-      icon = "/etc/nixos/assets/icons/chatgpt.svg";
+      icon = "/home/oscarfaldi/.system/assets/icons/chatgpt.svg";
     })
 
     (mkPWA {
       name = "Canva";
       url = "https://canva.com";
-      icon = "/etc/nixos/assets/icons/canva.svg";
+      icon = "/home/oscarfaldi/.system/assets/icons/canva.svg";
     })
 
     (mkPWA {
       name = "WhatsApp";
       url = "https://web.whatsapp.com";
-      icon = "/etc/nixos/assets/icons/whatsapp.svg";
+      icon = "/home/oscarfaldi/.system/assets/icons/whatsapp.svg";
     })
 
     (mkPWA {
       name = "Gmail";
       url = "https://mail.google.com";
-      icon = "/etc/nixos/assets/icons/gmail.svg";
+      icon = "/home/oscarfaldi/.system/assets/icons/gmail.svg";
     })
   ];
 }
