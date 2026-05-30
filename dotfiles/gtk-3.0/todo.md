@@ -1,0 +1,5 @@
+- [ ] Install Graphite GTK
+- [ ] Install Papirus Icons
+- [ ] Verify GTK theme loads
+- [ ] Verify Thunar follows theme
+- [ ] Create first gtk.css override
