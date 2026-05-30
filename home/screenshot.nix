@@ -1,6 +1,9 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
-  home.file.".local/bin/screenshot.sh".source =
-    ../scripts/screenshot.sh;
+  home.packages = [
+    (pkgs.writeShellScriptBin "screenshot" (
+      builtins.readFile ../scripts/screenshot.sh
+    ))
+  ];
 }
