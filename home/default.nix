@@ -23,5 +23,6 @@
     ./screenshot.nix
     ./fastfetch.nix
     ./thunar.nix
+    ./waybar.nix
   ];
 }
