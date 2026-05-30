@@ -22,5 +22,6 @@
     ./gtk.nix
     ./screenshot.nix
     ./fastfetch.nix
+    ./thunar.nix
   ];
 }
