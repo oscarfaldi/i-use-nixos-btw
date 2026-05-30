@@ -1,0 +1,8 @@
+{
+  "name": "dark",
+  "background": "#111111",
+  "surface": "#1a1a1a",
+  "primary": "#444444",
+  "accent": "#888888",
+  "text": "#d9d9d9"
+}
