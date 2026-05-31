@@ -50,10 +50,3 @@
       };
     };
   };
-
-  environment.systemPackages = with pkgs; [
-    papirus-icon-theme
-    bibata-cursors
-    graphite-gtk-theme
-  ];
-}
