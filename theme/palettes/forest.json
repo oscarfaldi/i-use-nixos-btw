@@ -11,4 +11,6 @@
   "icon_theme": "Papirus-Dark",
   "cursor_theme": "Bibata-Modern-Ice",
   "font": "Inter 10"
+
+  "radius": "10px"
 }
