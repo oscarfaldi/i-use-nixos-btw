@@ -20,6 +20,7 @@
 
     # File manager
     nautilus
+    pkgs.dconf
     yazi
 
     # Bar & launcher
