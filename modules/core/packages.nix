@@ -62,6 +62,7 @@
     zed
     fastfetch
     btop
+    starship
     zoxide
     eza
     bat
