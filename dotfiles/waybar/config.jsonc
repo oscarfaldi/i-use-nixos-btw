@@ -22,7 +22,7 @@
     ],
 
     "custom/logo": {
-      "format": " Oscar Faldi",
+      "format": "    Oscar Faldi",
       "tooltip": false
     },
 
@@ -37,21 +37,21 @@
 
     "cpu": {
       "interval": 2,
-      "format": " {usage}%"
+      "format": "   {usage}%"
     },
 
     "memory": {
-      "interval": 10,
-      "format": "󰍛 {used:0.1f}G"
+      "interval": 2,
+      "format": "󰍛  {used:0.1f}G"
     },
 
     "pulseaudio": {
-      "format": "{icon} {volume}%",
+      "format": "{icon}    {volume}%",
       "format-muted": "󰝟",
       "format-icons": {
         "default": ["", "", ""]
       },
-      "on-click": "pavucontrol"
+      "on-click": "pwvucontrol"
     },
 
     "network": {
