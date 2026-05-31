@@ -15,16 +15,11 @@
 
     # Niri ecosystem
     xwayland-satellite
-    xdg-desktop-portal-gtk
+    xdg-desktop-portal-gnome
     xdg-utils
 
     # File manager
-    xfce.thunar
-    xfce.thunar-archive-plugin
-    xfce.thunar-volman
-    xfce.xfconf
-    xfce.xfce4-icon-theme
-    librsvg
+    nautilus
     yazi
 
     # Bar & launcher
@@ -32,7 +27,7 @@
     fuzzel
 
     # Clipboard
-    wl-clipboard
+    cliphist
 
     # Notifications
     mako
