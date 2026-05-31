@@ -13,16 +13,16 @@
       # Core modules
       ./modules/core/packages.nix
       ./modules/core/hosts.nix
-      # ./modules/core/nic.nix
-      # ./modules/core/keyboard.nix
+      ./modules/core/nic.nix
+      ./modules/core/keyboard.nix
       ./modules/core/font.nix
-      # ./modules/core/pwa.nix
-      # ./modules/core/games.nix
+      ./modules/core/pwa.nix
+      ./modules/core/games.nix
 
       # Desktop modules
       ./modules/desktop/niri.nix
       ./modules/desktop/polkit.nix
-      # ./modules/desktop/nvidia.nix
+      ./modules/desktop/nvidia.nix
       ./modules/desktop/greeter.nix
     ];
 
