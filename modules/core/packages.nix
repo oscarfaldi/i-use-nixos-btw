@@ -21,7 +21,7 @@
     zsh-autosuggestions
     alacritty
     neovim
-    vimPlugins.LazyVim
+    vimPlugins.LazyVim`
 
     # Calculator
     gnome-calculator
@@ -39,7 +39,7 @@
     kdePackages.okular
 
     # Words, notes & sync
-    xfce.mousepad
+    gnome-text-editor
     onlyoffice-desktopeditors
     obsidian
     syncthing
@@ -47,7 +47,6 @@
     # Image compatibility
     ffmpeg
     ffmpegthumbnailer
-    xfce.tumbler
     libwebp
     libavif
     librsvg
