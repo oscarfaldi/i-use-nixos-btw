@@ -66,23 +66,11 @@
   # Enable USB automount and removable media support
   services.udisks2.enable = true;
 
-  # Thumbnail generation service for images, videos, and documents in Thunar
-  services.tumbler.enable = true;
-
-  # Enable dconf for GTK applications and settings persistence
+  # Enable dconf for GTK applications or gnome and settings persistence
   programs.dconf.enable = true;
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
-
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-
-  # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
