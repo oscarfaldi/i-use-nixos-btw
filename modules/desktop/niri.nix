@@ -28,15 +28,13 @@
 
     # Niri ecosystem
     xwayland-satellite
-    xdg-desktop-portal-gnome
-    xdg-utils
 
     # File manager
     xfce.thunar
     xfce.thunar-archive-plugin
     xfce.thunar-volman
     xfce.xfconf
-    xfce.xfce4-icon-theme
+    papirus-icon-theme
     yazi
 
     # Bar & launcher
@@ -63,10 +61,6 @@
 
     # Brightness
     brightnessctl
-
-    # Bluetooth
-    bluez
-    blueman
 
     # Qt Wayland support
     qt5.qtwayland
