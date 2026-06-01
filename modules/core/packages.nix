@@ -39,9 +39,6 @@
     # Calculator
     gnome-calculator
 
-    # NFS compatibility
-    gvfs
-
     # Store credentials & password
     gnome-keyring
 
@@ -55,7 +52,6 @@
     xfce.mousepad
     onlyoffice-desktopeditors
     obsidian
-    syncthing
 
     # Image compatibility
     ffmpeg
