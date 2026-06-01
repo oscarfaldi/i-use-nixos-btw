@@ -19,8 +19,11 @@
     xdg-utils
 
     # File manager
-    nautilus
-    dconf
+    xfce.thunar
+    xfce.thunar-archive-plugin
+    xfce.thunar-volman
+    xfce.xfconf
+    xfce.xfce4-icon-theme
     yazi
 
     # Bar & launcher
