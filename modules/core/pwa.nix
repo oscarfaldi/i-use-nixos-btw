@@ -9,8 +9,8 @@ let
       # Displayed app name
       desktopName = name;
 
-      # Force native Wayland Microsoft Edge PWA mode
-      exec = "microsoft-edge --app=${url}";
+      # Force native Wayland Brave PWA mode
+      exec = "brave --app=${url}";
 
       icon = icon;
 
@@ -19,12 +19,12 @@ let
 
 in
 {
-  # Native Wayland support for Microsoft Edge and Electron apps
+  # Native Wayland support for Brave and Electron apps
   environment.sessionVariables = { NIXOS_OZONE_WL = "1"; 
   };
 
   environment.systemPackages = with pkgs; [
-    microsoft-edge
+    brave
 
     (mkPWA {
       name = "ChatGPT";
