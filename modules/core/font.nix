@@ -8,6 +8,9 @@
       nerd-fonts.iosevka
       nerd-fonts.blex-mono
 
+      # Jetbrains Fonts
+      jetbrains-mono
+
       # IBM Plex
       ibm-plex
 
@@ -19,7 +22,7 @@
       noto-fonts-color-emoji
 
       # Optional old-school terminal feel
-      terminus_font
+      inter
     ];
 
     fontconfig = {
@@ -29,9 +32,10 @@
 
         monospace = [
           "IosevkaTermSlab Nerd Font"
+          "JetBrains Mono"
           "BlexMono Nerd Font"
           "IBM Plex Mono"
-          "Terminus"
+          "Inter"
         ];
 
         sansSerif = [
