@@ -1,24 +1,15 @@
 { config, pkgs, ... }:
-
 {
   networking.networkmanager = {
     enable = true;
 
-    # Prevent NetworkManager from automatically creating default "Wired Connection X" profiles.
-    # This forces NM to ignore automatic setups on these specific physical interfaces.
-    unmanaged = [
-      "enp7s0"
-      "enp4s0f0"
-      "enp4s0f1"
-    ];
-
-    # Explicitly define and enforce only these three network profiles
     ensureProfiles.profiles = {
       "Internet & NAS" = {
         connection = {
           id = "Internet & NAS";
           type = "ethernet";
           interface-name = "enp7s0";
+          autoconnect = "true";
         };
         ipv4.method = "auto";
         ipv6.method = "auto";
@@ -29,6 +20,7 @@
           id = "Intel X540-T2 10G Port 1";
           type = "ethernet";
           interface-name = "enp4s0f0";
+          autoconnect = "true";
         };
         ipv4 = {
           method = "manual";
@@ -42,6 +34,7 @@
           id = "Intel X540-T2 10G Port 2";
           type = "ethernet";
           interface-name = "enp4s0f1";
+          autoconnect = "true";
         };
         ipv4 = {
           method = "manual";
