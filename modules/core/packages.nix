@@ -1,5 +1,19 @@
 { config, pkgs, ... }:
 
+  # Enable gnome keyring for passwords and credentials
+  services.gnome.gnome-keyring.enable = true;
+
+  # Syncthing file synchronization service
+  services.syncthing = {
+    enable = true;
+
+    user = "oscarfaldi";
+    dataDir = "/home/oscarfaldi";
+    configDir = "/home/oscarfaldi/.config/syncthing";
+
+    openDefaultPorts = true;
+  };
+
 {
   environment.systemPackages = with pkgs; [
 
@@ -32,7 +46,7 @@
     gnome-keyring
 
     # Audio center
-    pwvucontrol
+    pavucontrol
 
     # PDF reader
     kdePackages.okular
