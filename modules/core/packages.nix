@@ -20,9 +20,6 @@
     # Power button    
     wlogout
 
-    # Network manager
-    networkmanager
-
     # Editors & terminal utils
     git
     nano
