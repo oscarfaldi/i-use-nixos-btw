@@ -11,7 +11,6 @@
 
     # Network manager
     networkmanager
-    networkmanagerapplet
 
     # Editors & terminal utils
     git
