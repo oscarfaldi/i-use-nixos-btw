@@ -19,7 +19,7 @@
     wget
     zsh
     zsh-autosuggestions
-    alacritty
+    pkgs.ghostty
     neovim
     vimPlugins.LazyVim`
 
@@ -39,7 +39,7 @@
     kdePackages.okular
 
     # Words, notes & sync
-    gnome-text-editor
+    xfce.mousepad
     onlyoffice-desktopeditors
     obsidian
     syncthing
@@ -47,6 +47,7 @@
     # Image compatibility
     ffmpeg
     ffmpegthumbnailer
+    xfce.tumbler
     libwebp
     libavif
     librsvg
