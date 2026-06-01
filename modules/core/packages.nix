@@ -20,9 +20,6 @@
     # Power button    
     wlogout
 
-    # Keyboard mapping
-    keyd
-
     # Network manager
     networkmanager
 
