@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 let
-autoLogin = true;
+autoLogin = false;
 username = "oscarfaldi";
 in
 {
