@@ -9,7 +9,11 @@
     powerOnBoot = true;
   };
 
+  # Bluetooth GUI
   services.blueman.enable = true;
+
+  # Enable thumbnail on file manager
+  services.tumbler.enable = true;
 
   # Virtual filesystem support for network drives, USB, trash, and sidebar integration
   services.gvfs.enable = true;
