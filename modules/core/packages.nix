@@ -31,7 +31,7 @@
     zsh-autosuggestions
     pkgs.ghostty
     neovim
-    vimPlugins.LazyVim`
+    vimPlugins.LazyVim
 
     # Calculator
     gnome-calculator
