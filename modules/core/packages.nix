@@ -3,9 +3,6 @@
   # Enable gnome keyring for passwords and credentials
   services.gnome.gnome-keyring.enable = true;
 
-  # Make dir Documents, Downloads and etc.
-  xdg.userDirs.enable = true;
-
   # Syncthing file synchronization service
   services.syncthing = {
     enable = true;
@@ -59,6 +56,7 @@
     libgsf
 
     # File manager & archive
+    xdg-user-dirs
     file-roller
     unzip
     p7zip
