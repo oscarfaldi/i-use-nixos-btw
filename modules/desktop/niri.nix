@@ -11,6 +11,15 @@
 
   services.blueman.enable = true;
 
+  # Virtual filesystem support for network drives, USB, trash, and sidebar integration
+  services.gvfs.enable = true;
+
+  # Enable USB automount and removable media support
+  services.udisks2.enable = true;
+
+  # Enable dconf for GTK applications or gnome and settings persistence
+  programs.dconf.enable = true;
+
   environment.systemPackages = with pkgs; [
 
     # Niri ecosystem
