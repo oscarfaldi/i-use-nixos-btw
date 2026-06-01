@@ -34,8 +34,14 @@
     xfce.thunar-archive-plugin
     xfce.thunar-volman
     xfce.xfconf
-    papirus-icon-theme
     yazi
+
+    # Themes & icon
+    glib
+    graphite-gtk-theme
+    papirus-icon-theme
+    bibata-cursors
+    
 
     # Bar & launcher
     waybar
