@@ -3,33 +3,24 @@
 {
   fonts = {
     packages = with pkgs; [
-
-      # Nerd Fonts
+      # Nerd Fonts (Menggunakan struktur atribut Nixpkgs modern)
       nerd-fonts.iosevka
-      nerd-fonts.blex-mono
+      nerd-fonts.ibm-plex-mono
 
-      # Jetbrains Fonts
+      # Standard Fonts
       jetbrains-mono
-
-      # IBM Plex
       ibm-plex
+      inter
 
-      # Unicode / International
+      # Unicode / International & Emoji
       noto-fonts
       noto-fonts-cjk-sans
-
-      # Emoji
-      noto-fonts-color-emoji
-
-      # Optional old-school terminal feel
-      inter
+      noto-fonts-emoji
     ];
 
     fontconfig = {
       enable = true;
-
       defaultFonts = {
-
         monospace = [
           "IosevkaTermSlab Nerd Font"
           "JetBrains Mono"
@@ -54,3 +45,4 @@
       };
     };
   };
+}
