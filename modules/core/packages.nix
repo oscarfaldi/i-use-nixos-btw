@@ -1,22 +1,20 @@
 { config, pkgs, ... }:
 
+{
   # Enable gnome keyring for passwords and credentials
   services.gnome.gnome-keyring.enable = true;
 
   # Syncthing file synchronization service
   services.syncthing = {
     enable = true;
-
     user = "oscarfaldi";
     dataDir = "/home/oscarfaldi";
     configDir = "/home/oscarfaldi/.config/syncthing";
-
     openDefaultPorts = true;
   };
 
-{
   environment.systemPackages = with pkgs; [
-
+    
     # Power button    
     wlogout
 
@@ -26,7 +24,7 @@
     wget
     zsh
     zsh-autosuggestions
-    pkgs.ghostty
+    ghostty
     neovim
     vimPlugins.LazyVim
 
