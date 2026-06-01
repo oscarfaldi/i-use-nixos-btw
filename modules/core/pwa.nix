@@ -45,6 +45,12 @@ in
     })
 
     (mkPWA {
+      name = "Claude";
+      url = "https://claude.ai";
+      icon = "/home/oscarfaldi/.system/assets/icons/claude.svg";
+    })
+
+    (mkPWA {
       name = "WhatsApp";
       url = "https://web.whatsapp.com";
       icon = "/home/oscarfaldi/.system/assets/icons/whatsapp.svg";
