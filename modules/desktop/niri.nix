@@ -36,6 +36,9 @@
     xfce.xfconf
     yazi
 
+    # Wallpaper
+    awww
+
     # Themes & icon
     glib
     graphite-gtk-theme
