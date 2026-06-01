@@ -1,42 +1,26 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
-  # Enable PolicyKit system-wide.
-  # Required for privilege escalation dialogs
-  # such as mounting drives, editing system settings,
-  # managing networking, and other admin actions.
+  # polkit framework — required for privilege escalation dialogs
   security.polkit.enable = true;
 
-  # Install the MATE authentication agent.
-  # This provides graphical password prompts
-  # when applications request elevated privileges.
-  environment.systemPackages = [
-    pkgs.mate-polkit
-  ];
-
-  # Start the authentication agent automatically
-  # when the user session begins.
-  systemd.user.services.polkit-agent = {
-    description = "MATE PolicyKit Authentication Agent";
-
-    # Start with the graphical user session.
-    wantedBy = [ "default.target" ];
-    wants = [ "graphical-session.target" ];
-    after = [ "graphical-session.target" ];
-
+  # user-level systemd service — starts mate polkit agent with the graphical session
+  systemd.user.services.mate-polkit = {
+    description = "MATE Polkit Authentication Agent";
+    wantedBy = [ "graphical-session.target" ];  # start when graphical session is active
+    wants = [ "graphical-session.target" ];      # soft dependency on graphical session
+    after = [ "graphical-session.target" ];      # don't start before graphical session is up
     serviceConfig = {
-      # Keep the agent running continuously.
       Type = "simple";
-
-      # Launch the MATE PolicyKit agent.
-      ExecStart =
-        "${pkgs.mate-polkit}/libexec/polkit-mate-authentication-agent-1";
-
-      # Automatically restart if the agent crashes.
-      Restart = "on-failure";
-
-      # Wait briefly before restarting.
-      RestartSec = 1;
+      ExecStart = "${pkgs.mate.mate-polkit}/libexec/polkit-mate-authentication-agent-1";
+      Restart = "on-failure";   # revive if it crashes
+      RestartSec = 1;           # wait 1s before restart
+      TimeoutStopSec = 10;      # force kill after 10s if it hangs on stop
     };
   };
+
+  # make the binary available on the system
+  environment.systemPackages = with pkgs; [
+    mate.mate-polkit
+  ];
 }
