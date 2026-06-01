@@ -39,7 +39,9 @@
 
     # Bar & launcher
     waybar
-    walker
+    rofi
+    rofi-calc
+    rofi-power-menu
 
     # Clipboard
     cliphist
