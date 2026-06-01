@@ -79,6 +79,6 @@
     mpv
 
     # Image viewer
-    loupe
+    qimgv
   ];
 }
