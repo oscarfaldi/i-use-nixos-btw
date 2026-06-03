@@ -48,7 +48,6 @@
     # Media and doc compatibility
     ffmpeg
     ffmpegthumbnailer
-    xfce.tumbler
     libwebp
     libavif
     librsvg
