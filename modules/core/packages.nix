@@ -18,6 +18,9 @@
     # Power button    
     wlogout
 
+    # Default apps
+    xdg-utils
+
     # Editors & terminal utils
     git
     nano
