@@ -36,7 +36,7 @@
   # NetworkManager for internet / normal LAN
   networking.networkmanager.enable = true;
 
-  networking.hostName = "arizona"; # Define your hostname.
+  networking.hostName = "rainier"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
