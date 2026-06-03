@@ -1,4 +1,5 @@
 { config, pkgs, ... }:
+
 {
   # polkit framework — required for privilege escalation dialogs
   security.polkit.enable = true;
