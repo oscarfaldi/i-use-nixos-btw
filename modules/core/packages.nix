@@ -34,6 +34,9 @@
     # Audio center
     pavucontrol
 
+    # Network manager
+    networkmanagerapplet
+
     # PDF reader
     kdePackages.okular
 
@@ -64,7 +67,6 @@
     zed
     fastfetch
     btop
-    starship
     zoxide
     eza
     bat
@@ -80,6 +82,6 @@
     mpv
 
     # Image viewer
-    qimgv
+    loupe
   ];
 }
