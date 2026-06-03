@@ -24,6 +24,7 @@
       "shlink.local"
       "office.local"
       "now.local"
+      "monitor.local"
       "unmanic.local"
     ];
   };
