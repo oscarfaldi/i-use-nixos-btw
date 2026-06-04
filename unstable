@@ -17,21 +17,14 @@ sudo nix-channel --update
 echo
 echo "✓ Unstable channel enabled."
 echo
+echo "Next:"
+echo "sudo nixos-rebuild switch"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Next steps"
+echo " Rebuilding Rainier system..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
-echo "After reboot:"
-echo
-echo "  1. sudo nixos-rebuild switch"
-echo "  2. ./bootstrap"
-echo
-echo "Rainier will reboot in 10 seconds."
-echo "Press Ctrl+C to cancel."
-echo
 
-sleep 10
+sudo nixos-rebuild switch
 
-echo "Rebooting Rainier..."
-sudo reboot
+echo
+echo "✓ System rebuilt."
