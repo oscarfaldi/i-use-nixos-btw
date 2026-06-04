@@ -69,19 +69,13 @@
   # Enable low-latency audio scheduling
   security.rtkit.enable = true;
   
-  # Pipewire Linux audio stack
-  services.pipewire = {
+  # Enable Pulseaudio
+  hardware.pulseaudio = {
     enable = true;
 
-    # ALSA Support audio
-    alsa.enable = true;
-    alsa.support32Bit = true;
-
-    # PulseAudio compatibility layer
-    pulse.enable = true;
-
-    # PipeWire session and device manager
-    wireplumber.enable = true;
+    # NixOS allows either a lightweight build (default) or full build of PulseAudio to be installed.
+    # Only the full build has Bluetooth support, so it must be selected here.
+    package = pkgs.pulseaudioFull;
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
