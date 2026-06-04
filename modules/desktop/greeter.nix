@@ -14,11 +14,7 @@ settings.default_session =
     command = "niri-session";
   } else {
     user = "greeter";
-    command = "${pkgs.tuigreet}/bin/tuigreet \
-      --time \
-      --remember \
-      --remember-user-session \
-      --cmd niri-session";
+    command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-user-session --cmd niri-session";
   };
 
 };
