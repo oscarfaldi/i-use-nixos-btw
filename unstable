@@ -19,12 +19,13 @@ echo "✓ Unstable channel enabled."
 echo
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Next step"
+echo " Next steps"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo
-echo "After reboot, run:"
+echo "After reboot:"
 echo
-echo "    sudo nixos-rebuild switch"
+echo "  1. sudo nixos-rebuild switch"
+echo "  2. ./bootstrap"
 echo
 echo "Rainier will reboot in 10 seconds."
 echo "Press Ctrl+C to cancel."
