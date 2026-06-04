@@ -2,31 +2,7 @@
 
 set -e
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Switching to unstable..."
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-sudo nix-channel --remove nixos 2>/dev/null || true
-
-sudo nix-channel --add 
-https://channels.nixos.org/nixos-unstable 
-nixos
-
-sudo nix-channel --update
-
-echo
-echo "✓ Unstable channel enabled."
-echo
-
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Rebuilding system..."
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-sudo nixos-rebuild switch
-
-echo
-echo "✓ System rebuilt."
-echo
+REPO_DIR="/etc/nixos"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo " Installing dotfiles..."
@@ -34,7 +10,9 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 mkdir -p ~/.config
 
-cp -rf dotfiles/* ~/.config/
+if [ -d "$REPO_DIR/dotfiles" ]; then
+cp -rf "$REPO_DIR/dotfiles/"* ~/.config/
+fi
 
 echo
 echo "✓ Dotfiles installed."
@@ -46,9 +24,17 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 mkdir -p ~/.local/bin
 
-for script in scripts/*; do
+if [ -d "$REPO_DIR/scripts" ]; then
+for script in "$REPO_DIR"/scripts/*; do
+[ -f "$script" ] || continue
+
+```
     chmod +x "$script"
-    ln -sf "$(pwd)/$script" ~/.local/bin/$(basename "$script")
+    ln -sf "$script" ~/.local/bin/$(basename "$script")
+done
+```
+
+fi
 
 echo
 echo "✓ Scripts installed."
@@ -58,10 +44,10 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo " Applying theme..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-gsettings set org.gnome.desktop.interface gtk-theme Graphite-Dark
-gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
-gsettings set org.gnome.desktop.interface cursor-theme Bibata-Modern-Ice
-gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+gsettings set org.gnome.desktop.interface gtk-theme Graphite-Dark || true
+gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark || true
+gsettings set org.gnome.desktop.interface cursor-theme Bibata-Modern-Ice || true
+gsettings set org.gnome.desktop.interface color-scheme prefer-dark || true
 
 echo
 echo "✓ Theme applied."
@@ -71,8 +57,9 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo " Cleaning NetworkManager..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-for i in 1 2 3; do
-    nmcli connection delete "Wired connection $i" 2>/dev/null || true
+nmcli -t -f NAME connection show | while read -r conn; do
+[[ "$conn" == Wired\ connection* ]] && 
+nmcli connection delete "$conn" 2>/dev/null || true
 done
 
 echo
@@ -88,4 +75,7 @@ sudo nix-collect-garbage -d
 echo
 echo "✓ Garbage collection complete."
 echo
-echo "Bootstrap complete."
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " Bootstrap complete."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
