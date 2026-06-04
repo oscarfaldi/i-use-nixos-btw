@@ -17,5 +17,12 @@ sudo nix-channel --update
 echo
 echo "✓ Unstable channel enabled."
 echo
-echo "Next:"
-echo "sudo nixos-rebuild switch"
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " Rebuilding system..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+sudo nixos-rebuild switch
+
+echo
+echo "✓ System rebuilt."
