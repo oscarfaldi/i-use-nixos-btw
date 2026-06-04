@@ -35,7 +35,7 @@
     gnome-calculator
 
     # Audio center
-    pavucontrol
+    pwvucontrol
 
     # Network manager
     networkmanagerapplet
