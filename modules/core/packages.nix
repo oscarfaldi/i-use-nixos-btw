@@ -13,6 +13,10 @@
     openDefaultPorts = true;
   };
 
+programs.bash = {
+  completion.enable = true;
+};
+
   environment.systemPackages = with pkgs; [
     
     # Power button    
@@ -25,8 +29,8 @@
     git
     nano
     wget
-    zsh
-    zsh-autosuggestions
+    bash
+    bash-completion
     ghostty
     neovim
     vimPlugins.LazyVim
@@ -75,6 +79,13 @@
     fzf
     ripgrep
     fd
+    jq
+    yq-go
+    starship
+    procs
+    dust
+    man-pages
+    man-pages-posix
 
     # Other tools
     gparted
