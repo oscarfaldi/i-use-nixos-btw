@@ -73,6 +73,7 @@ programs.bash = {
     zed
     fastfetch
     btop
+    nvd
     zoxide
     eza
     bat
