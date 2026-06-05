@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -e
+
+WALLPAPER_DIR="/etc/nixos/assets/wallpapers"
+
+while true; do
+
+    mapfile -t WALLPAPERS < <(
+        find "$WALLPAPER_DIR" -type f \( \
+            -iname "*.jpg" \
+            -o -iname "*.jpeg" \
+            -o -iname "*.png" \
+            -o -iname "*.webp" \
+        \) | sort
+    )
+
+    [ "${#WALLPAPERS[@]}" -eq 0 ] && sleep 1800 && continue
+
+    SELECTED="${WALLPAPERS[RANDOM % ${#WALLPAPERS[@]}]}"
+
+    swww img "$SELECTED" \
+        --transition-type grow \
+        --transition-duration 1
+
+    sleep 1800
+
+done
