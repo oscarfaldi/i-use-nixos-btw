@@ -19,7 +19,7 @@ window#waybar {
 
 #workspaces button {
     color: #80919a;
-    padding: 0 0;
+    padding: 0 4px;
     border: none;
 }
 
