@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+
+# =====================================================
+# Modern replacements
+# =====================================================
+
+# Better ls with icons and colors
+alias ls='eza --icons'
+
+# Long list view
+alias ll='eza -lah --icons --git'
+
+# Show hidden files
+alias la='eza -a --icons'
+
+# Tree view
+alias tree='eza --tree --icons --level=3'
+
+# Better cat with syntax highlighting
+alias cat='bat'
+
+# =====================================================
+# Navigation
+# =====================================================
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# Jump around using zoxide
+alias cd='z'
+
+# =====================================================
+# Search
+# =====================================================
+
+# Better find
+alias find='fd'
+
+# Better grep
+alias grep='grep --color=auto'
+
+# =====================================================
+# System information
+# =====================================================
+
+# Pretty system info
+alias ff='fastfetch'
+
+# Resource monitor
+alias bt='btop'
+
+# Better process viewer
+alias ps='procs'
+
+# =====================================================
+# Storage
+# =====================================================
+
+# Human readable disk usage
+alias df='df -h'
+
+# Better du
+alias du='dust'
+
+# Better block devices
+alias lsblk='lsblk -f'
+
+# =====================================================
+# NixOS
+# =====================================================
+
+# Rebuild system
+alias rebuild='sudo nixos-rebuild switch'
+
+# Test rebuild without changing bootloader
+alias rebuild-test='sudo nixos-rebuild test'
+
+# Build for next boot only
+alias rebuild-boot='sudo nixos-rebuild boot'
+
+# Update flake inputs
+alias update='sudo nix flake update'
+
+# Full system upgrade
+alias upgrade='sudo nix-channel --update && sudo nixos-rebuild switch'
+
+# Check NixOS version
+alias version='nixos-version'
+
+# Check what's changed
+alias changes='nvd diff /run/current-system result'
+
+# Clean generations
+alias clean='sudo nix-collect-garbage -d && sudo nix-store --optimise'
+
+# Go to nix config
+alias nixconf='cd /etc/nixos'
+
+# =====================================================
+# Git
+# =====================================================
+
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+
+# Nice git graph
+alias gl='git log --oneline --graph --decorate --all'
+
+# =====================================================
+# File safety
+# =====================================================
+
+alias cp='cp -iv'
+alias mv='mv -iv'
+alias rm='rm -Iv'
+
+# =====================================================
+# Misc
+# =====================================================
+
+alias cls='clear'
+
+# Open config directory
+alias dots='cd ~/.config'

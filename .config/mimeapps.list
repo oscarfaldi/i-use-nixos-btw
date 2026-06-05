@@ -1,0 +1,27 @@
+[Added Associations]
+image/png=img.desktop;
+image/jpeg=img.desktop;
+image/jpg=img.desktop;
+image/webp=img.desktop;
+image/svg+xml=img.desktop;
+image/heif=img.desktop;
+image/avif=img.desktop;
+
+image/gif=video.desktop;
+image/avif-sequence=video.desktop;
+
+[Default Applications]
+text/*=text.desktop;
+
+image/*=img.desktop;
+video/*=video.desktop;
+audio/*=video.desktop;
+
+application/pdf=pdf.desktop;
+application/postscript=pdf.desktop;
+
+inode/directory=file.desktop;
+
+x-scheme-handler/http=browser.desktop;
+x-scheme-handler/https=browser.desktop;
+text/html=browser.desktop;
