@@ -1,0 +1,21 @@
+[Desktop Entry]
+Name=Image Viewer
+GenericName=Image Viewer
+Comment=Default Image Viewer
+
+Exec=loupe %F
+
+Terminal=false
+Type=Application
+
+Categories=Graphics;Viewer;
+
+MimeType=image/png;\
+image/jpeg;\
+image/jpg;\
+image/webp;\
+image/svg+xml;\
+image/bmp;\
+image/tiff;\
+image/heif;\
+image/avif;
