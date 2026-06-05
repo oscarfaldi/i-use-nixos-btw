@@ -1,0 +1,13 @@
+# Rainier Shell
+
+# Local scripts
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# Aliases
+
+[ -f "$HOME/.config/aliasrc" ] && source "$HOME/.config/aliasrc"
+
+# Smart directory jumping
+
+command -v zoxide >/dev/null && eval "$(zoxide init bash)"
