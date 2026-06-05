@@ -24,7 +24,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo " Rebuilding Rainier system..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-sudo nixos-rebuild switch
+sudo nixos-rebuild boot
 
 echo
 echo "✓ System rebuilt."
