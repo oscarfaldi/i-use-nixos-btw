@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+set -e
+
+before=$(du -sb /nix/store | awk '{print $1}')
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " Rainier Cleanup"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo
+
+echo "Removing old generations..."
+sudo nix-collect-garbage -d
+
+echo
+echo "Optimising Nix store..."
+sudo nix-store --optimise
+
+after=$(du -sb /nix/store | awk '{print $1}')
+
+saved=$((before - after))
+
+echo
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " Results"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo
+
+echo "Store before : $(numfmt --to=iec-i --suffix=B "$before")"
+echo "Store after  : $(numfmt --to=iec-i --suffix=B "$after")"
+echo "Saved        : $(numfmt --to=iec-i --suffix=B "$saved")"
+echo
+
+echo "✓ Cleanup complete."
