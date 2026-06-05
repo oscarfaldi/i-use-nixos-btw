@@ -37,6 +37,7 @@
     glib
     graphite-gtk-theme
     papirus-icon-theme
+    papirus-folders
     bibata-cursors
     
     # Bar & launcher
