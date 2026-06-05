@@ -5,6 +5,7 @@
 	spawn-at-startup "waybar"
 	spawn-at-startup "mako"
 	spawn-at-startup "swayidle"
+	spawn-at-startup "awww-daemon"
 
 	spawn-at-startup "chromium" "--app=https://chatgpt.com"
 	spawn-at-startup "chromium" "--app=https://web.whatsapp.com"
