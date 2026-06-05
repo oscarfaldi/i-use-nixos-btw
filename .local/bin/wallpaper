@@ -17,7 +17,7 @@ mapfile -t WALLPAPERS < <(
 
 SELECTED="${WALLPAPERS[RANDOM % ${#WALLPAPERS[@]}]}"
 
-swww img "$SELECTED" \
+awww img "$SELECTED" \
     --transition-type grow \
     --transition-duration 1
 
