@@ -72,7 +72,7 @@ CONFIG_SOURCE_COUNT=$(find "$REPO_DIR/.config" -mindepth 1 | wc -l)
 cp -rf "$REPO_DIR/.config/." "$HOME/.config/"
 
 # Verify critical configs
-for dir in niri waybar fuzzel ghostty; do
+for dir in niri waybar fuzzel fastfetch; do
     [ -e "$HOME/.config/$dir" ] || fail "Missing config: $dir"
 done
 
