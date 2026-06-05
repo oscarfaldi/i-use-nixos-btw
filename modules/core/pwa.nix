@@ -63,9 +63,9 @@ in
     })
 
     (mkPWA {
-      name = "Wordpress - Oscar Faldi";
+      name = "Wordpress";
       url = "https://oscarfaldi.com/wp-admin";
-      icon = "/etc/nixos/assets/icons/oscarfaldi.svg";
+      icon = "/etc/nixos/assets/icons/wordpress.svg";
     })
 
     (mkPWA {
