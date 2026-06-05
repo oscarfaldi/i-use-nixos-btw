@@ -25,15 +25,12 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 mkdir -p ~/.local/bin
 
 if [ -d "$REPO_DIR/scripts" ]; then
-for script in "$REPO_DIR"/scripts/*; do
-[ -f "$script" ] || continue
+    for script in "$REPO_DIR"/scripts/*; do
+        [ -f "$script" ] || continue
 
-```
-    chmod +x "$script"
-    ln -sf "$script" ~/.local/bin/$(basename "$script")
-done
-```
-
+        chmod +x "$script"
+        ln -sf "$script" ~/.local/bin/$(basename "$script")
+    done
 fi
 
 echo
