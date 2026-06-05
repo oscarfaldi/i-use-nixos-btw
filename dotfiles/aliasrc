@@ -83,7 +83,16 @@ alias rebuild-boot='sudo nixos-rebuild boot'
 alias update='sudo nix flake update'
 
 # Full system upgrade
-alias upgrade='sudo nix flake update && sudo nixos-rebuild switch'
+alias upgrade='sudo nix-channel --update && sudo nixos-rebuild switch'
+
+# Check NixOS version
+alias version='nixos-version'
+
+# Check what's changed
+alias changes='nvd diff /run/current-system result'
+
+# Clean generations
+alias clean='sudo nix-collect-garbage -d && sudo nix-store --optimise'
 
 # Go to nix config
 alias nixconf='cd /etc/nixos'
