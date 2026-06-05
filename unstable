@@ -5,11 +5,12 @@ set -e
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo " Switching Rainier to unstable..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo
 
 sudo nix-channel --remove nixos 2>/dev/null || true
 
-sudo nix-channel --add \
-https://channels.nixos.org/nixos-unstable \
+sudo nix-channel --add 
+https://channels.nixos.org/nixos-unstable 
 nixos
 
 sudo nix-channel --update
@@ -17,14 +18,35 @@ sudo nix-channel --update
 echo
 echo "✓ Unstable channel enabled."
 echo
-echo "Next:"
-echo "sudo nixos-rebuild switch"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo " Rebuilding Rainier system..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo
 
 sudo nixos-rebuild boot
 
 echo
 echo "✓ System rebuilt."
+echo
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " Next Step"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo
+echo "After reboot:"
+echo
+echo "Execute bootstrap script"
+echo
+echo "This will install:"
+echo "  • Dotfiles"
+echo "  • Scripts"
+echo "  • Themes"
+echo "  • User configuration"
+echo
+echo "Rebooting in 10 seconds..."
+echo
+
+sleep 10
+
+sudo reboot
