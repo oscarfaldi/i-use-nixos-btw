@@ -337,12 +337,14 @@ binds {
     Mod+Alt+F                           { fullscreen-window; }
     Mod+W                               { toggle-column-tabbed-display; }
 
-    // ─── Screenshots ───
-    CTRL+Shift+1                        { spawn "screenshot"; }
+    // ─── Theme ───
+    CTRL+Shift+TAB                      { spawn "theme"; }
 
     // ─── Wallpaper ───
     CTRL+TAB                            { spawn "wallpaper"; }
-	
+
+    // ─── Screenshots ───
+    CTRL+Shift+1                        { spawn "screenshot"; }
 
     // ─── Emergency Escape Key ───
     // Use this when a fullscreen app blocks your keybinds.
