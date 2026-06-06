@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+booted=$(readlink /run/booted-system)
+current=$(readlink /run/current-system)
+
+if [ "$booted" = "$current" ]; then
+    echo '{"text":"Current","class":"current"}'
+else
+    echo '{"text":"Pending","class":"pending"}'
+fi
