@@ -13,23 +13,37 @@ mapfile -t WALLPAPERS < <(
     \) | sort
 )
 
+# No wallpapers found
+
 [ "${#WALLPAPERS[@]}" -eq 0 ] && exit 0
 
-CURRENT=$(awww query 2>/dev/null | awk -F': ' '/image:/ {print $2}')
+# Current wallpaper
+
+CURRENT=$(
+    awww query 2>/dev/null |
+    sed -n 's/.*image: //p' |
+    head -n1
+)
+
+# Select a different wallpaper
 
 while true; do
     SELECTED="${WALLPAPERS[RANDOM % ${#WALLPAPERS[@]}]}"
 
-    [ "$SELECTED" != "$CURRENT" ] && break
-
     [ "${#WALLPAPERS[@]}" -eq 1 ] && break
+
+    [ "$SELECTED" != "$CURRENT" ] && break
 done
+
+# Apply wallpaper
 
 awww img "$SELECTED" \
     --transition-type grow \
     --transition-duration 1 \
     --transition-fps 60 \
     --transition-step 2
+
+# Notification
 
 notify-send \
     "Wallpaper Updated" \
