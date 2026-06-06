@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -e
+
+STATE="$HOME/.local/state/current-theme"
+
+mkdir -p "$(dirname "$STATE")"
+
+echo vintage > "$STATE"
+
+gsettings set org.gnome.desktop.interface gtk-theme "Gruvbox-Dark-Hard"
+gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark"
+gsettings set org.gnome.desktop.interface cursor-theme "Bibata-Modern-Ice"
+gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
+
+wallpaper
