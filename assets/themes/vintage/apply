@@ -8,6 +8,17 @@ mkdir -p "$(dirname "$STATE")"
 
 echo vintage > "$STATE"
 
+ln -sfn \
+    /etc/nixos/assets/themes/vintage/.config/ghostty \
+    "$HOME/.config/ghostty"
+
+ln -sfn \
+    /etc/nixos/assets/themes/vintage/.config/waybar \
+    "$HOME/.config/waybar"
+
+pkill waybar || true
+waybar >/dev/null 2>&1 &
+
 gsettings set org.gnome.desktop.interface gtk-theme "Gruvbox-Dark-Hard"
 gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark"
 gsettings set org.gnome.desktop.interface cursor-theme "Bibata-Modern-Ice"
