@@ -5,13 +5,13 @@
   services.gnome.gnome-keyring.enable = true;
 
   # Syncthing file synchronization service
-  services.syncthing = {
-    enable = true;
-    user = "oscarfaldi";
-    dataDir = "/home/oscarfaldi";
-    configDir = "/home/oscarfaldi/.config/syncthing";
-    openDefaultPorts = true;
-  };
+  # services.syncthing = {
+    # enable = true;
+    # user = "oscarfaldi";
+    # dataDir = "/home/oscarfaldi";
+    # configDir = "/home/oscarfaldi/.config/syncthing";
+    # openDefaultPorts = true;
+  # };
 
 programs.bash = {
   completion.enable = true;
@@ -50,7 +50,7 @@ programs.bash = {
     # Words, notes & sync
     mousepad
     onlyoffice-desktopeditors
-    obsidian
+    # obsidian
 
     # Media and doc compatibility
     ffmpeg
