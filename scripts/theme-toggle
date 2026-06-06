@@ -1,6 +1,0 @@
-if current == Graphite-Dark
-then
-    theme-vintage
-else
-    theme-graphite
-fi
