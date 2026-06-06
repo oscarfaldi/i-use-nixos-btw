@@ -24,6 +24,7 @@
       ./modules/desktop/polkit.nix
       ./modules/desktop/nvidia.nix
       ./modules/desktop/greeter.nix
+      ./modules/desktop/desktop-assets.nix
 
       # System modules
       ./modules/system/scripts.nix
