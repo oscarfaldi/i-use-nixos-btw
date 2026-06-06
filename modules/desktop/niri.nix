@@ -37,6 +37,8 @@
     glib
     graphite-gtk-theme
     papirus-icon-theme
+    gruvbox-gtk-theme
+    gruvbox-plus-icons
     papirus-folders
     bibata-cursors
     
