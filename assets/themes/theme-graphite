@@ -2,6 +2,12 @@
 
 set -e
 
+STATE="$HOME/.local/state/current-theme"
+
+mkdir -p "$(dirname "$STATE")"
+
+echo graphite > "$STATE"
+
 gsettings set org.gnome.desktop.interface gtk-theme "Graphite-Dark"
 gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark"
 gsettings set org.gnome.desktop.interface cursor-theme "Bibata-Modern-Ice"
