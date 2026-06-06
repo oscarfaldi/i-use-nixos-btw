@@ -13,6 +13,9 @@
     ],
 
     "modules-right": [
+      "custom/updates",
+      "custom/store",
+      "custom/system-state",
       "cpu",
       "memory",
       "pulseaudio",
@@ -31,8 +34,29 @@
     },
 
     "clock": {
-      "format": "{:%A, %d %B %Y // %H:%M}",
+      "format": "{:%A, %d %B %Y | %H:%M}",
       "tooltip": false
+    },
+
+    "custom/updates": {
+      "format": "| {} Updates",
+      "exec": "cat ~/.cache/rainier/updates 2>/dev/null || echo 0",
+      "interval": 60,
+      "on-click": "ghostty -e upgrade"
+    },
+
+    "custom/store": {
+      "format": "| {} Store",
+      "exec": "du -sb /nix/store | awk '{print $1}' | numfmt --to=iec-i --suffix=B",
+      "interval": 900,
+      "on-click": "ghostty -e clean"
+    },
+
+    "custom/system-state": {
+      "format": "| {} |",
+      "return-type": "json",
+      "exec": "~/.config/waybar/scripts/system-state",
+      "interval": 30
     },
 
     "cpu": {
