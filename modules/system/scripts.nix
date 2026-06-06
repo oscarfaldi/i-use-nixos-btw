@@ -13,6 +13,7 @@ in
     (mkScript "rebuild")
     (mkScript "rebuild-boot")
     (mkScript "screenshot")
+    (mkScript "system-state")
     (mkScript "theme")
     (mkScript "upgrade")
     (mkScript "version")
