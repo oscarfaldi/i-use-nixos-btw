@@ -2,10 +2,14 @@
 
 set -e
 
-CURRENT=$(cat ~/.cache/current-theme 2>/dev/null || echo graphite)
+STATE="$HOME/.cache/current-theme"
+
+CURRENT=$(cat "$STATE" 2>/dev/null || echo graphite)
 
 if [[ "$CURRENT" == "graphite" ]]; then
     theme-vintage
+    echo vintage > "$STATE"
 else
     theme-graphite
+    echo graphite > "$STATE"
 fi
