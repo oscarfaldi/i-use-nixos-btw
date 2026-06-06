@@ -52,8 +52,6 @@ section "Validating Repository"
 
 [ -d "$REPO_DIR/.config" ] || fail "Missing $REPO_DIR/.config"
 
-[ -d "$REPO_DIR/.local" ] || fail "Missing $REPO_DIR/.local"
-
 success "Repository verified"
 
 
@@ -85,41 +83,10 @@ success "User configuration installed"
 
 
 # ============================================================
-# Local Utilities
-# ============================================================
-
-section "Installing Local Utilities"
-
-mkdir -p "$HOME/.local/bin"
-
-LOCAL_SOURCE_COUNT=$(find "$REPO_DIR/.local" -mindepth 1 | wc -l)
-
-[ "$LOCAL_SOURCE_COUNT" -gt 0 ] || fail ".local repository is empty"
-
-cp -rf "$REPO_DIR/.local/." "$HOME/.local/"
-
-# Make every script executable
-find "$HOME/.local/bin" -type f -exec chmod +x {} \;
-
-# Verify critical scripts
-for script in rebuild rebuild-boot upgrade clean version screenshot wallpaper wallpaperd theme; do
-    [ -f "$HOME/.local/bin/$script" ] || fail "Missing script: $script"
-    [ -x "$HOME/.local/bin/$script" ] || fail "Script not executable: $script"
-done
-
-LOCAL_INSTALLED_COUNT=$(find "$HOME/.local" -mindepth 1 | wc -l)
-
-echo "Repository entries : $LOCAL_SOURCE_COUNT"
-echo "Installed entries  : $LOCAL_INSTALLED_COUNT"
-
-success "Local utilities installed"
-
-
-# ============================================================
 # Shell Environment
 # ============================================================
 
-# Configure Bash so custom scripts are available from any terminal
+# Install Rainier shell configuration
 
 section "Configuring Shell"
 
@@ -128,9 +95,6 @@ if [ ! -f "$REPO_DIR/.config/bashrc" ]; then
 fi
 
 cp -f "$REPO_DIR/.config/bashrc" "$HOME/.bashrc"
-
-grep -q ".local/bin" "$HOME/.bashrc" || \
-    fail ".bashrc missing PATH configuration"
 
 success "Shell configured"
 
@@ -156,15 +120,44 @@ success "User directories ready"
 
 section "Cleaning NetworkManager"
 
-nmcli -t -f NAME connection show 2>/dev/null | while read -r conn; do
-    case "$conn" in
-        Wired\ connection*)
-            nmcli connection delete "$conn" >/dev/null 2>&1 || true
-            ;;
-    esac
-done
+while IFS=: read -r name type; do
+
+    [ "$type" = "ethernet" ] || continue
+
+    nmcli connection delete "$name" >/dev/null 2>&1 || true
+
+done < <(
+    nmcli -t -f NAME,TYPE connection show 2>/dev/null
+)
 
 success "NetworkManager cleaned"
+
+
+# ============================================================
+# System Modules
+# ============================================================
+
+section "Verifying System Commands"
+
+command -v wallpaper >/dev/null \
+    || fail "wallpaper command missing"
+
+command -v wallpaperd >/dev/null \
+    || fail "wallpaperd command missing"
+
+command -v screenshot >/dev/null \
+    || fail "screenshot command missing"
+
+command -v clean >/dev/null \
+    || fail "clean command missing"
+
+command -v rebuild >/dev/null \
+    || fail "rebuild command missing"
+
+command -v rebuild-boot >/dev/null \
+    || fail "rebuild-boot command missing"
+
+success "System modules verified"
 
 
 # ============================================================
@@ -177,20 +170,16 @@ echo "Rainier is configured."
 echo
 echo "Installed:"
 echo " • User configuration"
-echo " • Local utilities"
 echo " • Shell environment"
 echo " • User directories"
 echo
 echo "Verified:"
 echo " • .config"
-echo " • .local"
-echo " • Executable permissions"
 echo " • .bashrc"
 echo
-echo "Next boot will activate:"
-echo " • Theme"
-echo " • Wallpaper"
-echo " • Startup services"
+echo "System ready."
+echo
+echo "Reboot required to start a fresh session."
 echo
 echo "Rebooting in 10 seconds..."
 echo "Press Ctrl+C to cancel."
