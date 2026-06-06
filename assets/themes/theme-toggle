@@ -1,5 +1,12 @@
-if current == Graphite-Dark
-then
+#!/usr/bin/env bash
+
+set -e
+
+STATE="$HOME/.local/state/current-theme"
+
+CURRENT=$(cat "$STATE" 2>/dev/null || echo graphite)
+
+if [[ "$CURRENT" == "graphite" ]]; then
     theme-vintage
 else
     theme-graphite
