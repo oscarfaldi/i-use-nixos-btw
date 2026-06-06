@@ -176,8 +176,8 @@ output "DP-3" {
         spawn-at-startup "swayidle"
         spawn-at-startup "waybar"
         spawn-at-startup "awww-daemon"
-        spawn-at-startup "/home/oscarfaldi/.local/bin/wallpaperd"
-        spawn-at-startup "/home/oscarfaldi/.local/bin/theme"
+        spawn-at-startup "wallpaperd"
+        spawn-at-startup "theme"
 	
 	// Applications
         spawn-at-startup "chromium" "--app=https://chatgpt.com"
@@ -337,7 +337,11 @@ binds {
     Mod+W                               { toggle-column-tabbed-display; }
 
     // ─── Screenshots ───
-    CTRL+Shift+1                        { spawn "/home/oscarfaldi/.local/bin/screenshot"; }
+    CTRL+Shift+1                        { spawn "screenshot"; }
+
+    // ─── Wallpaper ───
+    CTRL+TAB                            { spawn "wallpaper"; }
+	
 
     // ─── Emergency Escape Key ───
     // Use this when a fullscreen app blocks your keybinds.
