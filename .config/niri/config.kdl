@@ -338,7 +338,7 @@ binds {
     Mod+W                               { toggle-column-tabbed-display; }
 
     // ─── Theme ───
-    CTRL+Shift+TAB                      { spawn "theme"; }
+    CTRL+Shift+TAB                      { spawn "theme-toggle"; }
 
     // ─── Wallpaper ───
     CTRL+TAB                            { spawn "wallpaper"; }
