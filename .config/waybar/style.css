@@ -32,6 +32,30 @@ window#waybar {
     font-weight: bold;
 }
 
+#custom-updates {
+    color: #ffffff;
+    padding: 0 0;
+    font-weight: bold;
+}
+
+#custom-store {
+    color: #ffffff;
+    padding: 0 8px;
+    font-weight: bold;
+}
+
+#custom-system-state.current {
+    color: #ffffff;
+    padding: 0 0;
+    font-weight: bold;
+}
+
+#custom-system-state.pending {
+    color: #f9e2af;
+    padding: 0 0;
+    font-weight: bold;
+}
+
 #cpu {
     color: #ffffff;
     padding: 0 8px;
