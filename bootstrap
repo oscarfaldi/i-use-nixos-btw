@@ -83,6 +83,30 @@ success "User configuration installed"
 
 
 # ============================================================
+# Preparing Theme System
+# ============================================================
+
+section "Preparing Theme System"
+
+mkdir -p "$HOME/.local/state"
+mkdir -p "$HOME/.cache/theme"
+
+if [ ! -f "$HOME/.local/state/current-theme" ]; then
+    echo graphite > "$HOME/.local/state/current-theme"
+fi
+
+generate-theme
+
+[ -f "$HOME/.cache/theme/waybar.css" ] \
+    || fail "waybar.css generation failed"
+
+[ -f "$HOME/.cache/theme/ghostty.theme" ] \
+    || fail "ghostty.theme generation failed"
+
+success "Theme system ready"
+
+
+# ============================================================
 # Shell Environment
 # ============================================================
 
@@ -138,6 +162,12 @@ success "NetworkManager cleaned"
 # ============================================================
 
 section "Verifying System Commands"
+
+command -v generate-theme >/dev/null \
+    || fail "generate-theme command missing"
+
+command -v theme-toggle >/dev/null \
+    || fail "theme-toggle command missing"
 
 command -v wallpaper >/dev/null \
     || fail "wallpaper command missing"
