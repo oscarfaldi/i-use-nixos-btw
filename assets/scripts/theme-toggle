@@ -6,8 +6,17 @@ STATE="$HOME/.local/state/current-theme"
 
 CURRENT=$(cat "$STATE" 2>/dev/null || echo graphite)
 
-if [[ "$CURRENT" == "graphite" ]]; then
-    theme-vintage
-else
-    theme-graphite
-fi
+case "$CURRENT" in
+    graphite)
+        theme-vintage
+        ;;
+    vintage)
+        theme-jade
+        ;;
+    jade)
+        theme-graphite
+        ;;
+    *)
+        theme-graphite
+        ;;
+esac
