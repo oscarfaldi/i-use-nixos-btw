@@ -5,14 +5,43 @@ set -e
 STATE="$HOME/.local/state/current-theme"
 THEME=$(cat "$STATE")
 
+mkdir -p "$HOME/.cache/theme"
+
 COLORS="/etc/nixos/assets/themes/$THEME/colors.toml"
-WAYBAR="$HOME/.config/waybar/theme.css"
+
+WAYBAR="$HOME/.cache/theme/waybar.css"
+GHOSTTY="$HOME/.cache/theme/ghostty.theme"
 
 background=$(grep '^background =' "$COLORS" | cut -d '"' -f2)
 foreground=$(grep '^foreground =' "$COLORS" | cut -d '"' -f2)
+
 accent=$(grep '^accent =' "$COLORS" | cut -d '"' -f2)
-muted=$(grep '^color2 =' "$COLORS" | cut -d '"' -f2)
-warning=$(grep '^color11 =' "$COLORS" | cut -d '"' -f2)
+
+cursor=$(grep '^cursor =' "$COLORS" | cut -d '"' -f2)
+
+selection_background=$(grep '^selection_background =' "$COLORS" | cut -d '"' -f2)
+selection_foreground=$(grep '^selection_foreground =' "$COLORS" | cut -d '"' -f2)
+
+color0=$(grep '^color0 =' "$COLORS" | cut -d '"' -f2)
+color1=$(grep '^color1 =' "$COLORS" | cut -d '"' -f2)
+color2=$(grep '^color2 =' "$COLORS" | cut -d '"' -f2)
+color3=$(grep '^color3 =' "$COLORS" | cut -d '"' -f2)
+color4=$(grep '^color4 =' "$COLORS" | cut -d '"' -f2)
+color5=$(grep '^color5 =' "$COLORS" | cut -d '"' -f2)
+color6=$(grep '^color6 =' "$COLORS" | cut -d '"' -f2)
+color7=$(grep '^color7 =' "$COLORS" | cut -d '"' -f2)
+
+color8=$(grep '^color8 =' "$COLORS" | cut -d '"' -f2)
+color9=$(grep '^color9 =' "$COLORS" | cut -d '"' -f2)
+color10=$(grep '^color10 =' "$COLORS" | cut -d '"' -f2)
+color11=$(grep '^color11 =' "$COLORS" | cut -d '"' -f2)
+color12=$(grep '^color12 =' "$COLORS" | cut -d '"' -f2)
+color13=$(grep '^color13 =' "$COLORS" | cut -d '"' -f2)
+color14=$(grep '^color14 =' "$COLORS" | cut -d '"' -f2)
+color15=$(grep '^color15 =' "$COLORS" | cut -d '"' -f2)
+
+muted="$color2"
+warning="$color11"
 
 cat > "$WAYBAR" << EOF
 @define-color background $background;
@@ -23,4 +52,33 @@ cat > "$WAYBAR" << EOF
 @define-color muted $muted;
 
 @define-color warning $warning;
+EOF
+
+cat > "$GHOSTTY" << EOF
+palette = 0=$color0
+palette = 1=$color1
+palette = 2=$color2
+palette = 3=$color3
+palette = 4=$color4
+palette = 5=$color5
+palette = 6=$color6
+palette = 7=$color7
+
+palette = 8=$color8
+palette = 9=$color9
+palette = 10=$color10
+palette = 11=$color11
+palette = 12=$color12
+palette = 13=$color13
+palette = 14=$color14
+palette = 15=$color15
+
+background = $background
+foreground = $foreground
+
+cursor-color = $cursor
+cursor-text = $background
+
+selection-background = $selection_background
+selection-foreground = $selection_foreground
 EOF
