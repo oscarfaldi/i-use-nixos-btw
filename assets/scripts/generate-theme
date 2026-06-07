@@ -1,1 +1,26 @@
-tmp
+#!/usr/bin/env bash
+
+set -e
+
+STATE="$HOME/.local/state/current-theme"
+THEME=$(cat "$STATE")
+
+COLORS="/etc/nixos/assets/themes/$THEME/colors.toml"
+WAYBAR="$HOME/.config/waybar/theme.css"
+
+background=$(grep '^background =' "$COLORS" | cut -d '"' -f2)
+foreground=$(grep '^foreground =' "$COLORS" | cut -d '"' -f2)
+accent=$(grep '^accent =' "$COLORS" | cut -d '"' -f2)
+muted=$(grep '^color2 =' "$COLORS" | cut -d '"' -f2)
+warning=$(grep '^color11 =' "$COLORS" | cut -d '"' -f2)
+
+cat > "$WAYBAR" << EOF
+@define-color background $background;
+@define-color foreground $foreground;
+
+@define-color accent $accent;
+
+@define-color muted $muted;
+
+@define-color warning $warning;
+EOF
