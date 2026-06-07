@@ -21,11 +21,5 @@ in
     (mkScript "theme-graphite")
     (mkScript "theme-vintage")
     (mkScript "theme-jade")
-
-    (mkTheme "theme-graphite"
-      ../../assets/themes/graphite/apply)
-
-    (mkTheme "theme-vintage"
-      ../../assets/themes/vintage/apply)
   ];
 }
