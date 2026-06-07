@@ -17,6 +17,7 @@ in
     (mkScript "theme-toggle")
     (mkScript "wallpaper")
     (mkScript "wallpaperd")
+    (mkScript "generate-theme")
 
     (mkTheme "theme-graphite"
       ../../assets/themes/graphite/apply)
