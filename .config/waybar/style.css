@@ -30,24 +30,24 @@ window#waybar {
 }
 
 #clock {
-    color: #ffffff;
+    color: @foreground;
     font-weight: bold;
 }
 
 #custom-updates {
-    color: #ffffff;
+    color: @foreground;
     padding: 0 0;
     font-weight: bold;
 }
 
 #custom-store {
-    color: #ffffff;
+    color: @foreground;
     padding: 0 8px;
     font-weight: bold;
 }
 
 #custom-system-state.current {
-    color: #ffffff;
+    color: @foreground;
     padding: 0 0;
     font-weight: bold;
 }
@@ -71,13 +71,13 @@ window#waybar {
 }
 
 #pulseaudio {
-    color: #ffffff;
+    color: @foreground;
     padding: 0 8px;
     font-weight: bold;
 }
 
 #network {
-    color: #ffffff;
+    color: @foreground;
     padding: 0 15px;
     font-weight: bold;
 }
@@ -88,7 +88,7 @@ window#waybar {
 }
 
 #custom-power {
-    color: #ffffff;
+    color: @foreground;
     padding: 0 10px;
     font-weight: bold;
 }
