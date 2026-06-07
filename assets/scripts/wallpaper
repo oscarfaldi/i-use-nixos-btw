@@ -3,6 +3,7 @@
 set -e
 
 STATE="$HOME/.local/state/current-theme"
+CURRENT_WALL="$HOME/.local/state/current-wallpaper"
 
 THEME=$(cat "$STATE" 2>/dev/null || echo graphite)
 
@@ -19,7 +20,7 @@ mapfile -t WALLPAPERS < <(
 
 [ "${#WALLPAPERS[@]}" -eq 0 ] && exit 0
 
-CURRENT=$(awww query 2>/dev/null | awk -F': ' '/image:/ {print $2}')
+CURRENT=$(cat "$CURRENT_WALL" 2>/dev/null || true)
 
 while true; do
 
@@ -30,6 +31,8 @@ while true; do
     [ "${#WALLPAPERS[@]}" -eq 1 ] && break
 
 done
+
+echo "$SELECTED" > "$CURRENT_WALL"
 
 awww img "$SELECTED" \
     --transition-type grow \
