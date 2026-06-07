@@ -18,6 +18,9 @@ in
     (mkScript "wallpaper")
     (mkScript "wallpaperd")
     (mkScript "generate-theme")
+    (mkScript "theme-graphite")
+    (mkScript "theme-vintage")
+    (mkScript "theme-jade")
 
     (mkTheme "theme-graphite"
       ../../assets/themes/graphite/apply)
