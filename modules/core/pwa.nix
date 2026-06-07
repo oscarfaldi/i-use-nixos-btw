@@ -81,12 +81,6 @@ in
     })
 
     (mkPWA {
-      name = "Jellyfin";
-      url = "http://10.10.10.10:8096";
-      icon = "/etc/nixos/assets/icons/jellyfin.svg";
-    })
-
-    (mkPWA {
       name = "Grafana";
       url = "http://10.10.10.10:3050/";
       icon = "/etc/nixos/assets/icons/grafana.svg";
