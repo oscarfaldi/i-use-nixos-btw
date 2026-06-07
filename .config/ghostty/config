@@ -1,6 +1,6 @@
 # Theme
 
-theme = graphite
+theme = ~/.cache/theme/ghostty.theme
 
 # Font
 
