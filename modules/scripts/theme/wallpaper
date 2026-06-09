@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# ============================================================
+# Manual Wallpaper Switcher
+# Randomly selects and applies a new wallpaper from the
+# active theme while tracking the current selection.
+# ============================================================
+
 set -e
 
 STATE="$HOME/.local/state/current-theme"
