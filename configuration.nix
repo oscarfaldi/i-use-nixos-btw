@@ -10,24 +10,19 @@
       # Hardware configuration
       ./hardware-configuration.nix
 
-      # Core modules
-      ./modules/core/packages.nix
-      ./modules/core/hosts.nix
-      ./modules/core/nic.nix
-      ./modules/core/keyboard.nix
-      ./modules/core/font.nix
-      ./modules/core/pwa.nix
-      ./modules/core/games.nix
+      # Modules
+      ./modules/appearance.nix
+      ./modules/greeter.nix
+      ./modules/packages.nix
+      ./modules/network.nix
+      ./modules/nvidia.nix
+      ./modules/keyboard.nix
+      ./modules/pwa.nix
+      ./modules/games.nix
 
-      # Desktop modules
-      ./modules/desktop/niri.nix
-      ./modules/desktop/polkit.nix
-      ./modules/desktop/nvidia.nix
-      ./modules/desktop/greeter.nix
-      ./modules/desktop/desktop-assets.nix
-
-      # System modules
-      ./modules/system/scripts.nix
+      # Scripts
+      ./modules/scripts/system-tools.nix
+      ./modules/scripts/theme-tools.nix
     ];
 
   # Enable flakes and error experimental with new Nix CLI
