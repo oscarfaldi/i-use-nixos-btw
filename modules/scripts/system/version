@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# ============================================================
+# System Information
+# Displays basic system details including user, hostname,
+# NixOS version, and kernel version.
+# ============================================================
+
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo " Rainier System Status"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
