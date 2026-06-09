@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# ============================================================
+# System Rebuild
+# Builds and activates the current NixOS configuration,
+# then displays the active system version.
+# ============================================================
+
 set -e
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
