@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# ============================================================
+# Nix Store Cleanup
+# Removes old system generations, optimises the Nix store,
+# and reports reclaimed disk space after maintenance.
+# ============================================================
+
 set -e
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
