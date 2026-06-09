@@ -39,9 +39,9 @@
     },
 
     "custom/updates": {
-      "format": "| {} Updates",
-      "exec": "cat ~/.cache/rainier/updates 2>/dev/null || echo 0",
-      "interval": 60,
+      "return-type": "json",
+      "exec": "/run/current-system/sw/bin/check-system-update",
+      "interval": 1800,
       "on-click": "ghostty -e upgrade"
     },
 
