@@ -1,12 +1,18 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 let
+
   mkScript = name:
     pkgs.writeShellScriptBin name
-      (builtins.readFile ../../scripts/${name});
+      (builtins.readFile ../../modules/scripts/system/${name});
 
 in
 {
+
+  # ============================================================
+  # Environment Scripts (System Maintenance & Utilities)
+  # ============================================================
+
   environment.systemPackages = [
     (mkScript "changes")
     (mkScript "clean")
