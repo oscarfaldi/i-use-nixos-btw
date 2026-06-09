@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# ============================================================
+# Screenshot Utility
+# Captures a user-selected screen region, saves it using
+# a date-based folder structure, and sends a notification.
+# ============================================================
+
 set -e
 
 # ============================================================
