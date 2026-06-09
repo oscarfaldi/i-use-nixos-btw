@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+updates=$(...)
+
+if [ "$updates" -gt 0 ]; then
+    echo '{"text":"Updates","class":"pending"}'
+else
+    echo '{"text":"Current","class":"current"}'
+fi
