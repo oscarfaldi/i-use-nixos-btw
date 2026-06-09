@@ -40,6 +40,18 @@ window#waybar {
     font-weight: bold;
 }
 
+#custom-updates.current {
+    color: @foreground;
+    padding: 0 0;
+    font-weight: bold;
+}
+
+#custom-updates.updates {
+    color: @warning;
+    padding: 0 0;
+    font-weight: bold;
+}
+
 #custom-store {
     color: @foreground;
     padding: 0 8px;
