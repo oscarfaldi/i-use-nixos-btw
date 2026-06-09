@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# ============================================================
+# Change Preview
+# Builds a temporary NixOS generation and displays the
+# package and configuration differences before activation.
+# ============================================================
+
 set -e
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
