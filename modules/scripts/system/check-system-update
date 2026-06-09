@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 
-updates=$(...)
+# ============================================================
+# Waybar Package Update Indicator
+# Reports whether package updates are available by checking
+# the current Nix channel and returning a Waybar JSON state.
+# States:
+#   Current - No updates available
+#   Updates - One or more updates available
+# ============================================================
+
+updates=$(
+    nix-env -f '<nixpkgs>' -u --dry-run 2>&1 \
+    | grep -c '^upgrading'
+)
 
 if [ "$updates" -gt 0 ]; then
     echo '{"text":"Updates","class":"pending"}'
