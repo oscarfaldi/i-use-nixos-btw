@@ -19,7 +19,8 @@ in
     (mkScript "rebuild")
     (mkScript "rebuild-boot")
     (mkScript "screenshot")
-    (mkScript "system-state")
+    (mkScript "check-system-state")
+    (mkScript "check-system-update")
     (mkScript "upgrade")
     (mkScript "version")
   ];
