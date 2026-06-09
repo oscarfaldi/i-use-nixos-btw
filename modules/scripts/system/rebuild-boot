@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# ============================================================
+# Boot Rebuild
+# Builds the next NixOS generation for activation on the
+# next boot and optionally reboots the system.
+# ============================================================
+
 set -e
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
