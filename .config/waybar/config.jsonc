@@ -41,7 +41,7 @@
     "custom/updates": {
       "return-type": "json",
       "exec": "/run/current-system/sw/bin/check-system-update",
-      "interval": 1800,
+      "interval": 900,
       "on-click": "ghostty -e upgrade"
     },
 
