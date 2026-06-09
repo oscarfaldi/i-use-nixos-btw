@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+# ============================================================
+# Waybar System State Indicator
+# Reports whether the currently booted system matches the
+# active NixOS generation and returns a Waybar JSON state.
+# States:
+#   Current - Running the latest activated generation
+#   Pending - Reboot required to apply changes
+# ============================================================
+
 booted=$(readlink /run/booted-system)
 current=$(readlink /run/current-system)
 
