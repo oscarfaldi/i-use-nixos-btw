@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " Rainier System Status"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo
+
+echo "User      : $(whoami)"
+echo "Hostname  : $(hostname)"
+echo "Version   : $(nixos-version)"
+echo "Kernel    : $(uname -r)"
+echo
+
+echo "✓ System information loaded."
