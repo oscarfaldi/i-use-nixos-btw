@@ -5,6 +5,7 @@
   # Desktop Environment
   # ============================================================
 
+  # Enable niri as a compositor or window manager
   programs.niri.enable = true;
 
   # Enable dconf for GTK applications and settings persistence
@@ -18,6 +19,9 @@
 
   # GNOME keyring for credentials and secrets
   services.gnome.gnome-keyring.enable = true;
+
+  # Privilege escalation framework
+  security.polkit.enable = true;
 
   # Bash completion
   programs.bash.completion.enable = true;
@@ -56,6 +60,7 @@
 
     xdg-utils
     networkmanagerapplet
+    polkit_gnome
 
     # ------------------------------------------------------------
     # Terminal & Development
@@ -63,6 +68,7 @@
 
     bash
     bash-completion
+
     git
     nano
     wget
@@ -137,6 +143,7 @@
     kdePackages.okular
 
     onlyoffice-desktopeditors
+    # obsidian
     mousepad
 
     loupe
