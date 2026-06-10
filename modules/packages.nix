@@ -140,7 +140,7 @@
 
     mpv
 
-    kdePackages.okular
+    pdfarranger
 
     onlyoffice-desktopeditors
     # obsidian
