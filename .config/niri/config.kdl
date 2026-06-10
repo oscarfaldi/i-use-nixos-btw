@@ -227,6 +227,11 @@ input {
     }
 
     window-rule {
+       match app-id="pwvucontrol"
+       open-floating true
+    }
+
+    window-rule {
        match app-id="mousepad"
        open-floating true
        default-column-width { fixed 700; }
