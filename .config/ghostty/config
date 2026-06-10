@@ -5,7 +5,7 @@ theme = ~/.cache/theme/ghostty.theme
 # Font
 
 font-family = JetBrainsMono Nerd Font
-font-size = 10
+font-size = 12
 font-thicken = true
 
 # Cursor
