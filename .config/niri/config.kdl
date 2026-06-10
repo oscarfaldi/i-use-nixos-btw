@@ -62,44 +62,43 @@ input {
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
 // ============================================================
 
-output "DP-2" {
-    mode "2560x1440@164.999" // Set resolution and refresh rate
-    scale 1 // No scaling (use 2 for HiDPI)
-    position x=0 y=0
-	focus-at-startup
-}
-
-output "DP-3" {
-    mode "2560x1440@99.946" // Set resolution and refresh rate
-    scale 1 // No scaling (use 2 for HiDPI)
-    transform "90"
-    position x=0 y=-250
-}
+	output "DP-2" {
+	    mode "2560x1440@164.999" // Set resolution and refresh rate
+	    scale 1 // No scaling (use 2 for HiDPI)
+	    position x=0 y=0
+		focus-at-startup
+	}
+	
+	output "DP-3" {
+	    mode "2560x1440@99.946" // Set resolution and refresh rate
+	    scale 1 // No scaling (use 2 for HiDPI)
+	    transform "90"
+	    position x=0 y=-250
+	}
 
 // ============================================================
 // LAYOUT
 // Gaps, borders, focus ring, shadows
 // ============================================================
 
-    layout {
-        gaps 15 // Gap between windows
-        center-focused-column "never" // Don’t auto-center focused column
-
-        preset-column-widths {
-            proportion 0.33333
-            proportion 0.5
-            proportion 0.66667
-        }
-
-        struts {}
-    }
-
-    focus-ring {
-       width 2
-
-       active-color "#7fb39a"
-       inactive-color "#2c3b35"
-    }
+	layout {
+	    gaps 15
+	    center-focused-column "never"
+	    
+	    preset-column-widths {
+	        proportion 0.33333
+	        proportion 0.5
+	        proportion 0.66667
+	    }
+	
+	    border {
+	        width 2
+	        active-color "#7fb39a"
+	        inactive-color "#2c3b35"
+	    }
+	
+	    struts {}
+	}
 
 // ============================================================
 // ANIMATIONS
