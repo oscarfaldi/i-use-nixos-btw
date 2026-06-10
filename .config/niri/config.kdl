@@ -46,7 +46,7 @@ input {
         accel-profile "flat"
 
         // Slightly slower mouse movement
-        accel-speed -0
+        accel-speed 0
     }
 
     // Focus window when mouse hovers over it
@@ -92,6 +92,13 @@ output "DP-3" {
         }
 
         struts {}
+    }
+
+    focus-ring {
+       width 2
+
+       active-color "#7fb39a"
+       inactive-color "#2c3b35"
     }
 
 // ============================================================
