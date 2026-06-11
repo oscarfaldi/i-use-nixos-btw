@@ -44,17 +44,6 @@
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
-  # Tmp filesystem stored in RAM for faster app cache, thumbnails, and browser. Uses RAM dynamically up to 8GB maximum.
-  fileSystems."/tmp" = {
-    device = "tmpfs";
-    fsType = "tmpfs";
-
-    options = [
-      "size=8G"
-      "mode=1777"
-    ];
-  };
-
   # Set your time zone.
   time.timeZone = "Asia/Jakarta";
 
@@ -66,24 +55,6 @@
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
-
-  # Enable low-latency audio scheduling
-  security.rtkit.enable = true;
-
-  # Pipewire Linux audio stack
-  services.pipewire = {
-    enable = true;
-
-    # ALSA Support audio
-    alsa.enable = true;
-    alsa.support32Bit = true;
-
-    # PulseAudio compatibility layer
-    pulse.enable = true;
-
-    # PipeWire session and device manager
-    wireplumber.enable = true;
-  };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.oscarfaldi = {
