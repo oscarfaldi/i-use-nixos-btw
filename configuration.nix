@@ -11,11 +11,13 @@
       ./hardware-configuration.nix
 
       # Modules
+      ./modules/audio.nix
       ./modules/appearance.nix
       ./modules/greeter.nix
       ./modules/packages.nix
       ./modules/network.nix
       ./modules/nvidia.nix
+      ./modules/tmpfs.nix
       ./modules/keyboard.nix
       ./modules/pwa.nix
       ./modules/games.nix
