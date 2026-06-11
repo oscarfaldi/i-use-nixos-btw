@@ -139,25 +139,6 @@ success "User directories ready"
 
 
 # ============================================================
-# NetworkManager Cleanup
-# ============================================================
-
-section "Cleaning NetworkManager"
-
-while IFS=: read -r name type; do
-
-    [ "$type" = "ethernet" ] || continue
-
-    nmcli connection delete "$name" >/dev/null 2>&1 || true
-
-done < <(
-    nmcli -t -f NAME,TYPE connection show 2>/dev/null
-)
-
-success "NetworkManager cleaned"
-
-
-# ============================================================
 # System Modules
 # ============================================================
 
