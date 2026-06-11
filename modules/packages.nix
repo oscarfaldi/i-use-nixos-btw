@@ -177,7 +177,7 @@
     # System Controls
     # ------------------------------------------------------------
 
-    pavucontrol
+    pwvucontrol
 
     brightnessctl
     playerctl
