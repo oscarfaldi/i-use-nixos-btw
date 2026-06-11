@@ -237,7 +237,7 @@ input {
     }
 
     window-rule {
-       match app-id="pavucontrol"
+       match app-id="pwvucontrol"
        open-floating true
        default-column-width { fixed 950; }
        default-window-height { fixed 600; }
@@ -277,7 +277,7 @@ binds {
     Mod+Shift+C                         hotkey-overlay-title="Calculator" { spawn "gnome-calculator"; }
     Mod+Shift+E                         hotkey-overlay-title="File Manager: Yazi" { spawn "ghostty" "-e" "yazi"; }
     Mod+Shift+W                         hotkey-overlay-title="Work Documents: OnlyOffice" { spawn "onlyoffice-desktopeditors"; }
-    Mod+Shift+V                         hotkey-overlay-title="Sound Panel: Pavucontrol" { spawn "pavucontrol"; }
+    Mod+Shift+V                         hotkey-overlay-title="Sound Panel: Pwvucontrol" { spawn "pwvucontrol"; }
     Mod+Shift+G                         hotkey-overlay-title="Network: Network Manager" { spawn "nm-connection-editor"; }
 
     // ─── Media Controls ───
