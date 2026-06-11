@@ -66,7 +66,7 @@
 
     xdg-utils
     networkmanagerapplet
-    mate-polkit
+    polkit_gnome
 
     # ------------------------------------------------------------
     # Terminal & Development
