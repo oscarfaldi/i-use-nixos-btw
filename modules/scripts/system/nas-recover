@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+recover_mount() {
+    local mount="$1"
+
+    echo "→ Checking $(basename "$mount")"
+
+    if timeout 5 ls "$mount" >/dev/null 2>&1; then
+        echo "  ✓ Healthy"
+        return
+    fi
+
+    echo "  ⚠ Unhealthy"
+    echo "  ↻ Remounting"
+
+    sudo umount -l "$mount" 2>/dev/null || true
+
+    if timeout 5 ls "$mount" >/dev/null 2>&1; then
+        echo "  ✓ Recovered"
+    else
+        echo "  ✗ Recovery failed"
+    fi
+
+    echo
+}
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " NAS Recovery"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo
+
+if [[ $# -ne 1 ]]; then
+    echo "Usage: nas-recover <share|all>"
+    exit 1
+fi
+
+if [[ "$1" == "all" ]]; then
+    for mount in /mnt/nas/*; do
+        [[ -d "$mount" ]] || continue
+        recover_mount "$mount"
+    done
+
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo " Scan Complete"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    exit 0
+fi
+
+MOUNT="/mnt/nas/$1"
+
+if [[ ! -d "$MOUNT" ]]; then
+    echo "Share not found: $1"
+    exit 1
+fi
+
+recover_mount "$MOUNT"
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " Recovery Complete"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
