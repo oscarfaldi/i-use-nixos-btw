@@ -9,13 +9,10 @@
 #   Updates - One or more updates available
 # ============================================================
 
-updates=$(
-    nix-env -f '<nixpkgs>' -u --dry-run 2>&1 \
-    | grep -c '^upgrading'
-)
+output=$(nix-channel --update 2>&1)
 
-if [ "$updates" -gt 0 ]; then
-    echo '{"text":"Updates","class":"pending"}'
+if echo "$output" | grep -q "unpacking"; then
+    echo '{"text":"Updates","class":"updates"}'
 else
     echo '{"text":"Current","class":"current"}'
 fi
