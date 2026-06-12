@@ -23,5 +23,6 @@ in
     (mkScript "check-system-update")
     (mkScript "upgrade")
     (mkScript "version")
+    (mkScript "nas-recover")
   ];
 }
