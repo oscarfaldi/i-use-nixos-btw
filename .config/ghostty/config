@@ -1,6 +1,6 @@
 # Theme
 
-theme = ~/.cache/theme/ghostty.theme
+theme = /home/oscarfaldi/.cache/theme/ghostty.theme
 
 # Font
 
