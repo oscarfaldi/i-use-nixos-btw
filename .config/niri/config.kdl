@@ -251,6 +251,13 @@ input {
     }
 
     window-rule {
+       match app-id="com.github.jeromerobert.pdfarranger"
+       open-floating true
+       default-column-width { fixed 900; }
+       default-window-height { fixed 1100; }
+    }
+
+    window-rule {
        match app-id="xarchiver"
        open-floating true
        default-column-width { fixed 900; }
