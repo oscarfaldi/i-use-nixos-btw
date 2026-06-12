@@ -97,8 +97,8 @@ input {
 
 	    border {
 	        width 5
-	        active-color "#635a0f"
-	        inactive-color "#383308"
+	        active-color "#c4c4c4"
+	        inactive-color "#696969"
 	    }
 	
 	    struts {}
