@@ -108,73 +108,73 @@
     "/mnt/nas/oscarfaldi" = {
       device = "10.10.20.10:/mnt/user/oscarfaldi";
       fsType = "nfs";
-      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" "x-systemd.idle-timeout=300" ];
+      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" ];
     };
 
     "/mnt/nas/personalbranding" = {
       device = "10.10.20.10:/mnt/user/personalbranding";
       fsType = "nfs";
-      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" "x-systemd.idle-timeout=300" ];
+      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" ];
     };
 
     "/mnt/nas/mulino" = {
       device = "10.10.20.10:/mnt/user/mulino";
       fsType = "nfs";
-      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" "x-systemd.idle-timeout=300" ];
+      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" ];
     };
 
     "/mnt/nas/academy" = {
       device = "10.10.20.10:/mnt/user/academy";
       fsType = "nfs";
-      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" "x-systemd.idle-timeout=300" ];
+      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" ];
     };
 
     "/mnt/nas/family" = {
       device = "10.10.20.10:/mnt/user/family";
       fsType = "nfs";
-      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" "x-systemd.idle-timeout=300" ];
+      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" ];
     };
 
     "/mnt/nas/media" = {
       device = "10.10.20.10:/mnt/user/media";
       fsType = "nfs";
-      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" "x-systemd.idle-timeout=300" ];
+      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" ];
     };
 
     "/mnt/nas/download" = {
       device = "10.10.20.10:/mnt/user/download";
       fsType = "nfs";
-      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" "x-systemd.idle-timeout=300" ];
+      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" ];
     };
 
     "/mnt/nas/games" = {
       device = "10.10.20.10:/mnt/user/games";
       fsType = "nfs";
-      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" "x-systemd.idle-timeout=300" ];
+      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" ];
     };
 
     "/mnt/nas/toolkit" = {
       device = "10.10.20.10:/mnt/user/toolkit";
       fsType = "nfs";
-      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" "x-systemd.idle-timeout=300" ];
+      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" ];
     };
 
     "/mnt/nas/snapshot" = {
       device = "10.10.20.10:/mnt/user/snapshot";
       fsType = "nfs";
-      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" "x-systemd.idle-timeout=300" ];
+      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" ];
     };
 
     "/mnt/nas/valhalla" = {
       device = "10.10.20.10:/mnt/user/valhalla";
       fsType = "nfs";
-      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" "x-systemd.idle-timeout=300" ];
+      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" ];
     };
 
     "/mnt/nas/archive" = {
       device = "10.10.20.10:/mnt/user/archive";
       fsType = "nfs";
-      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" "x-systemd.idle-timeout=300" ];
+      options = [ "noauto" "nofail" "_netdev" "x-systemd.automount" ];
     };
   };
 
