@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# ============================================================
+# NixOS Update Checker
+# Refreshes the NixOS channel, performs a dry-build check,
+# and stores the result in ~/.cache/update-status.
+#
+# Output:
+#   Current - No system updates available
+#   Updates - One or more updates available
+#
+# This script is intended to run in the background via
+# a timer, cron job, or manual execution.
+# ============================================================
+
+status_file="$HOME/.cache/update-status"
+tmp_log=$(mktemp)
+
+sudo nix-channel --update >/dev/null 2>&1
+
+if sudo nixos-rebuild dry-build >"$tmp_log" 2>&1; then
+    if grep -q "these derivations would be built" "$tmp_log"; then
+        echo "Updates" > "$status_file"
+    else
+        echo "Current" > "$status_file"
+    fi
+else
+    echo "Current" > "$status_file"
+fi
+
+rm -f "$tmp_log"
