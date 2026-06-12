@@ -2,53 +2,68 @@
 
 set -euo pipefail
 
+# Function to handle the recovery process for a specific mount point
 recover_mount() {
-local mount="$1"
+    local mount="$1"
+    local share_name
+    share_name=$(basename "$mount")
 
-```
-echo "→ Recovering $(basename "$mount")"
+    echo "=========================================================="
+    echo "Processing target: [$share_name]"
+    echo "Path: $mount"
+    echo "=========================================================="
 
-sudo umount -lf "$mount" 2>/dev/null || true
+    echo "→ [STEP 1] Attempting lazy unmount (umount -lf)..."
+    echo "  (This forces the disconnected or hung share to detach immediately)"
+    sudo umount -lf "$mount" 2>/dev/null || true
 
-sleep 1
+    echo "→ [STEP 2] Pausing for 1 second to allow system to release the mount point..."
+    sleep 1
 
-if timeout 5 ls "$mount" >/dev/null 2>&1; then
-    echo "  ✓ Online"
-else
-    echo "  ⚠ Waiting for automount"
-fi
-
-echo
-```
-
+    echo "→ [STEP 3] Verifying share status via automount..."
+    # Using timeout to prevent the script from hanging if the network storage is unresponsive
+    if timeout 5 ls "$mount" >/dev/null 2>&1; then
+        echo "  Status: ✓ Success - Share is back online and accessible"
+    else
+        echo "  Status: ⚠ Warning - Share is still unresponsive or waiting for automount"
+    fi
+    echo
 }
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " NAS Recovery"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+# Header display
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " NAS Share Recovery Tool"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo
 
+# Validate input arguments
 if [[ $# -ne 1 ]]; then
-echo "Usage: nas-recover <share|all>"
-exit 1
+    echo "Error: Missing argument."
+    echo "Usage: nas-recover <share_name|all>"
+    exit 1
 fi
 
+# Execute recovery based on argument
 if [[ "$1" == "all" ]]; then
-for mount in /mnt/nas/*; do
-recover_mount "$mount"
-done
+    echo "Executing recovery loop for detected paths under /mnt/nas/..."
+    echo
+    for mount in /mnt/nas/*; do
+        # Check if the path actually exists to avoid running on empty directories
+        if [[ -d "$mount" ]]; then
+            recover_mount "$mount"
+        fi
+    done
 
-```
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Recovery Complete"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-exit 0
-```
-
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo " Process execution completed for the selected targets."
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    exit 0
 fi
 
+# Single share execution
+echo "Initiating recovery for specific target..."
 recover_mount "/mnt/nas/$1"
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Recovery Complete"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " Process execution completed for the selected targets."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
