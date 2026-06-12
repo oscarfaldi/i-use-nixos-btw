@@ -45,7 +45,7 @@
       "format": "| {}",
       "return-type": "json",
       "exec": "/run/current-system/sw/bin/check-system-update",
-      "interval": 900,
+      "interval": 10,
       "on-click": "ghostty -e upgrade"
     },
 
