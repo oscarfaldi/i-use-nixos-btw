@@ -1,77 +1,82 @@
 #!/usr/bin/env bash
 
 # =====================================================
-# Modern replacements
+# Modern CLI Helpers
+# Keep standard commands intact.
+# Troubleshooting should behave exactly as expected.
 # =====================================================
 
-# Better ls with icons and colors
-alias ls='eza --icons'
+# =====================================================
+# Listing & Navigation
+# =====================================================
 
-# Long list view
+# Modern file listing
+alias l='eza --icons'
 alias ll='eza -lah --icons --git'
-
-# Show hidden files
 alias la='eza -a --icons'
+alias lt='eza --tree --icons --level=3'
 
-# Tree view
-alias tree='eza --tree --icons --level=3'
-
-# Better cat with syntax highlighting
-alias cat='bat'
-
-# =====================================================
-# Navigation
-# =====================================================
-
+# Directory shortcuts
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 
-# Jump around using zoxide
-alias cd='z'
+# Zoxide shortcut
+alias z='zoxide query -i'
+alias j='z'
+
+# =====================================================
+# File Viewing
+# =====================================================
+
+# Bat shortcuts
+alias b='bat'
+alias bathelp='bat --plain --language=help'
 
 # =====================================================
 # Search
 # =====================================================
 
-# Better find
-alias find='fd'
+# Fast search
+alias f='fd'
 
-# Better grep
-alias grep='grep --color=auto'
+# Ripgrep shortcuts
+alias rg='rg --smart-case'
 
 # =====================================================
-# System information
+# System Monitoring
 # =====================================================
 
-# Pretty system info
+# System info
 alias ff='fastfetch'
 
-# Resource monitor
+# Process viewer
 alias bt='btop'
 
-# Better process viewer
-alias ps='procs'
+# Modern ps
+alias pp='procs'
 
 # =====================================================
 # Storage
 # =====================================================
 
-# Human readable disk usage
-alias df='df -h'
+# Modern disk usage
+alias dust='dust'
 
-# Better du
-alias du='dust'
-
-# Better block devices
-alias lsblk='lsblk -f'
+# Human-readable disk free
+alias dfh='df -h'
 
 # =====================================================
 # NixOS
 # =====================================================
 
-# Go to nix config
+# Open NixOS config
 alias nixconf='cd /etc/nixos'
+
+# Rebuild shortcuts
+alias ns='sudo nixos-rebuild switch'
+alias nt='sudo nixos-rebuild test'
+alias nb='sudo nixos-rebuild boot'
 
 # =====================================================
 # Git
@@ -82,22 +87,25 @@ alias ga='git add'
 alias gc='git commit'
 alias gp='git push'
 
-# Nice git graph
 alias gl='git log --oneline --graph --decorate --all'
+alias gd='git diff'
 
 # =====================================================
-# File safety
+# Safety
 # =====================================================
 
-alias cp='cp -iv'
-alias mv='mv -iv'
-alias rm='rm -Iv'
+# Interactive delete
+alias rm='rm -I'
+
+# =====================================================
+# Configs
+# =====================================================
+
+alias dots='cd ~/.config'
 
 # =====================================================
 # Misc
 # =====================================================
 
 alias cls='clear'
-
-# Open config directory
-alias dots='cd ~/.config'
+alias c='clear'
