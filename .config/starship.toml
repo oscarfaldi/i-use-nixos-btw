@@ -26,6 +26,7 @@ $status\
 $time\
 [ ](fg:color_bg1)\
 $line_break\
+$line_break\
 $character"""
 
 palette = 'gruvbox_dark'
