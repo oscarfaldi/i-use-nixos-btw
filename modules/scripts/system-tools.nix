@@ -14,7 +14,6 @@ in
   # ============================================================
 
   environment.systemPackages = [
-    (mkScript "changes")
     (mkScript "clean")
     (mkScript "rebuild")
     (mkScript "rebuild-boot")
@@ -24,5 +23,7 @@ in
     (mkScript "upgrade")
     (mkScript "version")
     (mkScript "nas-recover")
+    (mkScript "thumbnail")
+    (mkScript "update-checker")
   ];
 }
