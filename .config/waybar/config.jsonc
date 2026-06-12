@@ -2,9 +2,9 @@
   {
     "layer": "top",
     "position": "top",
-    "margin-top": "13",
-    "margin-left": "13",
-    "margin-right": "13",
+    "margin-top": 13,
+    "margin-left": 13,
+    "margin-right": 13,
 
     "modules-left": [
       "custom/logo",
