@@ -208,7 +208,6 @@
     gruvbox-gtk-theme
 
     papirus-icon-theme
-    papirus-folders
     gruvbox-plus-icons
 
     bibata-cursors
