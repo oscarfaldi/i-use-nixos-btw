@@ -1,4 +1,4 @@
-# Rainier Shell
+# Rainier Fallback Bash Shell
 
 # Aliases
 [ -f "$HOME/.config/aliasrc" ] && source "$HOME/.config/aliasrc"
