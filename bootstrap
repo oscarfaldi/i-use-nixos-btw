@@ -114,11 +114,11 @@ success "Theme system ready"
 
 section "Configuring Shell"
 
-if [ ! -f "$REPO_DIR/.config/bashrc" ]; then
-    fail "Missing .config/bashrc"
+if [ ! -f "$REPO_DIR/.config/zshrc" ]; then
+    fail "Missing .config/zshrc"
 fi
 
-cp -f "$REPO_DIR/.config/bashrc" "$HOME/.bashrc"
+cp -f "$REPO_DIR/.config/zshrc" "$HOME/.zshrc"
 
 success "Shell configured"
 
@@ -186,7 +186,7 @@ echo " • User directories"
 echo
 echo "Verified:"
 echo " • .config"
-echo " • .bashrc"
+echo " • .zshrc"
 echo
 echo "System ready."
 echo
