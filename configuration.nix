@@ -60,6 +60,7 @@
   users.users.oscarfaldi = {
     isNormalUser = true;
     description = "Oscar Faldi";
+    shell = pkgs.zsh;
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
     #  thunderbird
