@@ -119,6 +119,7 @@ if [ ! -f "$REPO_DIR/.config/zshrc" ]; then
 fi
 
 cp -f "$REPO_DIR/.config/zshrc" "$HOME/.zshrc"
+cp -f "$REPO_DIR/.config/bashrc" "$HOME/.bashrc"
 
 success "Shell configured"
 
