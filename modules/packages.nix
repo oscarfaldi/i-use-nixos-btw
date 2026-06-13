@@ -29,8 +29,8 @@
   # Privilege escalation framework
   security.polkit.enable = true;
 
-  # Bash completion
-  programs.bash.completion.enable = true;
+  # ZSH enable
+  programs.zsh.enable = true;
 
   # ============================================================
   # Optional Services
@@ -73,7 +73,9 @@
     # ------------------------------------------------------------
 
     bash
-    bash-completion
+    zsh
+    zsh-autosuggestions
+    zsh-completions
 
     git
     nano
@@ -81,8 +83,7 @@
 
     ghostty
     neovim
-    vimPlugins.LazyVim
-    zed
+    zed-editor
 
     # ------------------------------------------------------------
     # Terminal Utilities
@@ -103,8 +104,6 @@
     yq-go
 
     starship
-    procs
-    dust
 
     man-pages
     man-pages-posix
