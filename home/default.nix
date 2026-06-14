@@ -1,4 +1,4 @@
-{ ... }:
+{ config, pkgs, ... }:
 
 {
   imports = [
@@ -7,5 +7,10 @@
     ./xdg.nix
   ];
 
+  home.username = "oscarfaldi";
+  home.homeDirectory = "/home/oscarfaldi";
+
   home.stateVersion = "25.11";
+
+  programs.home-manager.enable = true;
 }
