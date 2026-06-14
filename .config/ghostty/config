@@ -1,6 +1,6 @@
 # Theme
 
-theme = /home/oscarfaldi/.cache/theme/ghostty.theme
+theme = gruvbox
 
 # Font
 
