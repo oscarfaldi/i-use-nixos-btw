@@ -36,9 +36,6 @@
   home.file.".config/aliasrc".source =
     ../.config/aliasrc;
 
-  home.file.".config/bashrc".source =
-    ../.config/bashrc;
-
   home.file.".config/zshrc".source =
     ../.config/zshrc;
 
