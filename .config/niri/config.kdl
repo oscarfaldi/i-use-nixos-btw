@@ -180,12 +180,11 @@ input {
 
 	// System services	
         spawn-at-startup "/run/current-system/sw/libexec/polkit-gnome-authentication-agent-1"
-        spawn-at-startup "mako"
         spawn-at-startup "swayidle"
-        spawn-at-startup "waybar"
         spawn-at-startup "awww-daemon"
         spawn-at-startup "wallpaperd"
-        spawn-at-startup "theme"
+        spawn-at-startup "waybar"
+        spawn-at-startup "mako"
 	
 	// Applications
         spawn-at-startup "chromium" "--app=https://chatgpt.com"
@@ -291,7 +290,7 @@ binds {
     Mod+B                               hotkey-overlay-title="Open Browser: Chromium" { spawn "chromium"; }
     Mod+D                               hotkey-overlay-title="Open App Launcher: Fuzzel" { spawn "fuzzel"; }
     Mod+E                               hotkey-overlay-title="File Manager: Thunar" { spawn "thunar"; }
-    Mod+ALT+L                           hotkey-overlay-title="Lock Screen: Swaylock" { spawn "swaylock"; }
+    Mod+Shift+L                         hotkey-overlay-title="Lock Screen: Swaylock" { spawn "swaylock"; }
     Mod+Shift+Q                         hotkey-overlay-title="Power Menu: Wlogout" { spawn "wlogout"; }
     Mod+Shift+A                         hotkey-overlay-title="AI Assistant: ChatGPT" { spawn "chatgpt"; }
     Mod+Shift+S                         hotkey-overlay-title="Notes: Mousepad" { spawn "mousepad"; }
@@ -403,9 +402,6 @@ binds {
     Mod+T                               { toggle-window-floating; }
     Mod+Alt+F                           { fullscreen-window; }
     Mod+W                               { toggle-column-tabbed-display; }
-
-    // ─── Theme ───
-    CTRL+Shift+TAB                      { spawn "theme-toggle"; }
 
     // ─── Wallpaper ───
     CTRL+TAB                            { spawn "wallpaper"; }
