@@ -16,5 +16,7 @@
       videos = "$HOME/Videos";
       templates = "$HOME/Templates";
     };
+
+    mime.enable = true;
   };
 }
