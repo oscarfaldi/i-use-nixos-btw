@@ -29,73 +29,73 @@ in
     (mkPWA {
       name = "ChatGPT";
       url = "https://chatgpt.com";
-      icon = "/etc/nixos/assets/icons/chatgpt.svg";
+      icon = "~/.config/assets/icons/chatgpt.svg";
     })
 
     (mkPWA {
       name = "Canva";
       url = "https://canva.com";
-      icon = "/etc/nixos/assets/icons/canva.svg";
+      icon = "~/.config/assets/icons/canva.svg";
     })
 
     (mkPWA {
       name = "Gemini";
       url = "https://gemini.google.com";
-      icon = "/etc/nixos/assets/icons/gemini.png";
+      icon = "~/.config/assets/icons/gemini.png";
     })
 
     (mkPWA {
       name = "Claude";
       url = "https://claude.ai";
-      icon = "/etc/nixos/assets/icons/claude.svg";
+      icon = "~/.config/assets/icons/claude.svg";
     })
 
     (mkPWA {
       name = "Unraid";
       url = "http://10.10.10.10:8081/";
-      icon = "/etc/nixos/assets/icons/unraid.svg";
+      icon = "~/.config/assets/icons/unraid.svg";
     })
 
     (mkPWA {
       name = "WhatsApp";
       url = "https://web.whatsapp.com";
-      icon = "/etc/nixos/assets/icons/whatsapp.svg";
+      icon = "~/.config/assets/icons/whatsapp.svg";
     })
 
     (mkPWA {
       name = "Wordpress";
       url = "https://oscarfaldi.com/wp-admin";
-      icon = "/etc/nixos/assets/icons/wordpress.svg";
+      icon = "~/.config/assets/icons/wordpress.svg";
     })
 
     (mkPWA {
       name = "Jellyfin";
       url = "http://10.10.10.10:8096/";
-      icon = "/etc/nixos/assets/icons/jellyfin.svg";
+      icon = "~/.config/assets/icons/jellyfin.svg";
     })
 
     (mkPWA {
       name = "Navidrome";
       url = "http://10.10.10.10:4533/";
-      icon = "/etc/nixos/assets/icons/navidrome.svg";
+      icon = "~/.config/assets/icons/navidrome.svg";
     })
 
     (mkPWA {
       name = "Obsidian";
       url = "http://10.10.10.10:3001/";
-      icon = "/etc/nixos/assets/icons/obsidian.svg";
+      icon = "~/.config/assets/icons/obsidian.svg";
     })
 
     (mkPWA {
       name = "Grafana";
       url = "http://10.10.10.10:3050/";
-      icon = "/etc/nixos/assets/icons/grafana.svg";
+      icon = "~/.config/assets/icons/grafana.svg";
     })
 
     (mkPWA {
       name = "Gmail";
       url = "https://mail.google.com";
-      icon = "/etc/nixos/assets/icons/gmail.svg";
+      icon = "~/.config/assets/icons/gmail.svg";
     })
   ];
 }
