@@ -46,9 +46,14 @@ awww img "$SELECTED" \
     --transition-fps 60 \
     --transition-step 2
 
-wallust run "$SELECTED"
-
-pkill -SIGUSR2 waybar 2>/dev/null || true
+# Regenerate wallust theme
+if wallust run "$SELECTED"; then
+    pkill -SIGUSR2 waybar 2>/dev/null || true
+else
+    notify-send \
+        "Wallust Error" \
+        "Theme generation failed"
+fi
 
 notify-send \
     "Wallpaper Updated" \
