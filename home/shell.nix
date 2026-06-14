@@ -3,13 +3,13 @@
 {
   programs.zsh = {
     enable = true;
+
+    initContent = ''
+      source ~/.config/zshrc
+    '';
   };
 
   programs.starship = {
     enable = true;
   };
-
-  home.file.".zshrc".text = ''
-    source ~/.config/zshrc
-  '';
 }
