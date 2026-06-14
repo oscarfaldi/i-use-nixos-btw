@@ -19,4 +19,9 @@
 
     mime.enable = true;
   };
+
+  home.activation.createGamesDir =
+    config.lib.dag.entryAfter [ "writeBoundary" ] ''
+      mkdir -p "$HOME/Games"
+    '';
 }
