@@ -14,12 +14,7 @@ in
   # ============================================================
 
   environment.systemPackages = [
-    (mkScript "theme-toggle")
     (mkScript "wallpaper")
     (mkScript "wallpaperd")
-    (mkScript "generate-theme")
-    (mkScript "theme-graphite")
-    (mkScript "theme-vintage")
-    (mkScript "theme-jade")
   ];
 }
