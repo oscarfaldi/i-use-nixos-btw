@@ -3,21 +3,27 @@
 set -e
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Switching Rainier to unstable..."
+echo " Switching Rainier to unstable and installing home-manager..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo
 
 # Remove the existing channel if it exists
 sudo nix-channel --remove nixos 2>/dev/null || true
+sudo nix-channel --remove home-manager 2>/dev/null || true
 
 # Add the unstable channel (fixed line break and trailing spaces)
 sudo nix-channel --add https://channels.nixos.org/nixos-unstable nixos
+
+# Installing Home-Manager
+sudo nix-channel --add \
+https://github.com/nix-community/home-manager/archive/release-25.11.tar.gz \
+home-manager
 
 # Update channels to apply changes
 sudo nix-channel --update
 
 echo
-echo "✓ Unstable channel enabled."
+echo "✓ Unstable channel and home manager enabled."
 echo
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
