@@ -8,7 +8,7 @@
       enable = true;
       createDirectories = true;
 
-      desktop = "$HOME";
+      desktop = "$HOME/Desktop";
       documents = "$HOME/Documents";
       download = "$HOME/Downloads";
       music = "$HOME/Music";
