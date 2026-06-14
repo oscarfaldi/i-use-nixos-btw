@@ -149,6 +149,7 @@
     mousepad
 
     nfs-utils
+    xdg-user-dirs
     xdg-user-dirs-gtk
 
     # ------------------------------------------------------------
