@@ -3,15 +3,29 @@
 # ============================================================
 # Wallpaper Startup Loader
 # Restores the last selected wallpaper on login.
+# Falls back to a random wallpaper on first boot.
 # ============================================================
 
 set -e
 
 CURRENT="$HOME/.local/state/current-wallpaper"
+WALLPAPER_DIR="$HOME/.config/assets/wallpapers"
 
-[ -f "$CURRENT" ] || exit 0
+mkdir -p "$HOME/.local/state"
 
-WALLPAPER=$(cat "$CURRENT")
+if [ -f "$CURRENT" ]; then
+    WALLPAPER=$(cat "$CURRENT")
+else
+    WALLPAPER=$(find "$WALLPAPER_DIR" -type f \( \
+        -iname "*.jpg" \
+        -o -iname "*.jpeg" \
+        -o -iname "*.png" \
+        -o -iname "*.webp" \
+    \) | shuf -n 1)
+
+    [ -n "$WALLPAPER" ] || exit 0
+    echo "$WALLPAPER" > "$CURRENT"
+fi
 
 [ -f "$WALLPAPER" ] || exit 0
 
