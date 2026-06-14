@@ -14,8 +14,16 @@
   # Enable xfconf for saving thunar configuration
   programs.xfconf.enable = true;
 
+  # Enable dbus system
+  services.dbus.enable = true;
+
   # Enable thumbnail for thunar
   services.tumbler.enable = true;
+    extraConfig = ''
+      [General]
+      MaxCacheSize=0
+      MaxCacheAge=0
+    '';
 
   # Virtual filesystem support (USB, trash, network shares, sidebar integration)
   services.gvfs.enable = true;
