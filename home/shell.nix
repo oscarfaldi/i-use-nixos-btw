@@ -12,8 +12,4 @@
   home.file.".zshrc".text = ''
     source ~/.config/zshrc
   '';
-
-  home.file.".bashrc".text = ''
-    source ~/.config/bashrc
-  '';
 }
