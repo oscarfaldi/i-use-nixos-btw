@@ -14,6 +14,7 @@
       ./modules/audio.nix
       ./modules/appearance.nix
       ./modules/home.nix
+      ./modules/chromium-policy.nix
       ./modules/greeter.nix
       ./modules/packages.nix
       ./modules/network.nix
