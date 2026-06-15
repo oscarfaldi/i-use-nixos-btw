@@ -1,0 +1,253 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+# ==========================================================
+# CONFIG
+# ==========================================================
+
+NAS_IP="10.10.20.10"
+NAS_IFACE="enp4s0f0"
+
+SHARES=(
+  academy
+  archive
+  download
+  family
+  games
+  media
+  mulino
+  oscarfaldi
+  personalbranding
+  snapshot
+  toolkit
+  valhalla
+)
+
+# ==========================================================
+# OUTPUT
+# ==========================================================
+
+TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
+OUT="$HOME/Downloads/nas-debug-$TIMESTAMP.txt"
+LATEST="$HOME/Downloads/nas-debug-latest.txt"
+
+touch "$OUT"
+
+section() {
+  {
+    echo
+    echo "============================================================"
+    echo "$1"
+    echo "============================================================"
+    echo
+  } >> "$OUT"
+}
+
+run() {
+  local title="$1"
+  shift
+
+  section "$title"
+
+  {
+    echo '$' "$@"
+    echo
+    timeout 15 "$@" 2>&1 || true
+    echo
+  } >> "$OUT"
+}
+
+# ==========================================================
+# SUMMARY TO TERMINAL
+# ==========================================================
+
+echo
+echo "=================================================="
+echo "NAS DEBUG"
+echo "=================================================="
+echo "Output file:"
+echo "$OUT"
+echo
+echo "Collecting diagnostics..."
+echo
+
+# ==========================================================
+# HEADER
+# ==========================================================
+
+{
+  echo "NAS DEBUG REPORT"
+  echo
+  echo "Timestamp : $(date)"
+  echo "Hostname  : $(hostname)"
+  echo "Kernel    : $(uname -r)"
+  echo "Uptime    : $(uptime)"
+} >> "$OUT"
+
+# ==========================================================
+# BASIC SYSTEM
+# ==========================================================
+
+run "SYSTEM INFO" uname -a
+run "UPTIME" uptime
+run "DISK USAGE" df -h
+run "MEMORY" free -h
+
+# ==========================================================
+# NETWORK
+# ==========================================================
+
+run "IP ADDR" ip addr
+run "IP ROUTE" ip route
+run "IP NEIGH" ip neigh show
+
+section "PING NAS"
+
+{
+  echo "\$ ping -c 5 $NAS_IP"
+  echo
+  timeout 10 ping -c 5 "$NAS_IP" 2>&1 || true
+} >> "$OUT"
+
+# ==========================================================
+# INTERFACE STATUS
+# ==========================================================
+
+section "INTERFACE STATUS"
+
+{
+  echo "Interface: $NAS_IFACE"
+  echo
+
+  if [[ -e /sys/class/net/$NAS_IFACE/carrier ]]; then
+    echo "carrier:"
+    cat "/sys/class/net/$NAS_IFACE/carrier"
+    echo
+  fi
+
+  if [[ -e /sys/class/net/$NAS_IFACE/operstate ]]; then
+    echo "operstate:"
+    cat "/sys/class/net/$NAS_IFACE/operstate"
+    echo
+  fi
+
+} >> "$OUT"
+
+# ==========================================================
+# SYSTEMD
+# ==========================================================
+
+run "FAILED UNITS" systemctl --failed
+
+section "MOUNT UNITS"
+
+for share in "${SHARES[@]}"; do
+  {
+    echo
+    echo "----- $share -----"
+    echo
+  } >> "$OUT"
+
+  timeout 10 systemctl status \
+    "mnt-nas-${share}.mount" \
+    --no-pager 2>&1 >> "$OUT" || true
+done
+
+section "AUTOMOUNT UNITS"
+
+for share in "${SHARES[@]}"; do
+  {
+    echo
+    echo "----- $share -----"
+    echo
+  } >> "$OUT"
+
+  timeout 10 systemctl status \
+    "mnt-nas-${share}.automount" \
+    --no-pager 2>&1 >> "$OUT" || true
+done
+
+# ==========================================================
+# SHARE ACCESS TEST
+# ==========================================================
+
+section "SHARE ACCESS TESTS"
+
+for share in "${SHARES[@]}"; do
+
+  path="/mnt/nas/$share"
+
+  {
+    echo
+    echo "----- $share -----"
+    echo "Path: $path"
+    echo
+  } >> "$OUT"
+
+  if timeout 5 ls "$path" >/dev/null 2>&1; then
+    echo "RESULT: ACCESS OK" >> "$OUT"
+  else
+    echo "RESULT: ACCESS FAILED/TIMEOUT" >> "$OUT"
+  fi
+
+done
+
+# ==========================================================
+# MOUNTS
+# ==========================================================
+
+run "FINDMNT" findmnt
+run "MOUNT" mount
+
+# ==========================================================
+# D STATE TASKS
+# ==========================================================
+
+section "D STATE TASKS"
+
+{
+  ps -eo pid,state,wchan:40,comm | grep ' D ' || true
+} >> "$OUT"
+
+# ==========================================================
+# NFS
+# ==========================================================
+
+run "NFS MOUNTS" mount
+run "NFS PROCESSES" ps aux
+
+# ==========================================================
+# KERNEL LOGS
+# ==========================================================
+
+section "KERNEL FILTERED"
+
+{
+  journalctl -k -b --no-pager 2>/dev/null | \
+    grep -Ei 'ixgbe|nfs|rpc|mount|link|carrier|network|ethernet' || true
+} >> "$OUT"
+
+section "LAST 300 KERNEL LINES"
+
+{
+  journalctl -k -b -n 300 --no-pager 2>&1 || true
+} >> "$OUT"
+
+# ==========================================================
+# DONE
+# ==========================================================
+
+cp "$OUT" "$LATEST"
+
+echo
+echo "Done."
+echo
+echo "Latest report:"
+echo "$LATEST"
+echo
+echo "If NAS is broken:"
+echo "1. Run nas-debug"
+echo "2. Upload nas-debug-latest.txt"
+echo "3. Then recover/reboot"
+echo
