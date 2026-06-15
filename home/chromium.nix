@@ -6,9 +6,10 @@
 
     extensions = [
       { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
-      { id = "mnjggcdmjocbbbhaepdhchncahnbgone"; } # uBlock Origin Lite
+      { id = "ddkjiahejlhfcafbddmgiahcphecmpfh"; } # uBlock Origin Lite
       { id = "ldgfbffkinooeloadekpmfoklnobpien"; } # Raindrop.io
       { id = "olenolhfominlkfmlkolcahemogebpcj"; } # Fast Save and Repost for Instagram
+      { id = "abjcfabbhafbcdfjoecdgepllmpfceif"; } # Magic Actions for YouTube
     ];
 
     commandLineArgs = [
