@@ -7,6 +7,7 @@
     userDirs = {
       enable = true;
       createDirectories = true;
+      setSessionVariables = true;
 
       desktop = "$HOME/Desktop";
       documents = "$HOME/Documents";
@@ -14,7 +15,7 @@
       music = "$HOME/Music";
       pictures = "$HOME/Pictures";
       videos = "$HOME/Videos";
-      templates = "$HOME/Templates";
+      templates = null;
     };
 
     mime.enable = true;
