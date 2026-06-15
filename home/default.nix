@@ -5,6 +5,7 @@
     ./files.nix
     ./shell.nix
     ./xdg.nix
+    ./chromium.nix
   ];
 
   home.username = "oscarfaldi";
