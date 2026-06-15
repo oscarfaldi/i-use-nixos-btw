@@ -1,42 +1,32 @@
-programs.chromium = {
-  enable = true;
+{ config, pkgs, ... }:
 
-  extensions = [
-    { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
-    { id = "mnjggcdmjocbbbhaepdhchncahnbgone"; } # uBlock Origin Lite
-    { id = "ldgfbffkinooeloadekpmfoklnobpien"; } # Raindrop.io
-    { id = "olenolhfominlkfmlkolcahemogebpcj"; } # Fast Save and Repost for Instagram
-  ];
+{
+  programs.chromium = {
+    enable = true;
 
-  commandLineArgs = [
-    "--disable-smooth-scrolling"
-    "--disable-features=TabHoverCardImages"
-    "--enable-features=VaapiVideoDecoder"
-    "--ignore-gpu-blocklist"
-  ];
+    extensions = [
+      { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
+      { id = "mnjggcdmjocbbbhaepdhchncahnbgone"; } # uBlock Origin Lite
+      { id = "ldgfbffkinooeloadekpmfoklnobpien"; } # Raindrop.io
+      { id = "olenolhfominlkfmlkolcahemogebpcj"; } # Fast Save and Repost for Instagram
+    ];
 
-  extraOpts = {
-    # Bitwarden replaces Chromium password manager
-    PasswordManagerEnabled = false;
+    commandLineArgs = [
+      # UI
+      "--disable-smooth-scrolling"
+      "--disable-features=TabHoverCardImages"
 
-    # Disable autofill junk
-    AutofillAddressEnabled = false;
-    AutofillCreditCardEnabled = false;
+      # Wayland
+      "--ozone-platform=wayland"
 
-    # Session restore
-    RestoreOnStartup = 1;
+      # Session
+      "--restore-last-session"
 
-    # Disable shopping features
-    ShoppingListEnabled = false;
-
-    # Cloudflare DNS-over-HTTPS
-    DnsOverHttpsMode = "secure";
-    DnsOverHttpsTemplates = "https://cloudflare-dns.com/dns-query";
-
-    # Reduce telemetry
-    MetricsReportingEnabled = false;
-
-    # Don't keep Chromium alive after closing
-    BackgroundModeEnabled = false;
+      # Hardware acceleration
+      "--enable-features=VaapiVideoDecoder"
+      "--ignore-gpu-blocklist"
+      "--enable-zero-copy"
+      "--enable-gpu-rasterization"
+    ];
   };
-};
+}
