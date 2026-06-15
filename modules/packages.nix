@@ -19,11 +19,6 @@
 
   # Enable thumbnail for thunar
   services.tumbler.enable = true;
-    extraConfig = ''
-      [General]
-      MaxCacheSize=0
-      MaxCacheAge=0
-    '';
 
   # Virtual filesystem support (USB, trash, network shares, sidebar integration)
   services.gvfs.enable = true;
@@ -81,7 +76,6 @@
     # ------------------------------------------------------------
 
     bash
-    zsh
     zsh-autosuggestions
     zsh-completions
 
