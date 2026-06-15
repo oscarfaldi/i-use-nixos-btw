@@ -28,73 +28,73 @@ in
     (mkPWA {
       name = "ChatGPT";
       url = "https://chatgpt.com";
-      icon = "${config.home.homeDirectory}/.config/assets/icons/chatgpt.svg";
+      icon = "/home/oscarfaldi/.config/assets/icons/chatgpt.svg";
     })
 
     (mkPWA {
       name = "Canva";
       url = "https://canva.com";
-      icon = "${config.home.homeDirectory}/.config/assets/icons/canva.svg";
+      icon = "/home/oscarfaldi/.config/assets/icons/canva.svg";
     })
 
     (mkPWA {
       name = "Gemini";
       url = "https://gemini.google.com";
-      icon = "${config.home.homeDirectory}/.config/assets/icons/gemini.png";
+      icon = "/home/oscarfaldi/.config/assets/icons/gemini.png";
     })
 
     (mkPWA {
       name = "Claude";
       url = "https://claude.ai";
-      icon = "${config.home.homeDirectory}/.config/assets/icons/claude.svg";
+      icon = "/home/oscarfaldi/.config/assets/icons/claude.svg";
     })
 
     (mkPWA {
       name = "Unraid";
       url = "http://10.10.10.10:8081/";
-      icon = "${config.home.homeDirectory}/.config/assets/icons/unraid.svg";
+      icon = "/home/oscarfaldi/.config/assets/icons/unraid.svg";
     })
 
     (mkPWA {
       name = "WhatsApp";
       url = "https://web.whatsapp.com";
-      icon = "${config.home.homeDirectory}/.config/assets/icons/whatsapp.svg";
+      icon = "/home/oscarfaldi/.config/assets/icons/whatsapp.svg";
     })
 
     (mkPWA {
       name = "Wordpress";
       url = "https://oscarfaldi.com/wp-admin";
-      icon = "${config.home.homeDirectory}/.config/assets/icons/wordpress.svg";
+      icon = "/home/oscarfaldi/.config/assets/icons/wordpress.svg";
     })
 
     (mkPWA {
       name = "Jellyfin";
       url = "http://10.10.10.10:8096/";
-      icon = "${config.home.homeDirectory}/.config/assets/icons/jellyfin.svg";
+      icon = "/home/oscarfaldi/.config/assets/icons/jellyfin.svg";
     })
 
     (mkPWA {
       name = "Navidrome";
       url = "http://10.10.10.10:4533/";
-      icon = "${config.home.homeDirectory}/.config/assets/icons/navidrome.svg";
+      icon = "/home/oscarfaldi/.config/assets/icons/navidrome.svg";
     })
 
     (mkPWA {
       name = "Obsidian";
       url = "http://10.10.10.10:3001/";
-      icon = "${config.home.homeDirectory}/.config/assets/icons/obsidian.svg";
+      icon = "/home/oscarfaldi/.config/assets/icons/obsidian.svg";
     })
 
     (mkPWA {
       name = "Grafana";
       url = "http://10.10.10.10:3050/";
-      icon = "${config.home.homeDirectory}/.config/assets/icons/grafana.svg";
+      icon = "/home/oscarfaldi/.config/assets/icons/grafana.svg";
     })
 
     (mkPWA {
       name = "Gmail";
       url = "https://mail.google.com";
-      icon = "${config.home.homeDirectory}/.config/assets/icons/gmail.svg";
+      icon = "/home/oscarfaldi/.config/assets/icons/gmail.svg";
     })
   ];
 }
