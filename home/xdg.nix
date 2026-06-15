@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   xdg = {
@@ -22,7 +22,7 @@
   };
 
   home.activation.createGamesDir =
-    config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       mkdir -p "$HOME/Games"
     '';
 }
