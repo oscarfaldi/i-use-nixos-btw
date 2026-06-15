@@ -31,8 +31,8 @@
   home.file.".config/aliasrc".source =
     ../.config/aliasrc;
 
-  home.file.".config/zsh".source =
-    ../.config/zsh;
+home.file.".config/zsh/.zshrc".source =
+  ../.config/zsh/.zshrc;
 
   home.file.".config/starship.toml".source =
     ../.config/starship.toml;
