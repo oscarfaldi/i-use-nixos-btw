@@ -1,6 +1,6 @@
 @import url("/home/oscarfaldi/.cache/wallust/waybar.css");
 
-{
+* {
     font-family: "JetBrainsMono Nerd Font";
     font-size: 14px;
     min-height: 35px;
