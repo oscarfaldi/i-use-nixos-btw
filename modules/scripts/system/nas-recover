@@ -1,73 +1,184 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
-# Define the list of all your NAS share names here.
-# Replace or add according to the actual folder names under /mnt/nas/
-SHARES=("academy" "archive" "download" "family" "games" "media" "mulino" "oscarfaldi" "personalbranding" "snapshot" "toolkit" "valhalla")
+# ==============================================================
+# Configuration
+# ==============================================================
 
-# Function to handle the recovery process for a specific mount point
-recover_mount() {
-    local mount="$1"
-    local share_name
-    share_name=$(basename "$mount")
+NAS_IP="10.10.20.10"
 
-    echo "=========================================================="
-    echo "Processing target: [$share_name]"
-    echo "Path: $mount"
-    echo "=========================================================="
+SHARES=(
+    academy
+    archive
+    download
+    family
+    games
+    media
+    mulino
+    oscarfaldi
+    personalbranding
+    snapshot
+    toolkit
+    valhalla
+)
 
-    echo "→ [STEP 1] Attempting lazy unmount (umount -lf)..."
-    echo "  (This forces the disconnected or hung share to detach immediately)"
-    sudo umount -lf "$mount" 2>/dev/null || true
+# ==============================================================
+# Helpers
+# ==============================================================
 
-    echo "→ [STEP 2] Pausing for 1 second to allow system to release the mount point..."
-    sleep 1
-
-    echo "→ [STEP 3] Verifying share status via automount..."
-    # Using timeout to prevent the script from hanging if the network storage is unresponsive
-    if timeout 5 ls "$mount" >/dev/null 2>&1; then
-        echo "  Status: ✓ Success - Share is back online and accessible"
-    else
-        echo "  Status: ⚠ Warning - Share is still unresponsive or waiting for automount"
-    fi
+print_header() {
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo " NAS Share Recovery Tool"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo
 }
 
-# Header display
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " NAS Share Recovery Tool"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
+check_share() {
+    local share="$1"
+    local mount="/mnt/nas/$share"
 
-# Validate input arguments
+    printf "%-20s" "$share"
+
+    if timeout 5 ls "$mount" >/dev/null 2>&1; then
+        echo "✓ OK"
+        return 0
+    else
+        echo "✗ FAILED"
+        return 1
+    fi
+}
+
+run_debug_hint() {
+    echo
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo " Recovery did not fully succeed."
+    echo
+    echo " Recommended next step:"
+    echo "   nas-debug"
+    echo
+    echo " Then upload:"
+    echo "   ~/Downloads/nas-debug-latest.txt"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo
+}
+
+recover_mount() {
+    local share="$1"
+    local mount="/mnt/nas/$share"
+
+    echo "=========================================================="
+    echo " Processing target: [$share]"
+    echo " Path: $mount"
+    echo "=========================================================="
+
+    echo "  → [STEP 1] Lazy unmount"
+    sudo umount -lf "$mount" 2>/dev/null || true
+
+    echo "  → [STEP 2] Pause"
+    sleep 1
+
+    echo "  → [STEP 3] Trigger automount"
+    if timeout 5 ls "$mount" >/dev/null 2>&1; then
+        echo "     Status: ✓ Success"
+        return 0
+    else
+        echo "     Status: ⚠ Still failing"
+        return 1
+    fi
+}
+
+recover_all() {
+    local failed=0
+
+    for share in "${SHARES[@]}"; do
+        recover_mount "$share" || failed=1
+        echo
+    done
+
+    return "$failed"
+}
+
+check_all() {
+    echo
+    echo "Checking NAS shares..."
+    echo
+
+    local failed=0
+
+    for share in "${SHARES[@]}"; do
+        check_share "$share" || failed=1
+    done
+
+    echo
+
+    if [[ "$failed" -ne 0 ]]; then
+        echo "One or more shares failed."
+        return 1
+    fi
+
+    echo "All shares look healthy."
+    return 0
+}
+
+share_exists() {
+    local target="$1"
+
+    for share in "${SHARES[@]}"; do
+        [[ "$share" == "$target" ]] && return 0
+    done
+
+    return 1
+}
+
+# ==============================================================
+# Main
+# ==============================================================
+
+print_header
+
 if [[ $# -ne 1 ]]; then
-    echo "Error: Missing argument."
-    echo "Usage: nas-recover <share_name|all>"
+    echo "Usage:"
+    echo
+    echo "  nas-recover <share>"
+    echo "  nas-recover all"
+    echo "  nas-recover check"
+    echo
     exit 1
 fi
 
-# Execute recovery based on argument
-if [[ "$1" == "all" ]]; then
-    echo "Executing recovery loop for detected paths under /mnt/nas/..."
+ARG="$1"
+
+# Quick connectivity hint
+if ! ping -c1 -W1 "$NAS_IP" >/dev/null 2>&1; then
+    echo "⚠ NAS ($NAS_IP) is currently unreachable"
     echo
-
-    for share in "${SHARES[@]}"; do
-        target_path="/mnt/nas/$share"
-        # Target the paths directly from the static array without filtering by directory type.
-        recover_mount "$target_path"
-    done
-
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo " Process execution completed for the selected targets."
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    exit 0
 fi
 
-# Single share execution
-echo "Initiating recovery for specific target..."
-recover_mount "/mnt/nas/$1"
+case "$ARG" in
+    check)
+        check_all
+        ;;
+    all)
+        if ! recover_all; then
+            run_debug_hint
+            exit 1
+        fi
+        ;;
+    *)
+        if ! share_exists "$ARG"; then
+            echo "Unknown share: $ARG"
+            exit 1
+        fi
 
+        if ! recover_mount "$ARG"; then
+            run_debug_hint
+            exit 1
+        fi
+        ;;
+esac
+
+echo
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Process execution completed for the selected targets."
+echo " Done."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo
