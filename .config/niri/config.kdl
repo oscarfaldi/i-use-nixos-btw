@@ -183,6 +183,7 @@ input {
         spawn-at-startup "swayidle"
         spawn-at-startup "awww-daemon"
         spawn-at-startup "wallpaperd"
+        spawn-at-startup "wallust"
         spawn-at-startup "waybar"
         spawn-at-startup "mako"
 	
