@@ -3,13 +3,8 @@
 {
   programs.zsh = {
     enable = true;
-
-    initContent = ''
-      source ~/.config/zshrc
-    '';
+    dotDir = "${config.xdg.configHome}/zsh";
   };
 
-  programs.starship = {
-    enable = true;
-  };
+  programs.starship.enable = true;
 }
