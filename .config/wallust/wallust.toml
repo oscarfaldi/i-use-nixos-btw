@@ -80,6 +80,11 @@ palette = "salience-dark"
 #   glava    = { template = 'glava/',   target = '~/.config/glava/', max_depth = 1 }
 #   # pywal compatibility
 #   wal      = { template = 'wal/',     target = '~/.cache/wal/', pywal = true }
+waybar = {
+    template = "waybar.css",
+    target = "~/.cache/wallust/waybar.css"
+}
+
 
 [hooks]
 # Shell commands run after every palette generation, skip all with --no-hooks
