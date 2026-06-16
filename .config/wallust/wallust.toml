@@ -85,6 +85,11 @@ waybar = {
     target = "~/.cache/wallust/waybar.css"
 }
 
+wlogout = {
+    template = "wlogout.css",
+    target = "~/.cache/wallust/wlogout.css"
+}
+
 fuzzel = {
     template = "fuzzel-colors.ini",
     target = "~/.config/fuzzel/colors.ini"
