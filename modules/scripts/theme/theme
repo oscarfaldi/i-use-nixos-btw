@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# ==============================================================================
+# Script: System Theme Configuration
+# Description: Sets the system color scheme to dark, applies the Graphite-Dark 
+#              GTK theme, Papirus-Dark icons, and forces Bibata Modern Ice cursor.
+# ==============================================================================
+
+echo "Applying system theme configuration..."
+
+# 1. Set Color Scheme to Prefer Dark
+gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+
+# 2. Set GTK Theme to Graphite-Dark
+gsettings set org.gnome.desktop.interface gtk-theme 'Graphite-Dark'
+
+# 3. Set Icon Theme to Papirus-Dark
+gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
+
+# 4. Set Cursor Theme to Bibata-Modern-Ice (Ensuring decisive application)
+gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
+
+echo "Theme configuration applied successfully!"
