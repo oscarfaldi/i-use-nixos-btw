@@ -92,12 +92,12 @@ wlogout = {
 
 fuzzel = {
     template = "fuzzel-colors.ini",
-    target = "~/.cache/wallust/colors.ini"
+    target = "~/.cache/wallust/fuzzel.ini"
 }
 
 mako = {
     template = "mako-colors.conf",
-    target = "~/.cache/wallust/colors.conf"
+    target = "~/.cache/wallust/mako.conf"
 }
 
 [hooks]
