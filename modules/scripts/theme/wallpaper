@@ -49,6 +49,7 @@ awww img "$SELECTED" \
 # Regenerate wallust theme
 if wallust run "$SELECTED"; then
     pkill -SIGUSR2 waybar 2>/dev/null || true
+    makoctl reload 2>/dev/null || true
 else
     notify-send \
         "Wallust Error" \
