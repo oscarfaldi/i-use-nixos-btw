@@ -105,6 +105,11 @@ ghostty = {
     target = "~/.cache/wallust/ghostty"
 }
 
+swaylock = {
+    template = "swaylock-colors.conf",
+    target = "~/.cache/wallust/swaylock.conf"
+}
+
 [hooks]
 # Shell commands run after every palette generation, skip all with --no-hooks
 # Examples:
