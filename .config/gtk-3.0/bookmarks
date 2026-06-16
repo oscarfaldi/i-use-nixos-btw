@@ -5,15 +5,15 @@ file:///home/oscarfaldi/Videos Videos
 file:///home/oscarfaldi/Music Music
 file:///etc/nixos Nixos
 file:///home/oscarfaldi/.config Config
-file:///mnt/nas/academy Academy
-file:///mnt/nas/archive Archive
-file:///mnt/nas/download Download
-file:///mnt/nas/family Family
-file:///mnt/nas/games Games
-file:///mnt/nas/media Media
-file:///mnt/nas/mulino Mulino
-file:///mnt/nas/oscarfaldi Oscar Faldi
-file:///mnt/nas/personalbranding Personal Branding
-file:///mnt/nas/snapshot Snapshot
-file:///mnt/nas/toolkit Toolkit
-file:///mnt/nas/valhalla Valhalla
+smb://10.10.20.10/academy Academy
+smb://10.10.20.10/archive Archive
+smb://10.10.20.10/download Download
+smb://10.10.20.10/family Family
+smb://10.10.20.10/games Games
+smb://10.10.20.10/media Media
+smb://10.10.20.10/mulino Mulino
+smb://10.10.20.10/oscarfaldi Oscar Faldi
+smb://10.10.20.10/personalbranding Personal Branding
+smb://10.10.20.10/snapshot Snapshot
+smb://10.10.20.10/toolkit Toolkit
+smb://10.10.20.10/valhalla Valhalla
