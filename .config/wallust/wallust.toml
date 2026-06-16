@@ -100,6 +100,11 @@ mako = {
     target = "~/.cache/wallust/mako.conf"
 }
 
+ghostty = {
+    template = "ghostty-colors",
+    target = "~/.cache/wallust/ghostty"
+}
+
 [hooks]
 # Shell commands run after every palette generation, skip all with --no-hooks
 # Examples:
