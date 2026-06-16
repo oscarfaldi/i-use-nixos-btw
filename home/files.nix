@@ -25,14 +25,20 @@
   home.file.".config/wlogout".source = ../.config/wlogout;
   home.file.".config/xarchiver".source = ../.config/xarchiver;
 
+  home.file.".config/systemd/user/wallust-theme.service".source =
+    ../.config/systemd/user/wallust-theme.service;
+
+  home.file.".config/systemd/user/waybar.service".source =
+    ../.config/systemd/user/waybar.service;
+
   home.file.".config/yazi".source =
     ../.config/yazi;
 
   home.file.".config/aliasrc".source =
     ../.config/aliasrc;
 
-home.file.".config/zsh/.zshrc".source =
-  ../.config/zsh/.zshrc;
+  home.file.".config/zsh/.zshrc".source =
+    ../.config/zsh/.zshrc;
 
   home.file.".config/starship.toml".source =
     ../.config/starship.toml;
