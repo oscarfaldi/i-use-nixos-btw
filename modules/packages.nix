@@ -147,6 +147,7 @@
     pdfarranger
 
     onlyoffice-desktopeditors
+    libreoffice
     # obsidian
     mousepad
 
