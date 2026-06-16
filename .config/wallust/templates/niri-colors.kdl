@@ -1,2 +1,0 @@
-active-color "#{{color4 | strip}}"
-inactive-color "#{{color8 | strip}}"
