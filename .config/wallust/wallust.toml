@@ -110,11 +110,6 @@ swaylock = {
     target = "~/.cache/wallust/swaylock.conf"
 }
 
-niri = {
-    template = "niri-colors.kdl",
-    target = "~/.cache/wallust/niri-colors.kdl"
-}
-
 [hooks]
 # Shell commands run after every palette generation, skip all with --no-hooks
 # Examples:
