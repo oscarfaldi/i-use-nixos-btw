@@ -1,4 +1,4 @@
-include=~/.config/mako/colors.conf
+include=~/.cache/wallust/mako.conf
 
 # Mako Notification Daemon
 
