@@ -50,6 +50,7 @@ awww img "$SELECTED" \
 if wallust run "$SELECTED"; then
     pkill -SIGUSR2 waybar 2>/dev/null || true
     makoctl reload 2>/dev/null || true
+    niri msg action reload-config 2>/dev/null || true
 else
     notify-send \
         "Wallust Error" \
