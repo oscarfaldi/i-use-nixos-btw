@@ -85,6 +85,10 @@ waybar = {
     target = "~/.cache/wallust/waybar.css"
 }
 
+fuzzel = {
+    template = "fuzzel-colors.ini",
+    target = "~/.config/fuzzel/colors.ini"
+}
 
 [hooks]
 # Shell commands run after every palette generation, skip all with --no-hooks
