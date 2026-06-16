@@ -5,7 +5,7 @@
     xfce.thunar
   ];
 
-  # Menggunakan skema deklaratif XML dengan opsi force agar tidak dioverwrite xfconfd
+  # Using declarative scheme for XML and forcing it to not get overwritten by xfconfd
   home.file.".config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml" = {
     text = ''
       <?xml version="1.0" encoding="UTF-8"?>
