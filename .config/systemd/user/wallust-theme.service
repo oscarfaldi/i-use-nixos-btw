@@ -1,0 +1,9 @@
+[Unit]
+Description=Generate Wallust Theme
+
+[Service]
+Type=oneshot
+ExecStart=/run/current-system/sw/bin/wallpaperd
+
+[Install]
+WantedBy=default.target
