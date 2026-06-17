@@ -4,8 +4,17 @@
 # Focused on clarity, security, and easy maintenance.
 # ==============================================================================
 
-# --- Imports ---
-include ~/.cache/wallust/swaylock.conf
+# --- Theme & Color Palette ---
+color_bg="242933cc"      # Deep Nord dark (with 80% opacity for consistency)
+color_ring="5e81ac"      # Nord Frost Blue (Main ring accent)
+color_text="bbc3d4"      # Nord Foreground (Main text color)
+color_ver="a3be8c"       # Nord Green (Password verification indicator)
+color_wrong="bf616a"     # Nord Red (Incorrect password indicator)
+color_alpha="00000000"   # Transparent (Kept clear for specific UI elements)
+
+# New color variables to fix missing states
+color_typing="88c0d0"    # Nord Light Blue (Visual feedback while typing)
+color_clear="ebcb8b"     # Nord Yellow (Visual feedback during backspace)
 
 # --- Core Behavior ---
 ignore-empty-password
@@ -13,7 +22,6 @@ show-failed-attempts
 indicator-idle-visible
 
 # --- Typography & Aesthetics ---
-# Updated to JetBrains Mono Nerd Font for a sharp, developer-centric look
 font="JetBrainsMono Nerd Font"
 font-size=24
 separator-color=$color_alpha
@@ -33,6 +41,26 @@ text-ver-color=$color_text
 inside-wrong-color=$color_bg
 ring-wrong-color=$color_wrong
 text-wrong-color=$color_text
+
+# --- Typing State (Added) ---
+inside-clear-color=$color_bg
+ring-clear-color=$color_clear
+text-clear-color=$color_text
+
+inside-caps-lock-color=$color_bg
+ring-caps-lock-color=$color_clear
+text-caps-lock-color=$color_text
+
+# --- Input Feedback Rings (Added) ---
+key-hl-color=$color_typing
+bs-hl-color=$color_clear
+caps-lock-key-hl-color=$color_typing
+caps-lock-bs-hl-color=$color_clear
+
+# --- Miscellaneous Indicators (Added) ---
+layout-bg-color=$color_alpha
+layout-border-color=$color_alpha
+layout-text-color=$color_text
 
 # --- Clock & Date Layout ---
 clock
