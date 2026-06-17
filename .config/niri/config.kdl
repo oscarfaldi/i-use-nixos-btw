@@ -183,11 +183,10 @@ input {
 
 	// System services	
         spawn-at-startup "/run/current-system/sw/libexec/polkit-gnome-authentication-agent-1"
+        spawn-at-startup "wallpaper-session"
         spawn-at-startup "mako"
         spawn-at-startup "swayidle"
         spawn-at-startup "waybar"
-        spawn-at-startup "awww-daemon"
-        spawn-at-startup "wallpaperd"
         spawn-at-startup "theme-nordic"
 	
 	// Applications
