@@ -7,6 +7,8 @@
     ./xdg.nix
     ./chromium.nix
     ./thunar.nix
+    ./theme-nordic.nix
+    ./theme-graphite.nix
   ];
 
   home.username = "oscarfaldi";
