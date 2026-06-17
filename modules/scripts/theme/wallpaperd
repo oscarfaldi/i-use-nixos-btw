@@ -6,35 +6,33 @@
 # Falls back to a random wallpaper on first boot.
 # ============================================================
 
-set -e
+set -euo pipefail
 
 CURRENT="$HOME/.local/state/current-wallpaper"
 WALLPAPER_DIR="$HOME/.config/assets/wallpapers"
 
 mkdir -p "$HOME/.local/state"
 
-if [ -f "$CURRENT" ]; then
-    WALLPAPER=$(cat "$CURRENT")
+if [[ -f "$CURRENT" ]]; then
+    WALLPAPER="$(cat "$CURRENT")"
 else
-    WALLPAPER=$(find "$WALLPAPER_DIR" -type f \( \
-        -iname "*.jpg" \
-        -o -iname "*.jpeg" \
-        -o -iname "*.png" \
-        -o -iname "*.webp" \
-    \) | shuf -n 1)
+    WALLPAPER="$(
+        find "$WALLPAPER_DIR" -type f \( \
+            -iname "*.jpg" \
+            -o -iname "*.jpeg" \
+            -o -iname "*.png" \
+            -o -iname "*.webp" \
+        \) | shuf -n 1
+    )"
 
-    [ -n "$WALLPAPER" ] || exit 0
+    [[ -n "$WALLPAPER" ]] || exit 0
     echo "$WALLPAPER" > "$CURRENT"
 fi
 
-[ -f "$WALLPAPER" ] || exit 0
-
-wallust run "$WALLPAPER"
+[[ -f "$WALLPAPER" ]] || exit 0
 
 awww img "$WALLPAPER" \
     --transition-type grow \
     --transition-duration 1 \
     --transition-fps 60 \
     --transition-step 2
-
-pkill -SIGUSR2 waybar 2>/dev/null || true
