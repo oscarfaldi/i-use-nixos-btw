@@ -1,5 +1,11 @@
-@import url("/home/oscarfaldi/.cache/wallust/waybar.css");
+/* --- Nord Color Palette Definitions --- */
+@define-color background #242933;   /* Deep Nord dark base */
+@define-color foreground #bbc3d4;   /* Crisp, high-contrast text */
+@define-color muted      #3b4252;   /* Polar Night dark grey for inactive states */
+@define-color accent     #5e81ac;   /* Nord Frost Blue for focal elements */
+@define-color warning    #bf616a;   /* Aurora Red for updates and pending alerts */
 
+/* --- Core Configuration & Typography --- */
 * {
     font-family: "JetBrainsMono Nerd Font";
     font-size: 14px;
@@ -8,11 +14,12 @@
 }
 
 window#waybar {
-    background: alpha(@background, 0.6);
+    background: alpha(@background, 0.6); /* Translucent overlay matching your setup */
     color: @foreground;
     opacity: 1;
 }
 
+/* --- Left Modules --- */
 #custom-logo {
     color: @foreground;
     padding: 0 6px;
@@ -29,15 +36,17 @@ window#waybar {
 }
 
 #workspaces button.active {
-    color: @accent;
+    color: @accent; /* Frost Blue pop for the active workspace focus */
 }
 
+/* --- Center Modules --- */
 #clock {
     color: @foreground;
     font-weight: bold;
     padding: 0 8px;
 }
 
+/* --- Right Modules --- */
 #custom-updates {
     color: @foreground;
     padding: 0 0;
@@ -51,7 +60,7 @@ window#waybar {
 }
 
 #custom-updates.updates {
-    color: @warning;
+    color: @warning; /* Aurora Red flashes when packages are waiting */
     padding: 0 0;
     font-weight: bold;
 }
@@ -69,7 +78,7 @@ window#waybar {
 }
 
 #custom-system-state.pending {
-    color: @warning;
+    color: @warning; /* Highlights system warnings cleanly */
     padding: 0 0;
     font-weight: bold;
 }
