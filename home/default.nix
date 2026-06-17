@@ -7,7 +7,6 @@
     ./xdg.nix
     ./chromium.nix
     ./thunar.nix
-    ./services.nix
   ];
 
   home.username = "oscarfaldi";
