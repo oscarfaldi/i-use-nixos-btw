@@ -9,18 +9,11 @@
     packages = with pkgs; [
 
       # ----------------------------------------------------------
-      # Microsoft Standard Fonts (Windows Defaults)
-      # ----------------------------------------------------------
-
-      corefonts           # Arial, Times New Roman, Courier New, Verdana
-      vistafonts          # Calibri, Cambria, Consolas, Segoe UI
-      liberation_ttf      # Open-source exact metric fallbacks for MS Fonts
-
-      # ----------------------------------------------------------
       # Nerd Fonts (Unstable Syntax Compatibility)
       # ----------------------------------------------------------
 
-      nerdfonts           # Pulls from the updated unstable structure
+      nerd-fonts.iosevka-term-slab
+      nerd-fonts.jetbrains-mono
 
       # ----------------------------------------------------------
       # Monospace
@@ -34,6 +27,14 @@
       # ----------------------------------------------------------
 
       inter
+
+      # ----------------------------------------------------------
+      # Microsoft Standard Fonts (Windows Defaults)
+      # ----------------------------------------------------------
+
+      corefonts           # Arial, Times New Roman, Courier New, Verdana
+      vista-fonts          # Calibri, Cambria, Consolas, Segoe UI
+      liberation_ttf      # Open-source exact metric fallbacks for MS Fonts
 
       # ----------------------------------------------------------
       # Unicode Coverage
@@ -58,20 +59,20 @@
         ];
 
         sansSerif = [
+          "IBM Plex Sans"
+          "Noto Sans"
           "Inter"
           "Arial"
           "Calibri"
-          "IBM Plex Sans"
           "Liberation Sans"
-          "Noto Sans"
         ];
 
         serif = [
+          "IBM Plex Serif"
+          "Noto Serif"
+          "Liberation Serif"
           "Times New Roman"
           "Cambria"
-          "IBM Plex Serif"
-          "Liberation Serif"
-          "Noto Serif"
         ];
 
         emoji = [
@@ -94,7 +95,6 @@
     glib
     graphite-gtk-theme
     nordic
-    gruvbox-gtk-theme
 
     # ----------------------------------------------------------
     # Icon Themes
@@ -102,7 +102,6 @@
 
     papirus-icon-theme
     papirus-folders
-    gruvbox-plus-icons
 
     # ----------------------------------------------------------
     # Cursor Themes
