@@ -1,7 +1,4 @@
-# Mako Notification Daemon
-
-# Documentation:
-# man 5 mako
+include=/home/oscarfaldi/.config/mako/colors.conf
 
 font=JetBrainsMono Nerd Font 11
 
@@ -17,12 +14,8 @@ height=200
 margin=12
 padding=12
 
-background-color=#20352bcc
-text-color=#e2ebc0
-
 border-size=2
 border-radius=0
-border-color=#7fb39a
 
 icons=1
 icon-path=/run/current-system/sw/share/icons/Papirus
@@ -38,18 +31,8 @@ group-by=app-name
 
 format=<b>%a</b>\n%s\n%b
 
-[urgency=normal]
-border-color=#7fb39a
-
 [urgency=high]
-border-color=#d26a6a
 default-timeout=0
-
-[app-name=lightcord]
-border-color=#7fb39a
-
-[summary~="log-.*"]
-border-color=#7fb39a
 
 [app-name=lightcord summary~="(.*(^| )orz|ORZ|sto|STO|otl|OTL( |$).*)"]
 invisible=1
