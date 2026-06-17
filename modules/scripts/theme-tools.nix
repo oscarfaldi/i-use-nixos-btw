@@ -15,7 +15,7 @@ in
 
   environment.systemPackages = [
     (mkScript "wallpaper")
-    (mkScript "wallpaperd")
+    (mkScript "wallpaper-session")
     # (mkScript "theme-dark")
     # (mkScript "theme-nordic")
   ];
