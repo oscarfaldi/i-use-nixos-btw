@@ -2,14 +2,11 @@
 
 # ============================================================
 # Wallpaper Switcher
-# Selects a random wallpaper, updates wallust,
-# and reloads desktop components.
+# Cycles through wallpapers sequentially.
 # ============================================================
-
-set -e
+set -euo pipefail
 
 WALLPAPER_DIR="$HOME/.config/assets/wallpapers"
-
 CURRENT_WALL="$HOME/.local/state/current-wallpaper"
 
 mkdir -p "$HOME/.local/state"
@@ -23,21 +20,21 @@ mapfile -t WALLPAPERS < <(
     \) | sort
 )
 
-[ "${#WALLPAPERS[@]}" -eq 0 ] && exit 0
+[[ ${#WALLPAPERS[@]} -gt 0 ]] || exit 0
 
-CURRENT=$(cat "$CURRENT_WALL" 2>/dev/null || true)
+CURRENT="$(cat "$CURRENT_WALL" 2>/dev/null || true)"
+NEXT_INDEX=0
 
-mapfile -t CANDIDATES < <(
-    printf '%s\n' "${WALLPAPERS[@]}" |
-    grep -vxF "$CURRENT" || true
-)
-
-if [ "${#CANDIDATES[@]}" -eq 0 ]; then
-    CANDIDATES=("${WALLPAPERS[@]}")
+if [[ -n "$CURRENT" ]]; then
+    for i in "${!WALLPAPERS[@]}"; do
+        if [[ "${WALLPAPERS[$i]}" == "$CURRENT" ]]; then
+            NEXT_INDEX=$(( (i + 1) % ${#WALLPAPERS[@]} ))
+            break
+        fi
+    done
 fi
 
-SELECTED=$(printf '%s\n' "${CANDIDATES[@]}" | shuf -n 1)
-
+SELECTED="${WALLPAPERS[$NEXT_INDEX]}"
 echo "$SELECTED" > "$CURRENT_WALL"
 
 awww img "$SELECTED" \
@@ -45,16 +42,6 @@ awww img "$SELECTED" \
     --transition-duration 1 \
     --transition-fps 60 \
     --transition-step 2
-
-# Regenerate wallust theme
-if wallust run "$SELECTED"; then
-    pkill -SIGUSR2 waybar 2>/dev/null || true
-    makoctl reload 2>/dev/null || true
-else
-    notify-send \
-        "Wallust Error" \
-        "Theme generation failed"
-fi
 
 notify-send \
     "Wallpaper Updated" \
