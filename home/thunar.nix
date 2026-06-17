@@ -2,7 +2,7 @@
 
 {
   home.packages = with pkgs; [
-    xfce.thunar
+    thunar
   ];
 
   # Using declarative scheme for XML and forcing it to not get overwritten by xfconfd
@@ -15,9 +15,27 @@
         <property name="last-details-view-zoom-level" type="string" value="THUNAR_ZOOM_LEVEL_38_PERCENT"/>
         <property name="last-show-hidden" type="bool" value="true"/>
         <property name="last-location-bar" type="string" value="ThunarLocationButtons"/>
+        
+        <!-- Sidebar & Window Geometry -->
+        <property name="last-separator-position" type="int" value="200"/>
         <property name="shortcuts-icon-size" type="string" value="THUNAR_ICON_SIZE_24"/>
         <property name="tree-icon-size" type="string" value="THUNAR_ICON_SIZE_16"/>
         <property name="shortcuts-icon-emblems" type="bool" value="true"/>
+        
+        <!-- Strict Priority Hierarchy Sorting -->
+        <property name="last-sort-column" type="string" value="THUNAR_COLUMN_DATE_MODIFIED"/>
+        <property name="last-sort-order" type="string" value="GTK_SORT_DESCENDING"/>
+        <property name="misc-folders-first" type="bool" value="true"/>
+
+        <!-- Column Arrangement: Strict compact placement -->
+        <property name="last-details-view-visible-columns" type="string" value="THUNAR_COLUMN_NAME,THUNAR_COLUMN_DATE_MODIFIED,THUNAR_COLUMN_SIZE,THUNAR_COLUMN_TYPE"/>
+        <property name="last-details-view-column-order" type="string" value="THUNAR_COLUMN_NAME,THUNAR_COLUMN_DATE_MODIFIED,THUNAR_COLUMN_SIZE,THUNAR_COLUMN_TYPE"/>
+        
+        <!-- Fix The Gap: Force tight column spacing instead of stretching across the screen -->
+        <property name="last-details-view-fixed-columns" type="bool" value="true"/>
+        <property name="last-details-view-column-widths" type="string" value="250,180,100,120"/>
+
+        <!-- Behavior & Tweaks -->
         <property name="misc-thumbnail-mode" type="string" value="THUNAR_THUMBNAIL_MODE_ALWAYS"/>
         <property name="misc-date-style" type="string" value="THUNAR_DATE_STYLE_LONG"/>
         <property name="misc-single-click" type="bool" value="false"/>
