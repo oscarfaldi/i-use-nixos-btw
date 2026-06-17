@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # ============================================================
-# Wallpaper Startup Loader
-# Restores the last selected wallpaper on login.
-# Falls back to a random wallpaper on first boot.
+# Wallpaper Session
+# Ensures awww-daemon is running and restores
+# the last selected wallpaper on login.
 # ============================================================
 
 set -euo pipefail
@@ -13,6 +13,12 @@ WALLPAPER_DIR="$HOME/.config/assets/wallpapers"
 
 mkdir -p "$HOME/.local/state"
 
+# Start awww-daemon if not already running
+if ! pgrep -x awww-daemon >/dev/null 2>&1; then
+    awww-daemon >/dev/null 2>&1 &
+fi
+
+# Restore previous wallpaper
 if [[ -f "$CURRENT" ]]; then
     WALLPAPER="$(cat "$CURRENT")"
 else
