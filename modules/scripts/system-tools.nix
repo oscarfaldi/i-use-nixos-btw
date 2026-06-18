@@ -17,7 +17,6 @@ in
     (mkScript "clean")
     (mkScript "rebuild")
     (mkScript "rebuild-boot")
-    (mkScript "screenshot")
     (mkScript "check-system-state")
     (mkScript "check-system-update")
     (mkScript "upgrade")
