@@ -46,7 +46,7 @@ fi
 # ==============================================================================
 if ! timeout 2 nc -z "$NAS" 445 >/dev/null 2>&1; then
     notify \
-        "<b>SMB Service Unavailable</b>" \
+        "SMB Service Unavailable" \
         "Server is reachable, but SMB (port 445) is not responding."
     exit 1
 fi
