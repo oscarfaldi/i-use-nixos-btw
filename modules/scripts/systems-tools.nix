@@ -4,7 +4,7 @@ let
 
   mkScript = name:
     pkgs.writeShellScriptBin name
-      (builtins.readFile ../../modules/scripts/system/${name});
+      (builtins.readFile ../../modules/scripts/systems/${name});
 
 in
 {
