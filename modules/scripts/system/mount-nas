@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+NAS="10.10.20.10"
+
+shares=(
+  academy
+  archive
+  download
+  family
+  games
+  media
+  mulino
+  oscarfaldi
+  personalbranding
+  snapshot
+  toolkit
+  valhalla
+)
+
+# ------------------------------------------------------------
+# NAS unavailable → silent exit
+# ------------------------------------------------------------
+
+if ! timeout 2 ping -c 1 "$NAS" >/dev/null 2>&1; then
+    exit 0
+fi
+
+# ------------------------------------------------------------
+# SMB unavailable → silent exit
+# ------------------------------------------------------------
+
+if ! timeout 2 nc -z "$NAS" 445 >/dev/null 2>&1; then
+    exit 0
+fi
+
+# ------------------------------------------------------------
+# Mount expected shares
+# ------------------------------------------------------------
+
+failed=()
+
+for share in "${shares[@]}"; do
+
+    if gio mount -l | grep -q "smb://$NAS/$share/"; then
+        continue
+    fi
+
+    if ! timeout 10 gio mount "smb://$NAS/$share" >/dev/null 2>&1; then
+        failed+=("$share")
+    fi
+
+done
+
+# ------------------------------------------------------------
+# Notification
+# ------------------------------------------------------------
+
+if [ ${#failed[@]} -eq 0 ]; then
+    exit 0
+fi
+
+if [ ${#failed[@]} -eq ${#shares[@]} ]; then
+
+    notify-send \
+      -u critical \
+      -i network-server \
+      "NAS Mount Failed" \
+      "All SMB shares failed to mount."
+
+else
+
+    notify-send \
+      -u critical \
+      -i network-server \
+      "NAS Mount Failed" \
+      "Failed shares: ${failed[*]}"
+
+fi
