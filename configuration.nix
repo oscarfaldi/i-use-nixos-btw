@@ -25,8 +25,9 @@
       ./modules/games.nix
 
       # Scripts
-      ./modules/scripts/system-tools.nix
-      ./modules/scripts/theme-tools.nix
+      ./modules/scripts/systems-tools.nix
+      ./modules/scripts/themes-tools.nix
+      ./modules/scripts/actions-tools.nix
     ];
 
   # Enable flakes and error experimental with new Nix CLI
