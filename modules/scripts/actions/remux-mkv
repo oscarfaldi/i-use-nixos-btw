@@ -1,7 +1,22 @@
 #!/usr/bin/env bash
 
+# ============================================================
+# Remux to MKV
+# Converts TS/MTS/M2TS containers to MKV without re-encoding.
+# Preserves all video, audio, subtitle, and metadata streams.
+# ============================================================
+
+set -euo pipefail
+
 for input in "$@"; do
     output="${input%.*}.mkv"
+
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo " Remuxing"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo
+    echo "$(basename "$input")"
+    echo
 
     ffmpeg \
         -hide_banner \
@@ -10,6 +25,13 @@ for input in "$@"; do
         -map 0 \
         -c copy \
         "$output"
+
+    echo
+    echo "✓ Created:"
+    echo "$(basename "$output")"
+    echo
 done
 
-notify-send "Remux to MKV Complete"
+notify-send \
+    "MKV Remux Complete" \
+    "Finished processing $*"
