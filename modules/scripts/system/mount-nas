@@ -46,18 +46,8 @@ fi
 # ==============================================================================
 if ! timeout 2 nc -z "$NAS" 445 >/dev/null 2>&1; then
     notify \
-        "SMB Service Unavailable" \
+        "<b>SMB Service Unavailable</b>" \
         "Server is reachable, but SMB (port 445) is not responding."
-    exit 1
-fi
-
-# ==============================================================================
-# AUTHENTICATION CHECK
-# ==============================================================================
-if ! timeout 10 gio list "smb://$NAS" >/dev/null 2>&1; then
-    notify \
-        "SMB Authentication Required" \
-        "Open Thunar and sign in once to save SMB credentials."
     exit 1
 fi
 
@@ -80,20 +70,20 @@ done
 # VERIFY MOUNT OUTCOMES
 # ==============================================================================
 
-# Case 1: All Shares Mounted Successfully
+# Case 1: Success (All Shares Mounted)
 if [ ${#failed[@]} -eq 0 ]; then
     exit 0
 fi
 
-# Case 2: Total Failure (No Configured Shares Could Be Mounted)
+# Case 2: All Shares Failed (Total Failure)
 if [ ${#failed[@]} -eq ${#shares[@]} ]; then
     notify \
-        "NAS Shares Unavailable" \
-        "Connected successfully, but none of the configured SMB shares could be mounted."
+        "Unable to Access NAS Shares" \
+        "No SMB shares could be mounted. If this is a new installation, sign in once from Thunar."
     exit 1
 fi
 
-# Case 3: Partial Share Failure
+# Case 3: Partial Failure
 notify \
     "Some NAS Shares Unavailable" \
     "Failed shares: ${failed[*]}"
