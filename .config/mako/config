@@ -16,7 +16,7 @@ on-notify=exec pw-play /home/oscarfaldi/.config/assets/sounds/positive.ogg
 
 font=JetBrainsMono Nerd Font 11
 
-width=325
+width=375
 height=200
 
 margin=20
