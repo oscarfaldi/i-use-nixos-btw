@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# ============================================================
+# Rename TS to MTS
+# Renames MPEG Transport Stream files from .ts to .mts
+# to improve MIME detection, thumbnails, and file associations.
+# ============================================================
+
+set -euo pipefail
+
+count=0
+
+for input in "$@"; do
+    output="${input%.ts}.mts"
+
+    if [[ ! -f "$input" ]]; then
+        continue
+    fi
+
+    if [[ "$input" == "$output" ]]; then
+        continue
+    fi
+
+    if [[ -e "$output" ]]; then
+        echo "Skipped: $(basename "$output") already exists"
+        continue
+    fi
+
+    mv -- "$input" "$output"
+
+    echo "✓ $(basename "$input")"
+    echo "  → $(basename "$output")"
+
+    ((count+=1))
+done
+
+notify-send \
+    "TS → MTS Complete" \
+    "$count file(s) renamed"
