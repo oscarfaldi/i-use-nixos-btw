@@ -36,8 +36,6 @@ let
     "x-systemd.idle-timeout=600"
     "x-systemd.device-timeout=5s"
     "x-systemd.mount-timeout=30s"
-    "echo_interval=15"
-    "echo_retries=3"
   ];
 in
 {
