@@ -1,40 +1,66 @@
 #!/usr/bin/env bash
 
-# ============================================================
-# System Upgrade
-# Updates Nix channels, rebuilds and activates the system,
-# then displays package changes and version information.
-# ============================================================
+# ==============================================================================
+# Rainier System Upgrade Script
+# 
+# Description: Updates Nix channels, rebuilds and activates the system,
+#              then displays package changes and version information.
+# ==============================================================================
 
+# Exit immediately if a command exits with a non-zero status
 set -e
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Rainier Upgrade"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
+# ------------------------------------------------------------------------------
+# Configuration & Variables
+# ------------------------------------------------------------------------------
+SYSTEM_DIR="$HOME/System"
+CONFIG="$SYSTEM_DIR/configuration.nix"
+STATUS_CACHE="$HOME/.cache/update-status"
 
-echo "Updating channels..."
-sudo nix-channel --update
+# ------------------------------------------------------------------------------
+# UI Helper Functions
+# ------------------------------------------------------------------------------
+print_header() {
+    local title="$1"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo " $title"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo
+}
 
-echo
-echo "Building and activating system..."
-echo
+# ------------------------------------------------------------------------------
+# Main Execution
+# ------------------------------------------------------------------------------
+main() {
+    print_header "Rainier Upgrade"
+    
+    echo "Updating channels..."
+    sudo nix-channel --update
+    echo
 
-sudo nixos-rebuild switch
+    echo "Building and activating system..."
+    echo
+    
+    # Execute NixOS rebuild with explicit configuration path
+    # FIX: Combined the multiline command properly using '\'
+    sudo nixos-rebuild switch \
+        -I nixos-config="$CONFIG"
+    echo
 
-echo
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Updated Packages"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
+    print_header "Updated Packages"
 
-nvd diff /nix/var/nix/profiles/system-1-link /run/current-system || true
+    # Display package diff using nvd (ignores non-zero exit codes via || true)
+    nvd diff /nix/var/nix/profiles/system-1-link /run/current-system || true
+    echo
 
-echo
-echo "Current version:"
-echo "$(nixos-version)"
-echo
+    echo "Current version:"
+    echo "$(nixos-version)"
+    echo
+    echo "✓ Upgrade complete."
 
-echo "✓ Upgrade complete."
+    # Cache update status for system notifications/status bars
+    echo "Current" > "$STATUS_CACHE"
+}
 
-echo "Current" > "$HOME/.cache/update-status"
+# Run the main function
+main "$@"
