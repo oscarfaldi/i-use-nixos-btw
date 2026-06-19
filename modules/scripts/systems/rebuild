@@ -1,31 +1,54 @@
 #!/usr/bin/env bash
 
-# ============================================================
-# System Rebuild
-# Builds and activates the current NixOS configuration,
-# then displays the active system version.
-# ============================================================
+# ==============================================================================
+# Rainier System Rebuild Script
+# 
+# Description: Builds and activates the current NixOS configuration, 
+#              then displays the active system version details.
+# ==============================================================================
 
+# Exit immediately if a command exits with a non-zero status
 set -e
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Rainier Rebuild"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
+# ------------------------------------------------------------------------------
+# Configuration & Variables
+# ------------------------------------------------------------------------------
+SYSTEM_DIR="$HOME/System"
+CONFIG="$SYSTEM_DIR/configuration.nix"
 
-echo "Building system..."
-echo
+# ------------------------------------------------------------------------------
+# UI Helper Functions
+# ------------------------------------------------------------------------------
+print_header() {
+    local title="$1"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo " $title"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo
+}
 
-sudo nixos-rebuild switch
+# ------------------------------------------------------------------------------
+# Main Execution
+# ------------------------------------------------------------------------------
+main() {
+    print_header "Rainier Rebuild"
+    echo "Building system..."
+    echo
 
-echo
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Rebuild Complete"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
+    # Execute NixOS rebuild with explicit configuration path
+    # CRITICAL FIX: Combined the multiline command properly using '\'
+    sudo nixos-rebuild switch \
+        -I nixos-config="$CONFIG"
 
-echo "Hostname : rainier"
-echo "Version  : $(nixos-version)"
-echo
+    echo
+    print_header "Rebuild Complete"
 
-echo "✓ System successfully activated."
+    # Display System Metadata
+    echo "Hostname : $(hostname)"
+    echo "Version  : $(nixos-version)"
+    echo
+    echo "✓ System successfully activated."
+}
+
+# Run the main function
+main "$@"
