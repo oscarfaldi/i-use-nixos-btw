@@ -24,6 +24,7 @@ let
   commonOptions = [
     "credentials=/etc/nixos/secrets/smb-credentials"
     "vers=3.1.1"
+    "noserverino"
     "uid=1000"
     "gid=100"
     "file_mode=0664"
