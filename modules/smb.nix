@@ -28,11 +28,16 @@ let
     "gid=100"
     "file_mode=0664"
     "dir_mode=0775"
+    "cache=strict"
     "x-systemd.automount"
     "noauto"
     "_netdev"
     "nofail"
+    "x-systemd.idle-timeout=600"
+    "x-systemd.device-timeout=5s"
     "x-systemd.mount-timeout=30s"
+    "echo_interval=15"
+    "echo_retries=3"
   ];
 in
 {
@@ -40,10 +45,11 @@ in
   environment.systemPackages = [ pkgs.cifs-utils ];
 
   # Dynamically map the share list into the fileSystems attribute set
-  fileSystems = lib.genAttrs nasShares (share: {
-    mountPoint = "/mnt/nas/${share}";
-    device = "//${nasIp}/${share}";
-    fsType = "cifs";
-    options = commonOptions;
+  fileSystems = lib.genAttrs (map (s: "/mnt/nas/${s}") nasShares) (mountPoint: 
+    let share = lib.removePrefix "/mnt/nas/" mountPoint;
+    in {
+      device = "//${nasIp}/${share}";
+      fsType = "cifs";
+      options = commonOptions;
   });
 }
