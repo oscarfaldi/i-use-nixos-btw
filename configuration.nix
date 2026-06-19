@@ -23,6 +23,7 @@
       ./modules/keyboard.nix
       ./modules/pwa.nix
       ./modules/games.nix
+      ./modules/smb.nix
 
       # Scripts
       ./modules/scripts/systems-tools.nix
