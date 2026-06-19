@@ -187,7 +187,6 @@ input {
         spawn-at-startup "mako"
         spawn-at-startup "swayidle"
         spawn-at-startup "waybar"
-        // spawn-at-startup "mount-nas"
 	
 	// Applications
         spawn-at-startup "chromium" "--app=https://chatgpt.com"
