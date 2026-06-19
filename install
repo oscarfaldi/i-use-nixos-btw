@@ -1,81 +1,136 @@
 #!/usr/bin/env bash
 
+# ==============================================================================
+# Rainier Initialization & Setup Script
+# 
+# Description: Switches Rainier to unstable channel, installs home-manager,
+#              imports hardware configuration, sets up SMB credentials,
+#              and performs the initial system bootstrap.
+# ==============================================================================
+
+# Exit immediately if a command exits with a non-zero status
 set -e
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Switching Rainier to unstable and installing home-manager..."
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
+# ------------------------------------------------------------------------------
+# Configuration & Variables
+# ------------------------------------------------------------------------------
+CONFIG_DIR="$HOME/System"
+TARGET_CONFIG="./configuration.nix"
+SMB_CRED_FILE="/etc/smb-credentials"
+HW_CONFIG_SRC="/etc/nixos/hardware-configuration.nix"
+HW_CONFIG_DST="./hardware-configuration.nix"
 
-# Remove the existing channel if it exists
-sudo nix-channel --remove nixos 2>/dev/null || true
-sudo nix-channel --remove home-manager 2>/dev/null || true
-
-# Add the unstable channel (fixed line break and trailing spaces)
-sudo nix-channel --add https://channels.nixos.org/nixos-unstable nixos
-
-# Installing Home-Manager
-sudo nix-channel --add \
-https://github.com/nix-community/home-manager/archive/master.tar.gz \
-home-manager
-
-# Update channels to apply changes
-sudo nix-channel --update
-
-echo
-echo "✓ Unstable channel and home manager enabled."
-echo
-
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " SMB Credentials Setup"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
-
-# Check and configure SMB credentials if not present
-if [[ ! -f /etc/nixos/secrets/smb-credentials ]]; then
-    echo "SMB credential file not found."
+# ------------------------------------------------------------------------------
+# UI Helper Functions
+# ------------------------------------------------------------------------------
+print_header() {
+    local title="$1"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo " $title"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo
+}
+
+# ------------------------------------------------------------------------------
+# Core Setup Functions
+# ------------------------------------------------------------------------------
+import_hardware_config() {
+    print_header "Import Hardware Configuration"
+    echo "Importing hardware configuration..."
+    echo
+
+    if [[ -f "$HW_CONFIG_SRC" ]]; then
+        cp "$HW_CONFIG_SRC" "$HW_CONFIG_DST"
+        sudo rm -f /etc/nixos/configuration.nix
+        sudo rm -f "$HW_CONFIG_SRC"
+
+        echo "✓ Hardware configuration imported."
+        echo
+    else
+        echo "✗ $HW_CONFIG_SRC not found."
+        exit 1
+    fi
+}
+
+configure_nix_channels() {
+    print_header "Channels Configuration"
+    echo "Updating Nix channels to unstable..."
+    echo
+
+    # Safely remove existing channels if they exist
+    sudo nix-channel --remove nixos 2>/dev/null || true
+    sudo nix-channel --remove home-manager 2>/dev/null || true
+
+    # Add unstable and home-manager channels
+    sudo nix-channel --add https://channels.nixos.org/nixos-unstable nixos
+    sudo nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
     
-    read -rp "SMB Username: " SMB_USER
-    read -rsp "SMB Password: " SMB_PASS
+    # Update channels to apply changes
+    sudo nix-channel --update
     echo
+    echo "✓ Unstable channel and home-manager enabled."
+    echo
+}
 
-    sudo mkdir -p /etc/nixos/secrets
+setup_smb_credentials() {
+    print_header "SMB Credentials Setup"
 
-    sudo tee /etc/nixos/secrets/smb-credentials >/dev/null <<EOF
+    if [[ ! -f "$SMB_CRED_FILE" ]]; then
+        echo "SMB credential file not found."
+        echo
+        
+        read -rp "SMB Username: " SMB_USER
+        read -rsp "SMB Password: " SMB_PASS
+        echo
+
+        # Securely write credentials to the target file
+        sudo tee "$SMB_CRED_FILE" >/dev/null <<EOF
 username=${SMB_USER}
 password=${SMB_PASS}
 EOF
+        # Restrict permissions so only root can read/write
+        sudo chmod 600 "$SMB_CRED_FILE"
 
-    sudo chmod 600 /etc/nixos/secrets/smb-credentials
+        echo
+        echo "✓ SMB credentials saved."
+        echo
+    else
+        echo "✓ Existing SMB credentials found."
+        echo
+    fi
+}
 
+bootstrap_system() {
+    print_header "Rebuilding Rainier System"
+    echo "Building next generation for boot..."
     echo
-    echo "✓ SMB credentials saved."
+
+    # Execute NixOS boot build with explicit configuration path
+    sudo nixos-rebuild boot \
+        -I nixos-config="$TARGET_CONFIG"
     echo
-else
-    echo "✓ Existing SMB credentials found."
+    echo "✓ System rebuilt."
     echo
-fi
+}
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Rebuilding Rainier system..."
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
+# ------------------------------------------------------------------------------
+# Main Execution Flow
+# ------------------------------------------------------------------------------
+main() {
+    print_header "Switching Rainier to unstable & installing home-manager"
 
-# Rebuild the system configuration for the next boot
-sudo nixos-rebuild boot
+    import_hardware_config
+    configure_nix_channels
+    setup_smb_credentials
+    bootstrap_system
 
-echo
-echo "✓ System rebuilt."
-echo
+    print_header "Final Step"
+    echo "Rebooting in 5 seconds..."
+    echo
+    
+    sleep 5
+    sudo reboot
+}
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo " Final Step"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
-echo "Rebooting in 10 seconds..."
-echo
-
-sleep 10
-
-sudo reboot
+# Run the main function
+main "$@"
