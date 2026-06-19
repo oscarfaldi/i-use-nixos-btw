@@ -22,7 +22,7 @@ let
 
   # Common CIFS mount options shared by all mounts
   commonOptions = [
-    "credentials=/etc/nixos/secrets/smb-credentials"
+    "credentials=/etc/smb-credentials"
     "vers=3.1.1"
     "noserverino"
     "uid=1000"
