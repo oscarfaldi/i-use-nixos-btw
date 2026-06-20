@@ -16,5 +16,14 @@ in
   environment.systemPackages = [
     (mkScript "screenshot")
     (mkScript "rename-ts-to-mts")
+    (mkScript "convert-to-avif")
+    (mkScript "convert-to-pdf")
+    (mkScript "copy-filename")
+    (mkScript "copy-filename-no-extension")
+    (mkScript "copy-full-path")
+    (mkScript "rotate-image-left")
+    (mkScript "rotate-image-right")
+    (mkScript "rotate-video-left")
+    (mkScript "rotate-video-right")
   ];
 }
