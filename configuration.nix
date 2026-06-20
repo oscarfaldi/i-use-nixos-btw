@@ -26,9 +26,10 @@
       ./modules/smb.nix
 
       # Scripts
-      ./modules/scripts/systems-tools.nix
-      ./modules/scripts/themes-tools.nix
-      ./modules/scripts/actions-tools.nix
+      ./modules/scripts/systems-tool.nix
+      ./modules/scripts/themes-tool.nix
+      ./modules/scripts/actions-tool.nix
+      ./modules/scripts/launchers-tool.nix
     ];
 
   # Enable flakes and error experimental with new Nix CLI
