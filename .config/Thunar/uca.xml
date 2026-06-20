@@ -16,7 +16,7 @@
     <icon>application-pdf</icon>
     <name>Convert to PDF</name>
     <unique-id>1781935446753343-2</unique-id>
-    <command>/home/fal/Scripts/convert-to-pdf.sh %f</command>
+    <command>/home/fal/Scripts/convert-to-pdf %f</command>
     <description>Convert document, spreadsheet, or presentation to PDF</description>
     <patterns>*.doc;*.docx;*.odt;*.rtf;*.ppt;*.pptx;*.odp;*.xls;*.xlsx;*.ods</patterns>
     <files/>
@@ -24,9 +24,29 @@
 
   <action>
     <icon>object-rotate-right</icon>
+    <name>Rotate Image Right</name>
+    <unique-id>1781935446753343-6</unique-id>
+    <command>/home/fal/Scripts/rotate-image-right %f</command>
+    <description>Rotate image 90° clockwise</description>
+    <patterns>*.jpg;*.jpeg;*.png;*.webp;*.avif;*.bmp;*.tif;*.tiff</patterns>
+    <files/>
+  </action>
+
+  <action>
+    <icon>object-rotate-left</icon>
+    <name>Rotate Image Left</name>
+    <unique-id>1781935446753343-7</unique-id>
+    <command>/home/fal/Scripts/rotate-image-left.sh %f</command>
+    <description>Rotate image 90° counter-clockwise</description>
+    <patterns>*.jpg;*.jpeg;*.png;*.webp;*.avif;*.bmp;*.tif;*.tiff</patterns>
+    <files/>
+  </action>
+
+  <action>
+    <icon>object-rotate-right</icon>
     <name>Rotate Video Right</name>
     <unique-id>1781935446753343-3</unique-id>
-    <command>/home/fal/Scripts/video-rotate-right.sh %f</command>
+    <command>/home/fal/Scripts/rotate-video-right %f</command>
     <description>Rotate video 90° clockwise</description>
     <patterns>*.mp4;*.mov;*.mkv;*.webm;*.mts;*.m2ts;*.ts</patterns>
     <files/>
@@ -36,7 +56,7 @@
     <icon>object-rotate-left</icon>
     <name>Rotate Video Left</name>
     <unique-id>1781935446753343-4</unique-id>
-    <command>/home/fal/Scripts/video-rotate-left.sh %f</command>
+    <command>/home/fal/Scripts/rotate-video-left %f</command>
     <description>Rotate video 90° counter-clockwise</description>
     <patterns>*.mp4;*.mov;*.mkv;*.webm;*.mts;*.m2ts;*.ts</patterns>
     <files/>
@@ -46,7 +66,7 @@
     <icon>video-x-generic</icon>
     <name>Rename TS → MTS</name>
     <unique-id>1781935446753343-5</unique-id>
-    <command>/home/fal/Scripts/rename-ts-to-mts.sh %F</command>
+    <command>/home/fal/Scripts/rename-ts-to-mts %F</command>
     <description>Rename TS files for better thumbnail and MIME support</description>
     <patterns>*.ts</patterns>
     <files/>
