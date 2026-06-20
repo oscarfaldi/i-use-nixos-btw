@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+choice=$(
+printf "Shutdown\nReboot\nSuspend\nLogout" |
+fuzzel --dmenu -p "System"
+)
+
+case "$choice" in
+    Shutdown)
+        systemctl poweroff
+        ;;
+    Reboot)
+        systemctl reboot
+        ;;
+    Suspend)
+        systemctl suspend
+        ;;
+    Logout)
+        niri msg action quit
+        ;;
+esac
