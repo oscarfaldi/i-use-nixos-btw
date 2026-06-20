@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Repo
+Exec=repo-menu
+Terminal=false
+Icon=nix-snowflake
