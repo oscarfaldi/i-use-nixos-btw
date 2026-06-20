@@ -192,6 +192,8 @@
 
     pwvucontrol
 
+    wl-clipboard
+
     brightnessctl
     playerctl
 
