@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 choice=$(
-printf "Rebuild\nRebuild Boot\nUpgrade\nClean\nNAS Recover" |
+printf "Rebuild\nRebuild Boot\nUpgrade\nClean\nNAS Recover\nNixOS Version" |
 fuzzel --dmenu -p "System"
 )
 
