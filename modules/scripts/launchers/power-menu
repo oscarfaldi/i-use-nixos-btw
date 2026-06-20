@@ -2,7 +2,7 @@
 
 choice=$(
 printf "Shutdown\nReboot\nSuspend\nLogout" |
-fuzzel --dmenu -p "System"
+fuzzel --dmenu -p "Power"
 )
 
 case "$choice" in
