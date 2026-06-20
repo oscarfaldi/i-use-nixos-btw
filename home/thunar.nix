@@ -23,8 +23,8 @@
         <property name="shortcuts-icon-emblems" type="bool" value="true"/>
         
         <!-- Strict Priority Hierarchy Sorting -->
-        <property name="last-sort-column" type="string" value="THUNAR_COLUMN_DATE_MODIFIED"/>
-        <property name="last-sort-order" type="string" value="GTK_SORT_DESCENDING"/>
+        <property name="last-sort-column" type="string" value="THUNAR_COLUMN_NAME"/>
+        <property name="last-sort-order" type="string" value="GTK_SORT_ASCENDING"/>
         <property name="misc-folders-first" type="bool" value="true"/>
 
         <!-- Column Arrangement: Strict compact placement -->
