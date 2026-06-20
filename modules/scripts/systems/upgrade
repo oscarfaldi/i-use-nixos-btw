@@ -1,25 +1,18 @@
 #!/usr/bin/env bash
 
 # ==============================================================================
-# Rainier System Upgrade Script
-# 
-# Description: Updates Nix channels, rebuilds and activates the system,
-#              then displays package changes and version information.
+# Rainier System Upgrade & Verification Script
+# ==============================================================================
+# Description: Upgrades NixOS channels, rebuilds the system configuration,
+#              verifies the generation profiles, and diffs package changes.
 # ==============================================================================
 
-# Exit immediately if a command exits with a non-zero status
 set -e
 
-# ------------------------------------------------------------------------------
-# Configuration & Variables
-# ------------------------------------------------------------------------------
 SYSTEM_DIR="$HOME/System"
 CONFIG="$SYSTEM_DIR/configuration.nix"
 STATUS_CACHE="$HOME/.cache/update-status"
 
-# ------------------------------------------------------------------------------
-# UI Helper Functions
-# ------------------------------------------------------------------------------
 print_header() {
     local title="$1"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -28,39 +21,65 @@ print_header() {
     echo
 }
 
-# ------------------------------------------------------------------------------
-# Main Execution
-# ------------------------------------------------------------------------------
 main() {
-    print_header "Rainier Upgrade"
+    print_header "Rainier Upgrade Verification"
     
+    # Capture the active system profile hash before running the upgrade
+    if [ -L /run/current-system ]; then
+        BEFORE_PROFILE=$(readlink -f /run/current-system)
+    else
+        BEFORE_PROFILE="none"
+    fi
+
     echo "Updating channels..."
     sudo nix-channel --update
     echo
 
     echo "Building and activating system..."
     echo
-    
-    # Execute NixOS rebuild with explicit configuration path
-    # FIX: Combined the multiline command properly using '\'
-    sudo nixos-rebuild switch \
-        -I nixos-config="$CONFIG"
+    sudo nixos-rebuild switch -I nixos-config="$CONFIG"
     echo
 
-    print_header "Updated Packages"
+    # Capture the system profile hash after the rebuild execution
+    AFTER_PROFILE=$(readlink -f /run/current-system)
 
-    # Display package diff using nvd (ignores non-zero exit codes via || true)
-    nvd diff /nix/var/nix/profiles/system-1-link /run/current-system || true
-    echo
+    print_header "Upgrade Verification Result"
 
-    echo "Current version:"
-    echo "$(nixos-version)"
-    echo
-    echo "✓ Upgrade complete."
-
-    # Cache update status for system notifications/status bars
-    echo "Current" > "$STATUS_CACHE"
+    # Integrity and change detection logic
+    if [ "$BEFORE_PROFILE" = "$AFTER_PROFILE" ]; then
+        echo "ℹ️ System is already up-to-date. No changes detected in the system profile."
+        echo "Current Profile: $AFTER_PROFILE"
+        echo "Current" > "$STATUS_CACHE"
+    else
+        # Physically verify that the newly generated profile directory is valid
+        if [ -d "$AFTER_PROFILE" ] && [ -f "$AFTER_PROFILE/init" ]; then
+            echo "✅ VERIFICATION SUCCESS: System successfully upgraded to a new profile!"
+            echo "Previous: $BEFORE_PROFILE"
+            echo "Current:  $AFTER_PROFILE"
+            echo
+            
+            print_header "Updated Packages Diff"
+            nvd diff "$BEFORE_PROFILE" "$AFTER_PROFILE" || true
+            echo
+            
+            echo "Current version: $(nixos-version)"
+            echo "Current" > "$STATUS_CACHE"
+        else
+            echo "❌ VERIFICATION FAILED: Profile changed, but the new system path is invalid or incomplete!"
+            echo "Expected valid directory at: $AFTER_PROFILE"
+            return 1
+        fi
+    fi
 }
 
-# Run the main function
-main "$@"
+# Determine execution context and hand over control to an interactive shell session
+if (return 0 2>/dev/null); then
+    main "$@"
+else
+    main "$@"
+    echo
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Process finished. Transitioning to interactive session..."
+    echo
+    exec "$SHELL"
+fi
