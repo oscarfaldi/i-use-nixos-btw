@@ -25,5 +25,8 @@ in
     (mkScript "rotate-image-right")
     (mkScript "rotate-video-left")
     (mkScript "rotate-video-right")
+    (mkScript "compress-to-zip")
+    (mkScript "extract-here")
+    (mkScript "open-as-root")
   ];
 }
