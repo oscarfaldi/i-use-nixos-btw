@@ -33,7 +33,7 @@
         
         <!-- Fix The Gap: Force tight column spacing instead of stretching across the screen -->
         <property name="last-details-view-fixed-columns" type="bool" value="true"/>
-        <property name="last-details-view-column-widths" type="string" value="250,180,300,120,50,50,50,50,380,50,50,100,50,750"/>
+        <property name="last-details-view-column-widths" type="string" value="250,180,120,300,50,50,50,50,380,50,50,100,50,750"/>
 
         <!-- Behavior & Tweaks -->
         <property name="misc-thumbnail-mode" type="string" value="THUNAR_THUMBNAIL_MODE_ALWAYS"/>
