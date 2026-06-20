@@ -171,6 +171,7 @@
     mpvScripts.builtins.autoload
 
     qimgv
+    imagemagick
 
     ffmpeg
     ffmpegthumbnailer
