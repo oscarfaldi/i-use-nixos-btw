@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+FIRST="$1"
+
+DIR="$(dirname "$FIRST")"
+TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
+
+OUTPUT="$DIR/archive-$TIMESTAMP.zip"
+
+zip -r "$OUTPUT" "$@" >/dev/null
+
+notify-send 
+-i package-x-generic 
+"ZIP Archive" 
+"Archive created successfully."
