@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+FILE="$1"
+DIR="$(dirname "$FILE")"
+
+case "${FILE,,}" in
+*.zip)
+unzip -o "$FILE" -d "$DIR" >/dev/null
+;;
+
+```
+*.7z)
+    7z x "$FILE" "-o$DIR" -y >/dev/null
+    ;;
+
+*.rar)
+    unrar x -o+ "$FILE" "$DIR/" >/dev/null
+    ;;
+
+*)
+    notify-send \
+        -i dialog-error \
+        "Archive Extraction" \
+        "Unsupported archive format."
+    exit 1
+    ;;
+```
+
+esac
+
+notify-send 
+-i package-x-generic 
+"Archive Extraction" 
+"Archive extracted successfully."
