@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+realpath "$1" | wl-copy
+
+notify-send 
+-i edit-copy 
+"Clipboard" 
+"Full path copied."
