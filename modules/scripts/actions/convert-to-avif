@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+FILE="$1"
+
+DIR="$(dirname "$FILE")"
+NAME="$(basename "$FILE")"
+
+OUTPUT="${DIR}/${NAME%.*}.avif"
+
+if avifenc 
+--min 20 
+--max 30 
+"$FILE" 
+"$OUTPUT" >/dev/null 2>&1
+then
+notify-send 
+-i image-x-generic 
+"AVIF Conversion" 
+"AVIF created successfully."
+else
+notify-send 
+-i dialog-error 
+"AVIF Conversion" 
+"Conversion failed."
+fi
