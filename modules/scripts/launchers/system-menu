@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+choice=$(
+printf "Rebuild\nRebuild Boot\nUpgrade\nClean\nNAS Recover" |
+fuzzel --dmenu -p "System"
+)
+
+case "$choice" in
+    "Rebuild")
+        ghostty -e rebuild
+        ;;
+    "Rebuild Boot")
+        ghostty -e rebuild-boot
+        ;;
+    "Upgrade")
+        ghostty -e upgrade
+        ;;
+    "Clean")
+        ghostty -e clean
+        ;;
+    "NAS Recover")
+        ghostty -e nas-recover all
+        ;;
+esac
