@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+FILE="$1"
+
+DIR="$(dirname "$FILE")"
+NAME="$(basename "$FILE")"
+
+OUTPUT="${DIR}/${NAME%.*}_rotated.${NAME##*.}"
+
+if magick "$FILE" -rotate 90 "$OUTPUT"
+then
+notify-send 
+-i image-x-generic 
+"Image Rotation" 
+"Image rotated 90° clockwise."
+else
+notify-send 
+-i dialog-error 
+"Image Rotation" 
+"Rotation failed."
+fi
