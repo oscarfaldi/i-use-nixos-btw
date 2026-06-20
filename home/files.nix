@@ -1,42 +1,60 @@
+# ==============================================================================
+# Home Manager File Declarations
+# ==============================================================================
+# This module declaratively links user configuration files and directories from
+# the local dotfiles repository into the user's home directory.
+#
+# Sections:
+# - Core Shell & Terminal Environment
+# - System Interface & Wayland Compositor (Niri)
+# - Applications, Viewers & Media Tools
+# - Desktop Automation, Security & Utilities
+# ==============================================================================
+
 { config, pkgs, ... }:
 
 {
-  home.file.".config/assets".source = ../.config/assets;
-  home.file.".config/fastfetch".source = ../.config/fastfetch;
-  home.file.".config/fuzzel".source = ../.config/fuzzel;
-  home.file.".config/ghostty".source = ../.config/ghostty;
+  home.file = {
 
-  home.file.".config/gtk-3.0/bookmarks".source =
-    ../.config/gtk-3.0/bookmarks;
+    # --------------------------------------------------------------------------
+    # Core Shell & Terminal Environment
+    # --------------------------------------------------------------------------
+    ".config/zsh/.zshrc".source       = ../.config/zsh/.zshrc;
+    ".config/aliasrc".source          = ../.config/aliasrc;
+    ".config/starship.toml".source    = ../.config/starship.toml;
+    ".config/fastfetch".source        = ../.config/fastfetch;
+    ".config/ghostty".source          = ../.config/ghostty;
 
-  home.file.".config/mako".source = ../.config/mako;
-  home.file.".config/mpv".source = ../.config/mpv;
-  home.file.".config/niri".source = ../.config/niri;
-  home.file.".config/pdfarranger".source = ../.config/pdfarranger;
-  home.file.".config/qimgv".source = ../.config/qimgv;
+    # --------------------------------------------------------------------------
+    # System Interface & Wayland Compositor (Niri)
+    # --------------------------------------------------------------------------
+    ".config/niri".source             = ../.config/niri;
+    ".config/waybar".source           = ../.config/waybar;
+    ".config/fuzzel".source           = ../.config/fuzzel;
+    ".config/mako".source             = ../.config/mako;
+    ".config/wlogout".source          = ../.config/wlogout;
+    ".config/assets".source           = ../.config/assets;
 
-  home.file.".config/swayidle".source = ../.config/swayidle;
-  home.file.".config/swaylock".source = ../.config/swaylock;
+    # --------------------------------------------------------------------------
+    # Applications, Viewers & Media Tools
+    # --------------------------------------------------------------------------
+    ".config/yazi".source             = ../.config/yazi;
+    ".config/mpv".source              = ../.config/mpv;
+    ".config/qimgv".source            = ../.config/qimgv;
+    ".config/pdfarranger".source      = ../.config/pdfarranger;
+    ".config/xarchiver".source        = ../.config/xarchiver;
 
-  home.file.".config/waybar".source = ../.config/waybar;
-  home.file.".config/wlogout".source = ../.config/wlogout;
-  home.file.".config/xarchiver".source = ../.config/xarchiver;
+    # --------------------------------------------------------------------------
+    # Desktop Automation, Security & Utilities
+    # --------------------------------------------------------------------------
+    ".config/swaylock".source          = ../.config/swaylock;
+    ".config/swayidle".source          = ../.config/swayidle;
+    ".config/gtk-3.0/bookmarks".source = ../.config/gtk-3.0/bookmarks;
+    ".config/mimeapps.list".source     = ../.config/mimeapps.list;
+    
+    # System Integration
+    ".config/xdg-desktop-portal".source = ../.config/xdg-desktop-portal;
+    ".local/share/applications".source  = ../.local/share/applications;
 
-  home.file.".config/xdg-desktop-portal".source =
-    ../.config/xdg-desktop-portal;
-
-  home.file.".config/yazi".source =
-    ../.config/yazi;
-
-  home.file.".config/aliasrc".source =
-    ../.config/aliasrc;
-
-  home.file.".config/zsh/.zshrc".source =
-    ../.config/zsh/.zshrc;
-
-  home.file.".config/starship.toml".source =
-    ../.config/starship.toml;
-
-  home.file.".config/mimeapps.list".source =
-    ../.config/mimeapps.list;
+  };
 }
