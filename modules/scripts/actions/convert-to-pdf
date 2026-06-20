@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+FILE="$1"
+
+ICON="x-office-document"
+TITLE="PDF Conversion"
+
+TMPDIR=$(mktemp -d)
+
+cleanup() {
+    rm -rf "$TMPDIR"
+}
+trap cleanup EXIT
+
+if soffice \
+    --headless \
+    --convert-to pdf \
+    --outdir "$TMPDIR" \
+    "$FILE" >/dev/null 2>&1
+then
+    PDF_FILE="$TMPDIR/$(basename "${FILE%.*}.pdf")"
+    DEST="$(dirname "$FILE")"
+
+    mv "$PDF_FILE" "$DEST/"
+
+    notify-send \
+        -i application-pdf \
+        "$TITLE" \
+        "PDF created successfully."
+else
+    notify-send \
+        -i dialog-error \
+        "$TITLE" \
+        "Failed to convert file."
+fi
