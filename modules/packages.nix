@@ -154,6 +154,8 @@
 
     papers
     pdfarranger
+    pandoc
+    img2pdf
 
     onlyoffice-desktopeditors
     # obsidian
