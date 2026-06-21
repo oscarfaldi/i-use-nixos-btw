@@ -1,39 +1,44 @@
 #!/usr/bin/env bash
 
-# ============================================================
-# Rename TS to MTS
-# Renames MPEG Transport Stream files from .ts to .mts
-# to improve MIME detection, thumbnails, and file associations.
-# ============================================================
+# ==============================================================================
+# Script Name: Rename TS to MTS
+# Description: Renames MPEG Transport Stream files from .ts to .mts
+#              to improve MIME detection, thumbnails, and file associations.
+# ==============================================================================
 
 set -euo pipefail
 
-count=0
+# 0. Safety Check: Ensure at least one file was selected
+if [ $# -eq 0 ]; then
+    notify-send -i dialog-error "Batch Rename" "No .ts files selected."
+    exit 1
+fi
 
-for input in "$@"; do
-    output="${input%.ts}.mts"
+COUNT=0
 
-    if [[ ! -f "$input" ]]; then
+# 1. Loop through all selected files
+for INPUT in "$@"; do
+    OUTPUT="${INPUT%.ts}.mts"
+
+    # Skip if the file doesn't actually exist
+    if [[ ! -f "$INPUT" ]]; then
         continue
     fi
 
-    if [[ "$input" == "$output" ]]; then
+    # Skip if the file extension is already .mts
+    if [[ "$INPUT" == "$OUTPUT" ]]; then
         continue
     fi
 
-    if [[ -e "$output" ]]; then
-        echo "Skipped: $(basename "$output") already exists"
+    # Skip if the target .mts filename already exists to prevent overwriting
+    if [[ -e "$OUTPUT" ]]; then
         continue
     fi
 
-    mv -- "$input" "$output"
-
-    echo "✓ $(basename "$input")"
-    echo "  → $(basename "$output")"
-
-    ((count+=1))
+    # Execute rename safely
+    mv -- "$INPUT" "$OUTPUT"
+    ((COUNT+=1))
 done
 
-notify-send \
-    "TS → MTS Complete" \
-    "$count file(s) renamed"
+# 2. Trigger system notification with the final result
+notify-send -i edit-find-replace "TS → MTS Complete" "$COUNT file(s) renamed successfully."
