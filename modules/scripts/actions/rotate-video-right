@@ -21,13 +21,26 @@ NAME="$(basename "$FILE")"
 # Create a temporary output file path
 TEMP_OUTPUT="${DIR}/${NAME%.*}_tmp.${NAME##*.}"
 
-# 1. Process metadata rotation (90 = 90 clockwise)
-if ffmpeg -i "$FILE" -c copy -metadata:s:v rotate=90 "$TEMP_OUTPUT" -y >/dev/null 2>&1; then
-    # Overwrite the original file with the temporary one
+# 1. Physically rotate video 90° counter-clockwise
+if ffmpeg \
+    -i "$FILE" \
+    -vf "transpose=1" \
+    -c:a copy \
+    "$TEMP_OUTPUT" \
+    -y >/dev/null 2>&1; then
+
     mv "$TEMP_OUTPUT" "$FILE"
-    notify-send -i video-x-generic "Video Rotation" "Video rotated 90° clockwise."
+
+    notify-send \
+        -i video-x-generic \
+        "Video Rotation" \
+        "Video rotated 90° counter-clockwise."
+
 else
-    # Clean up the temp file if the process failed
     rm -f "$TEMP_OUTPUT"
-    notify-send -i dialog-error "Video Rotation" "Rotation failed."
+
+    notify-send \
+        -i dialog-error \
+        "Video Rotation" \
+        "Rotation failed."
 fi
