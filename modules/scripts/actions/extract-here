@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 
+# ==============================================================================
+# Script Name: Extract Here (Smart Unpacker)
+# Description: Extracts ZIP, 7Z, or RAR archives into a dedicated folder
+#              with the same name as the archive.
+# ==============================================================================
+
 set -euo pipefail
+
+# 0. Safety Check: Ensure an archive file was passed by Thunar
+if [ $# -eq 0 ]; then
+    notify-send -i dialog-error "Archive Extraction" "No file selected."
+    exit 1
+fi
 
 FILE="$1"
 DIR="$(dirname "$FILE")"
@@ -9,42 +21,36 @@ DIR="$(dirname "$FILE")"
 BASENAME=$(basename "$FILE")
 
 # 2. Extract the target directory name by stripping the extension (.zip, .7z, .rar)
-# Uses a case-insensitive regex to remove the extension at the end of the string
 TARGET_NAME=$(echo "$BASENAME" | sed -E 's/\.(zip|7z|rar)$//I')
 TARGET_DIR="$DIR/$TARGET_NAME"
 
 # 3. Create the target directory if it doesn't exist
 mkdir -p "$TARGET_DIR"
 
+# 4. Process extraction based on file extension
 case "${FILE,,}" in
-*.zip)
-    # Uses -d to force extraction into the specific target directory
-    unzip -o "$FILE" -d "$TARGET_DIR" >/dev/null
-    ;;
+    *.zip)
+        # Uses -d to force extraction into the specific target directory
+        unzip -o "$FILE" -d "$TARGET_DIR" >/dev/null
+        ;;
 
-*.7z)
-    # Uses -o to force extraction into the specific target directory
-    7z x "$FILE" "-o$TARGET_DIR" -y >/dev/null
-    ;;
+    *.7z)
+        # Uses -o to force extraction into the specific target directory
+        7z x "$FILE" "-o$TARGET_DIR" -y >/dev/null
+        ;;
 
-*.rar)
-    # Replaces the old destination with the specific target directory path
-    unrar x -o+ "$FILE" "$TARGET_DIR/" >/dev/null
-    ;;
+    *.rar)
+        # Replaces the old destination with the specific target directory path
+        unrar x -o+ "$FILE" "$TARGET_DIR/" >/dev/null
+        ;;
 
-*)
-    # Clean up the empty target directory if the format is unsupported
-    rmdir "$TARGET_DIR" 2>/dev/null || true
-    
-    notify-send \
-        -i dialog-error \
-        "Archive Extraction" \
-        "Unsupported archive format."
-    exit 1
-    ;;
+    *)
+        # Clean up the empty target directory if the format is unsupported
+        rmdir "$TARGET_DIR" 2>/dev/null || true
+        notify-send -i dialog-error "Archive Extraction" "Unsupported archive format."
+        exit 1
+        ;;
 esac
 
-notify-send \
-    -i package-x-generic \
-    "Archive Extraction" \
-    "Archive extracted successfully to $TARGET_NAME/"
+# 5. Trigger system notification on success
+notify-send -i package-x-generic "Archive Extraction" "Archive extracted successfully to $TARGET_NAME/"
