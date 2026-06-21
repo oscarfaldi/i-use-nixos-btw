@@ -60,38 +60,13 @@ tooltip label {
 }
 
 /* --- Right Modules --- */
+#tray {
+    padding: 0 15px;
+    font-weight: bold;
+}
+
 #custom-updates {
     color: @foreground;
-    padding: 0 0;
-    font-weight: bold;
-}
-
-#custom-updates.current {
-    color: @foreground;
-    padding: 0 0;
-    font-weight: bold;
-}
-
-#custom-updates.updates {
-    color: @warning; /* Aurora Red flashes when packages are waiting */
-    padding: 0 0;
-    font-weight: bold;
-}
-
-#custom-store {
-    color: @foreground;
-    padding: 0 8px;
-    font-weight: bold;
-}
-
-#custom-system-state.current {
-    color: @foreground;
-    padding: 0 0;
-    font-weight: bold;
-}
-
-#custom-system-state.pending {
-    color: @warning; /* Highlights system warnings cleanly */
     padding: 0 0;
     font-weight: bold;
 }
@@ -116,11 +91,6 @@ tooltip label {
 
 #network {
     color: @foreground;
-    padding: 0 15px;
-    font-weight: bold;
-}
-
-#tray {
     padding: 0 15px;
     font-weight: bold;
 }
