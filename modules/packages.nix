@@ -155,6 +155,7 @@
     papers
     pdfarranger
     pandoc
+    tectonic
     img2pdf
 
     onlyoffice-desktopeditors
