@@ -1,28 +1,33 @@
 #!/usr/bin/env bash
 
+# ==============================================================================
+# Script Name: Rotate Video Right (Overwrite)
+# Description: Rotates a video 90° clockwise by modifying metadata.
+#              No re-encoding/remuxing occurs. Overwrites the original file.
+# ==============================================================================
+
 set -euo pipefail
 
-FILE="$1"
+# 0. Safety Check: Ensure a video file was selected
+if [ $# -eq 0 ]; then
+    notify-send -i dialog-error "Video Rotation" "No video selected."
+    exit 1
+fi
 
+FILE="$1"
 DIR="$(dirname "$FILE")"
 NAME="$(basename "$FILE")"
 
-OUTPUT="${DIR}/${NAME%.*}_rotated.${NAME##*.}"
+# Create a temporary output file path
+TEMP_OUTPUT="${DIR}/${NAME%.*}_tmp.${NAME##*.}"
 
-if ffmpeg \
-    -i "$FILE" \
-    -c copy \
-    -metadata:s:v rotate=90 \
-    "$OUTPUT" \
-    -y >/dev/null 2>&1
-then
-    notify-send \
-        -i video-x-generic \
-        "Video Rotation" \
-        "Rotated 90° clockwise."
+# 1. Process metadata rotation (90 = 90 clockwise)
+if ffmpeg -i "$FILE" -c copy -metadata:s:v rotate=90 "$TEMP_OUTPUT" -y >/dev/null 2>&1; then
+    # Overwrite the original file with the temporary one
+    mv "$TEMP_OUTPUT" "$FILE"
+    notify-send -i video-x-generic "Video Rotation" "Video rotated 90° clockwise."
 else
-    notify-send \
-        -i dialog-error \
-        "Video Rotation" \
-        "Rotation failed."
+    # Clean up the temp file if the process failed
+    rm -f "$TEMP_OUTPUT"
+    notify-send -i dialog-error "Video Rotation" "Rotation failed."
 fi
