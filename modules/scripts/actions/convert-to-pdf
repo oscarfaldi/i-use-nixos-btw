@@ -3,35 +3,32 @@
 set -euo pipefail
 
 FILE="$1"
+DIR="$(dirname "$FILE")"
+BASENAME=$(basename "$FILE")
+FILENAME="${BASENAME%.*}"
 
-ICON="x-office-document"
+ICON="application-pdf"
 TITLE="PDF Conversion"
 
-TMPDIR=$(mktemp -d)
+# Define the final output destination path
+FINAL_PDF="$DIR/$FILENAME.pdf"
 
-cleanup() {
-    rm -rf "$TMPDIR"
-}
-trap cleanup EXIT
-
-if soffice \
-    --headless \
-    --convert-to pdf \
-    --outdir "$TMPDIR" \
-    "$FILE" >/dev/null 2>&1
+# Execute ONLYOFFICE in headless mode to convert the document
+# --new-window and --custom-cmd run the editor processing engine silently
+if onlyoffice-desktopeditors \
+    --new-window \
+    --custom-cmd="deployTextConverter" \
+    --all-formats-to="pdf" \
+    --argument="{\"fileFrom\":\"$FILE\",\"fileTo\":\"$FINAL_PDF\"}" >/dev/null 2>&1
 then
-    PDF_FILE="$TMPDIR/$(basename "${FILE%.*}.pdf")"
-    DEST="$(dirname "$FILE")"
-
-    mv "$PDF_FILE" "$DEST/"
-
     notify-send \
-        -i application-pdf \
+        -i "$ICON" \
         "$TITLE" \
-        "PDF created successfully."
+        "PDF created successfully via ONLYOFFICE."
 else
     notify-send \
         -i dialog-error \
         "$TITLE" \
-        "Failed to convert file."
+        "Failed to convert file using ONLYOFFICE."
+    exit 1
 fi
