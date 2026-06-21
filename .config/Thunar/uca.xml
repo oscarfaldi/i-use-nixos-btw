@@ -99,9 +99,17 @@
     <command>convert-to-pdf %f</command>
     <description>Convert document, spreadsheet, or presentation to PDF</description>
     <range>*</range>
-    <patterns>*.doc;*.docx;*.odt;*.rtf;*.ppt;*.pptx;*.odp;*.xls;*.xlsx;*.ods</patterns>
+    <patterns>
+    *.doc;*.docx;*.odt;*.rtf;
+    *.ppt;*.pptx;*.odp;
+    *.xls;*.xlsx;*.ods;
+    *.txt;*.md;
+    *.jpg;*.jpeg;*.png;*.webp;
+    *.bmp;*.gif;*.tif;*.tiff
+    </patterns>
     <other-files/>
     <text-files/>
+    <image-files/>
   </action>
 
   <action>
