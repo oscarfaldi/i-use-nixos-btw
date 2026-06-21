@@ -1,27 +1,39 @@
 #!/usr/bin/env bash
 
+# ==============================================================================
+# Script Name: AVIF Image Converter
+# Description: Converts selected images to AVIF format via Thunar Custom Actions
+# ==============================================================================
+
 set -euo pipefail
 
-FILE="$1"
+# 0. Safety Check: Ensure a file was actually passed by Thunar
+if [ $# -eq 0 ]; then
+    notify-send -i dialog-error "AVIF Conversion" "No file selected."
+    exit 1
+fi
 
+FILE="$1"
 DIR="$(dirname "$FILE")"
 NAME="$(basename "$FILE")"
-
 OUTPUT="${DIR}/${NAME%.*}.avif"
 
-if avifenc 
---min 20 
---max 30 
-"$FILE" 
-"$OUTPUT" >/dev/null 2>&1
+# 1. Execute conversion with multi-line readability format
+if avifenc \
+    --min 20 \
+    --max 30 \
+    "$FILE" \
+    "$OUTPUT" >/dev/null 2>&1
 then
-notify-send 
--i image-x-generic 
-"AVIF Conversion" 
-"AVIF created successfully."
+    # 2. Success notification
+    notify-send \
+        -i image-x-generic \
+        "AVIF Conversion" \
+        "AVIF created successfully."
 else
-notify-send 
--i dialog-error 
-"AVIF Conversion" 
-"Conversion failed."
+    # 3. Failure notification
+    notify-send \
+        -i dialog-error \
+        "AVIF Conversion" \
+        "Conversion failed."
 fi
