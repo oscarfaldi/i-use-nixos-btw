@@ -16,14 +16,12 @@
     ],
 
     "modules-right": [
+      "tray",
       "custom/updates",
-      "custom/store",
-      "custom/system-state",
       "cpu",
       "memory",
       "pulseaudio",
       "network",
-      "tray",
       "custom/power"
     ],
 
@@ -37,30 +35,28 @@
     },
 
     "clock": {
-      "format": "{:%A, %d %B %Y | %H:%M}",
-      "tooltip": false
+      "format": "{:%A - %d %B %Y | %H:%M}",
+      "tooltip-format": "<tt><small>{calendar}</small></tt>",
+      "calendar": {
+        "mode": "month",
+        "mode-mon-col": 3,
+        "weeks-pos": "right",
+        "format": {
+          "months": "<span color='#88c0d0'><b>{}</b></span>",
+          "weekdays": "<span color='#8fbcbb'><b>{}</b></span>",
+          "today": "<span color='#ebcb8b'><b>{}</b></span>"
+        }
+      }
+    },
+
+    "tray": {
+      "spacing": 8
     },
 
     "custom/updates": {
-      "format": "| {}",
-      "return-type": "json",
-      "exec": "/run/current-system/sw/bin/check-system-update",
-      "interval": 10,
+      "format": "| ",
+      "tooltip": "Upgrade System",
       "on-click": "ghostty -e upgrade"
-    },
-
-    "custom/store": {
-      "format": "| {} Store",
-      "exec": "du -sb /nix/store | awk '{print $1}' | numfmt --to=iec-i --suffix=B",
-      "interval": 900,
-      "on-click": "ghostty -e clean"
-    },
-
-    "custom/system-state": {
-      "format": "| {} |",
-      "return-type": "json",
-      "exec": "/run/current-system/sw/bin/check-system-state",
-      "interval": 30
     },
 
     "cpu": {
@@ -88,10 +84,6 @@
       "format-disconnected": "󰤭",
       "tooltip": false,
       "on-click": "nm-connection-editor"
-    },
-
-    "tray": {
-      "spacing": 8
     },
 
     "custom/power": {
