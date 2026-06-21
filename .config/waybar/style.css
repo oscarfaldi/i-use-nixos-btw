@@ -1,3 +1,8 @@
+/* ==============================================================================
+   Waybar Style Sheet
+   Structure ordered exactly matching config.jsonc
+   ============================================================================== */
+
 /* --- Nord Color Palette Definitions --- */
 @define-color background #242933;   /* Deep Nord dark base */
 @define-color foreground #bbc3d4;   /* Crisp, high-contrast text */
@@ -23,16 +28,21 @@ window#waybar {
 tooltip {
     background: #242933;
     border: 1px solid #5e81ac;
-    border-radius: 8px;
+    border-radius: 0;
 }
 
 tooltip label {
     color: #bbc3d4;
     font-family: "JetBrainsMono Nerd Font";
     font-weight: bold;
+    font-size: 15px;
 }
 
-/* --- Left Modules --- */
+/* ==============================================================================
+   MODULES: LEFT
+   ============================================================================== */
+
+/* custom/logo */
 #custom-logo {
     color: @foreground;
     padding: 0 6px;
@@ -40,6 +50,7 @@ tooltip label {
     margin-left: 15px;
 }
 
+/* niri/workspaces */
 #workspaces button {
     color: @muted;
     padding: 0 0;
@@ -52,49 +63,57 @@ tooltip label {
     color: @accent; /* Frost Blue pop for the active workspace focus */
 }
 
-/* --- Center Modules --- */
+/* ==============================================================================
+   MODULES: CENTER
+   ============================================================================== */
+
+/* clock */
 #clock {
     color: @foreground;
     font-weight: bold;
     padding: 0 8px;
 }
 
-/* --- Right Modules --- */
-#tray {
-    padding: 0 15px;
-    font-weight: bold;
-}
+/* ==============================================================================
+   MODULES: RIGHT
+   ============================================================================== */
 
-#custom-updates {
-    color: @foreground;
-    padding: 0 0;
-    font-weight: bold;
-}
-
+/* cpu */
 #cpu {
     color: @foreground;
     padding: 0 8px;
     font-weight: bold;
 }
 
+/* memory */
 #memory {
     color: @foreground;
     padding: 0 8px;
     font-weight: bold;
 }
 
+/* pulseaudio */
 #pulseaudio {
     color: @foreground;
     padding: 0 8px;
     font-weight: bold;
 }
 
-#network {
+/* tray */
+#tray {
     color: @foreground;
-    padding: 0 15px;
+    padding: 0 10px;
     font-weight: bold;
 }
 
+/* custom/updates */
+#custom-updates {
+    color: @foreground;
+    padding: 0 5px;
+    font-weight: bold;
+}
+
+/* custom/power */
 #custom-power {
     color: @foreground;
     padding: 0 10px;
