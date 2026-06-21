@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # ==============================================================================
-# Script Name: Rotate Image Right
-# Description: Rotates the selected image 90 degrees clockwise
-#              using ImageMagick via Thunar Custom Actions.
+# Script Name: Rotate Image Right (Overwrite)
+# Description: Rotates the selected image 90 degrees clockwise 
+#              and overwrites the original file directly.
 # ==============================================================================
 
 set -euo pipefail
@@ -15,14 +15,9 @@ if [ $# -eq 0 ]; then
 fi
 
 FILE="$1"
-DIR="$(dirname "$FILE")"
-NAME="$(basename "$FILE")"
 
-# Define output path (creates a new file with '_rotated' suffix)
-OUTPUT="${DIR}/${NAME%.*}_rotated.${NAME##*.}"
-
-# 1. Execute rotation
-if magick "$FILE" -rotate 90 "$OUTPUT"; then
+# 1. Execute rotation directly on the source file
+if magick "$FILE" -rotate 90 "$FILE"; then
     notify-send -i image-x-generic "Image Rotation" "Image rotated 90° clockwise."
 else
     notify-send -i dialog-error "Image Rotation" "Rotation failed."
