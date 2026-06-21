@@ -75,24 +75,17 @@
   <!-- ========================================== -->
 
   <action>
-    <icon>application-pdf</icon>
-    <name>Convert to PDF</name>
-    <submenu/>
-    <unique-id>1781935446753343-301</unique-id>
-    <command>convert-to-pdf %f</command>
-    <description>Convert document, spreadsheet, or presentation to PDF</description>
-    <range>*</range>
-    <patterns>
-    *.doc;*.docx;*.odt;*.rtf;
-    *.ppt;*.pptx;*.odp;
-    *.xls;*.xlsx;*.ods;
-    *.txt;*.md;
-    *.jpg;*.jpeg;*.png;*.webp;
-    *.bmp;*.gif;*.tif;*.tiff
-    </patterns>
-    <other-files/>
-    <text-files/>
-    <image-files/>
+      <icon>application-pdf</icon>
+      <name>Convert to PDF</name>
+      <submenu>Documents</submenu>
+      <unique-id>1781935446753343-301</unique-id>
+      <command>convert-to-pdf %F</command>
+      <description>Convert text or images to PDF</description>
+      <range>*</range>
+      <patterns>*.md;*.txt;*.jpg;*.jpeg;*.png;*.tif;*.tiff</patterns>
+      <other-files/>
+      <text-files/>
+      <image-files/>
   </action>
 
   <action>
