@@ -100,7 +100,7 @@
     <unique-id>1781935446753343-401</unique-id>
     <command>convert-to-avif %F</command>
     <description>Convert image to AVIF</description>
-    <patterns>*.jpg;*.jpeg;*.png;*.webp;*.bmp;*.tif;*.tiff</patterns>
+    <patterns>*.jpg;*.jpeg;*.png;*.gif;*.webp;*.bmp;*.tif;*.tiff</patterns>
     <files/>
   </action>
   
@@ -110,7 +110,7 @@
     <unique-id>1781935446753343-402</unique-id>
     <command>rotate-image-right %f</command>
     <description>Rotate image 90° clockwise</description>
-    <patterns>*.jpg;*.jpeg;*.png;*.webp;*.avif;*.bmp;*.tif;*.tiff</patterns>
+    <patterns>*.jpg;*.jpeg;*.png;*.gif;*.webp;*.avif;*.bmp;*.tif;*.tiff</patterns>
     <files/>
   </action>
 
@@ -120,7 +120,7 @@
     <unique-id>1781935446753343-403</unique-id>
     <command>rotate-image-left %f</command>
     <description>Rotate image 90° counter-clockwise</description>
-    <patterns>*.jpg;*.jpeg;*.png;*.webp;*.avif;*.bmp;*.tif;*.tiff</patterns>
+    <patterns>*.jpg;*.jpeg;*.png;*.gif;*.webp;*.avif;*.bmp;*.tif;*.tiff</patterns>
     <files/>
   </action>
 
