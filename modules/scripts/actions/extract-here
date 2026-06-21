@@ -5,32 +5,46 @@ set -euo pipefail
 FILE="$1"
 DIR="$(dirname "$FILE")"
 
+# 1. Extract the filename without the path
+BASENAME=$(basename "$FILE")
+
+# 2. Extract the target directory name by stripping the extension (.zip, .7z, .rar)
+# Uses a case-insensitive regex to remove the extension at the end of the string
+TARGET_NAME=$(echo "$BASENAME" | sed -E 's/\.(zip|7z|rar)$//I')
+TARGET_DIR="$DIR/$TARGET_NAME"
+
+# 3. Create the target directory if it doesn't exist
+mkdir -p "$TARGET_DIR"
+
 case "${FILE,,}" in
 *.zip)
-unzip -o "$FILE" -d "$DIR" >/dev/null
-;;
+    # Uses -d to force extraction into the specific target directory
+    unzip -o "$FILE" -d "$TARGET_DIR" >/dev/null
+    ;;
 
-```
 *.7z)
-    7z x "$FILE" "-o$DIR" -y >/dev/null
+    # Uses -o to force extraction into the specific target directory
+    7z x "$FILE" "-o$TARGET_DIR" -y >/dev/null
     ;;
 
 *.rar)
-    unrar x -o+ "$FILE" "$DIR/" >/dev/null
+    # Replaces the old destination with the specific target directory path
+    unrar x -o+ "$FILE" "$TARGET_DIR/" >/dev/null
     ;;
 
 *)
+    # Clean up the empty target directory if the format is unsupported
+    rmdir "$TARGET_DIR" 2>/dev/null || true
+    
     notify-send \
         -i dialog-error \
         "Archive Extraction" \
         "Unsupported archive format."
     exit 1
     ;;
-```
-
 esac
 
-notify-send 
--i package-x-generic 
-"Archive Extraction" 
-"Archive extracted successfully."
+notify-send \
+    -i package-x-generic \
+    "Archive Extraction" \
+    "Archive extracted successfully to $TARGET_NAME/"
