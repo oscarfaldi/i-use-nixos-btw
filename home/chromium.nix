@@ -24,13 +24,7 @@
       "--restore-last-session"
 
       # Hardware Acceleration & Rendering
-      "--enable-features=VaapiVideoDecoder"
-      "--ignore-gpu-blocklist"
-      "--enable-zero-copy"
-      "--enable-gpu-rasterization"
-      "--enable-hardware-overlays"
-      "--enable-native-gpu-memory-buffers"
-      "--num-raster-threads=4" # Adjust based on your actual CPU core count
+      "--enable-features=AcceleratedVideoDecodeLinuxGL"
     ];
   };
 }
