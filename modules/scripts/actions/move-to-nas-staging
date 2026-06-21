@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+DEST="/mnt/nas/valhalla/Pictures/Filtered/Staging"
+
+if [ ! -d "$DEST" ]; then
+    notify-send \
+        -i dialog-error \
+        "NAS Staging" \
+        "Destination folder not available."
+    exit 1
+fi
+
+COUNT=0
+
+for FILE in "$@"; do
+
+    BASENAME="$(basename "$FILE")"
+
+    NAME="${BASENAME%.*}"
+    EXT="${BASENAME##*.}"
+
+    TARGET="${DEST}/${BASENAME}"
+
+    if [ -e "$TARGET" ]; then
+
+        TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
+
+        TARGET="${DEST}/${NAME}_${TIMESTAMP}.${EXT}"
+
+    fi
+
+    mv "$FILE" "$TARGET"
+
+    COUNT=$((COUNT + 1))
+
+done
+
+notify-send \
+    -i folder-remote \
+    "NAS Staging" \
+    "${COUNT} file(s) moved successfully."
