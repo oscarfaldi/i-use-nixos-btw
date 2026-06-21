@@ -17,7 +17,7 @@ in
     (mkScript "screenshot")
     (mkScript "rename-ts-to-mts")
     (mkScript "convert-to-avif")
-    (mkScript "convert-image-to-pdf")
+    (mkScript "convert-to-pdf")
     (mkScript "copy-filename")
     (mkScript "copy-filename-no-extension")
     (mkScript "copy-full-path")
