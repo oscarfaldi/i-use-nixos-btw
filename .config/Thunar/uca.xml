@@ -18,23 +18,6 @@
     <directories/>
   </action>
 
-  <action>
-    <icon>system-file-manager</icon>
-    <name>Open Here as Root</name>
-    <submenu/>
-    <unique-id>1781935446753343-102</unique-id>
-    <command>open-as-root %f</command>
-    <description>Open current location with administrator privileges</description>
-    <range>*</range>
-    <patterns>*</patterns>
-    <directories/>
-    <audio-files/>
-    <image-files/>
-    <other-files/>
-    <text-files/>
-    <video-files/>
-  </action>
-
   <!-- ========================================== -->
   <!-- 2. CLIPBOARD & PATH MANAGEMENT             -->
   <!-- ========================================== -->
