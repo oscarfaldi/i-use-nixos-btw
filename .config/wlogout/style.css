@@ -2,10 +2,9 @@
 @define-color background #242933;   /* Deep Nord dark base */
 @define-color foreground #bbc3d4;   /* Crisp, high-contrast text and borders */
 @define-color surface    #1b1f26;   /* Darker selection-background for default button faces */
-@define-color accent     #5e81ac;   /* Nord Frost Blue for hover and focus states */
+@define-color accent      #5e81ac;   /* Nord Frost Blue for hover and focus states */
 
 * {
-	background-image: none;
 	box-shadow: none;
 }
 
@@ -14,13 +13,16 @@ window {
 }
 
 button {
-    border-radius: 0;
-    border-color: @foreground;
+	border-radius: 0;
+	border-color: @foreground;
 	text-decoration-color: @foreground;
-    color: @foreground;
+	color: @foreground;
 	background-color: @surface; /* Uses the darker inner surface to give depth against the background */
 	border-style: solid;
 	border-width: 1px;
+	
+	/* Reset dan setup background untuk icon */
+	background-image: none;
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: 25%;
@@ -35,25 +37,25 @@ button:hover {
 
 /* --- Icon Mappings --- */
 #lock {
-    background-image: image(url("/home/oscarfaldi/.config/wlogout/icons/lock.svg"));
+    background-image: url("/home/oscarfaldi/.config/wlogout/icons/lock.svg");
 }
 
 #logout {
-    background-image: image(url("/home/oscarfaldi/.config/wlogout/icons/logout.svg"));
+    background-image: url("/home/oscarfaldi/.config/wlogout/icons/logout.svg");
 }
 
 #suspend {
-    background-image: image(url("/home/oscarfaldi/.config/wlogout/icons/suspend.svg"));
+    background-image: url("/home/oscarfaldi/.config/wlogout/icons/suspend.svg");
 }
 
 #hibernate {
-    background-image: image(url("/home/oscarfaldi/.config/wlogout/icons/hibernate.svg"));
+    background-image: url("/home/oscarfaldi/.config/wlogout/icons/hibernate.svg");
 }
 
 #shutdown {
-    background-image: image(url("/home/oscarfaldi/.config/wlogout/icons/shutdown.svg"));
+    background-image: url("/home/oscarfaldi/.config/wlogout/icons/shutdown.svg");
 }
 
 #reboot {
-    background-image: image(url("/home/oscarfaldi/.config/wlogout/icons/reboot.svg"));
+    background-image: url("/home/oscarfaldi/.config/wlogout/icons/reboot.svg");
 }
