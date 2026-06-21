@@ -40,7 +40,7 @@ in
     (mkPWA {
       name = "Gemini";
       url = "https://gemini.google.com";
-      icon = "/home/oscarfaldi/.config/assets/icons/gemini.png";
+      icon = "/home/oscarfaldi/.config/assets/icons/gemini.svg";
     })
 
     (mkPWA {
