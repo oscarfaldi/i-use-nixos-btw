@@ -17,7 +17,7 @@ in
     (mkScript "screenshot")
     (mkScript "rename-ts-to-mts")
     (mkScript "convert-to-avif")
-    (mkScript "convert-to-pdf")
+    (mkScript "convert-image-to-pdf")
     (mkScript "copy-filename")
     (mkScript "copy-filename-no-extension")
     (mkScript "copy-full-path")
@@ -27,6 +27,5 @@ in
     (mkScript "rotate-video-right")
     (mkScript "compress-to-zip")
     (mkScript "extract-here")
-    (mkScript "open-as-root")
   ];
 }
