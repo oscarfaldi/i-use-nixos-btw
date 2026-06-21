@@ -1,11 +1,13 @@
 [
   {
+    // --- General Bar Configuration ---
     "layer": "top",
     "position": "top",
     "margin-top": 13,
     "margin-left": 13,
     "margin-right": 13,
 
+    // --- Modules Layout Definitions ---
     "modules-left": [
       "custom/logo",
       "niri/workspaces"
@@ -16,14 +18,17 @@
     ],
 
     "modules-right": [
-      "tray",
-      "custom/updates",
       "cpu",
       "memory",
       "pulseaudio",
-      "network",
+      "tray",
+      "custom/updates",
       "custom/power"
     ],
+
+    // ==============================================================================
+    // MODULES: LEFT
+    // ==============================================================================
 
     "custom/logo": {
       "format": "💰 Oscar Faldi",
@@ -34,13 +39,15 @@
       "format": "{value}"
     },
 
+    // ==============================================================================
+    // MODULES: CENTER
+    // ==============================================================================
+
     "clock": {
       "format": "{:%A, %d %B %Y | %H:%M}",
-      "tooltip-format": "<tt><small>{calendar}</small></tt>",
+      "tooltip-format": "<tt>{calendar}</tt>",
       "calendar": {
         "mode": "month",
-        "mode-mon-col": 3,
-        "weeks-pos": "right",
         "format": {
           "months": "<span color='#88c0d0'><b>{}</b></span>",
           "weekdays": "<span color='#8fbcbb'><b>{}</b></span>",
@@ -49,15 +56,9 @@
       }
     },
 
-    "tray": {
-      "spacing": 8
-    },
-
-    "custom/updates": {
-      "format": "| ",
-      "tooltip": "Upgrade System",
-      "on-click": "ghostty -e upgrade"
-    },
+    // ==============================================================================
+    // MODULES: RIGHT
+    // ==============================================================================
 
     "cpu": {
       "interval": 2,
@@ -78,16 +79,18 @@
       "on-click": "pwvucontrol"
     },
 
-    "network": {
-      "format-ethernet": "󰈀",
-      "format-wifi": "󰤨",
-      "format-disconnected": "󰤭",
-      "tooltip": false,
-      "on-click": "nm-connection-editor"
+    "tray": {
+      "spacing": 18
+    },
+
+    "custom/updates": {
+      "format": "[ Update ]",
+      "tooltip": "Upgrade System",
+      "on-click": "ghostty -e upgrade"
     },
 
     "custom/power": {
-      "format": "⏻",
+      "format": "[  ⏻  ]",
       "tooltip": false,
       "on-click": "wlogout"
     }
