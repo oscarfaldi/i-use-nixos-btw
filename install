@@ -36,20 +36,49 @@ print_header() {
 # ------------------------------------------------------------------------------
 import_hardware_config() {
     print_header "Import Hardware Configuration"
-    echo "Importing hardware configuration..."
-    echo
 
     if [[ -f "$HW_CONFIG_SRC" ]]; then
-        cp "$HW_CONFIG_SRC" "$HW_CONFIG_DST"
-        sudo rm -f /etc/nixos/configuration.nix
-        sudo rm -f "$HW_CONFIG_SRC"
+        echo "Found hardware configuration in /etc/nixos"
 
-        echo "✓ Hardware configuration imported."
-        echo
+        cp "$HW_CONFIG_SRC" "$HW_CONFIG_DST"
+
+        echo "✓ Hardware configuration imported to repository."
+
+    elif [[ -f "$HW_CONFIG_DST" ]]; then
+        echo "✓ Hardware configuration already exists in repository."
+        echo "  Skipping import."
+
     else
-        echo "✗ $HW_CONFIG_SRC not found."
+        echo "✗ hardware-configuration.nix not found anywhere."
+        echo "  Checked:"
+        echo "    - $HW_CONFIG_SRC"
+        echo "    - $HW_CONFIG_DST"
         exit 1
     fi
+
+    echo
+    echo "Cleaning /etc/nixos ..."
+
+    sudo find /etc/nixos -mindepth 1 -delete
+
+    echo "✓ /etc/nixos cleaned."
+    echo
+}
+
+fix_ownership() {
+    print_header "Repository Ownership"
+
+    if find "$CONFIG_DIR" -user root | grep -q .; then
+        echo "Root-owned files detected."
+
+        sudo chown -R "$(id -un):$(id -gn)" "$CONFIG_DIR"
+
+        echo "✓ Ownership fixed."
+    else
+        echo "✓ Ownership already correct."
+    fi
+
+    echo
 }
 
 configure_nix_channels() {
