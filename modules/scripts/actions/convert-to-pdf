@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 
+# ==============================================================================
+# Script Name: ONLYOFFICE PDF Converter
+# Description: Converts office documents to PDF via ONLYOFFICE headless mode
+#              optimized for Thunar Custom Actions.
+# ==============================================================================
+
 set -euo pipefail
+
+# 0. Safety Check: Ensure a file was actually passed by Thunar
+if [ $# -eq 0 ]; then
+    notify-send -i dialog-error "PDF Conversion" "No document selected."
+    exit 1
+fi
 
 FILE="$1"
 DIR="$(dirname "$FILE")"
@@ -13,19 +25,20 @@ TITLE="PDF Conversion"
 # Define the final output destination path
 FINAL_PDF="$DIR/$FILENAME.pdf"
 
-# Execute ONLYOFFICE in headless mode to convert the document
-# --new-window and --custom-cmd run the editor processing engine silently
+# 1. Execute ONLYOFFICE in headless mode to convert the document
 if onlyoffice-desktopeditors \
     --new-window \
     --custom-cmd="deployTextConverter" \
     --all-formats-to="pdf" \
     --argument="{\"fileFrom\":\"$FILE\",\"fileTo\":\"$FINAL_PDF\"}" >/dev/null 2>&1
 then
+    # 2. Success notification
     notify-send \
         -i "$ICON" \
         "$TITLE" \
         "PDF created successfully via ONLYOFFICE."
 else
+    # 3. Failure notification
     notify-send \
         -i dialog-error \
         "$TITLE" \
