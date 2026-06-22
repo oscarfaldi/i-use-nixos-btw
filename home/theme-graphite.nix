@@ -20,6 +20,10 @@
       name = "JetBrainsMono Nerd Font";
       size = 11;
     };
+
+    gtk3.extraConfig = {
+      gtk-menu-images = true;
+    };
   };
 
   dconf.settings = {
