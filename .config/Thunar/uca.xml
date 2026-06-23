@@ -31,6 +31,7 @@
     <description>Copy full file path</description>
     <range>*</range>
     <patterns>*</patterns>
+    <directories/>
     <audio-files/>
     <image-files/>
     <other-files/>
@@ -47,6 +48,7 @@
     <description>Copy filename</description>
     <range>*</range>
     <patterns>*</patterns>
+    <directories/>
     <audio-files/>
     <image-files/>
     <other-files/>
@@ -63,6 +65,7 @@
     <description>Copy filename without extension</description>
     <range>*</range>
     <patterns>*</patterns>
+    <directories/>
     <audio-files/>
     <image-files/>
     <other-files/>
@@ -90,10 +93,10 @@
 
   <action>
     <icon>folder-remote</icon>
-    <name>Move to NAS Staging</name>
+    <name>Move to NAS Valhalla Staging</name>
     <submenu>NAS</submenu>
     <unique-id>1782052090035038-901</unique-id>
-    <command>move-to-nas-staging %F</command>
+    <command>move-to-valhalla-staging %F</command>
     <description>Move selected media files to NAS staging area</description>
     <range>*</range>
     <patterns>
@@ -103,17 +106,6 @@
     </patterns>
     <image-files/>
     <video-files/>
-  </action>
-
-  <action>
-    <icon>folder-remote</icon>
-    <name>Archive Home Folder to NAS</name>
-    <submenu>NAS</submenu>
-    <unique-id>1782052090035038-901</unique-id>
-    <command>archive-home-folder-to-nas</command>
-    <description>Archive Downloads, Documents, Pictures, Music and Videos to NAS</description>
-    <patterns>*</patterns>
-    <directories/>
   </action>
   
   <action>
