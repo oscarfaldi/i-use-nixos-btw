@@ -14,9 +14,7 @@
 
   # Gaming utilities
   environment.systemPackages = with pkgs; [
-    mangohud      # FPS and performance monitoring overlay
     gamemode      # CPU/GPU performance optimization daemon
     protonup-qt   # GUI tool to install and manage custom Proton-GE versions
-    goverlay      # Graphical interface to configure MangoHud profiles
   ];
 }
