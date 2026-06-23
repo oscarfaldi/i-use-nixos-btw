@@ -43,6 +43,8 @@
     ".config/qimgv".source            = ../.config/qimgv;
     ".config/pdfarranger".source      = ../.config/pdfarranger;
     ".config/xarchiver".source        = ../.config/xarchiver;
+    ".config/libreoffice/4/user/registrymodifications.xcu".source =
+      ../.config/libreoffice/4/user/registrymodifications.xcu;
 
     # --------------------------------------------------------------------------
     # Desktop Automation, Security & Utilities
