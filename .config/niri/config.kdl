@@ -245,6 +245,7 @@ input {
 	    match app-id="xarchiver"
 	    match app-id="mousepad"
 	    match app-id="pwvucontrol"
+	    match app-id="GParted"
 	    match app-id="xdg-desktop-portal-gtk"
 	    open-floating true
 	    default-column-width { fixed 900; }
