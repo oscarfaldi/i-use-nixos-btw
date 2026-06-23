@@ -50,6 +50,7 @@
     ".config/swaylock".source          = ../.config/swaylock;
     ".config/swayidle".source          = ../.config/swayidle;
     ".config/Thunar".source            = ../.config/Thunar;
+    ".config/qalculate".source         = ../.config/qalculate;
     ".config/gtk-3.0/bookmarks".source = ../.config/gtk-3.0/bookmarks;
     ".config/mimeapps.list".source     = ../.config/mimeapps.list;
     
