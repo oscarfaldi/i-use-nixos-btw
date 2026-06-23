@@ -158,7 +158,7 @@
     tectonic
     img2pdf
 
-    onlyoffice-desktopeditors
+    libreoffice
     # obsidian
     mousepad
 
