@@ -21,5 +21,6 @@ in
     (mkScript "repo-menu")
     (mkScript "scripts-menu")
     (mkScript "system-menu")
+    (mkScript "nas-menu")
   ];
 }
