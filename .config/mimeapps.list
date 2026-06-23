@@ -47,7 +47,7 @@ audio/mp4=mpv.desktop
 audio/aac=mpv.desktop
 
 # PDF
-application/pdf=org.gnome.Papers.desktop
+application/pdf=atril.desktop
 
 # Archives
 application/zip=xarchiver.desktop
