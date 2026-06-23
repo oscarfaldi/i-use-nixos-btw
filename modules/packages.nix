@@ -152,7 +152,7 @@
     p7zip
     unrar
 
-    papers
+    atril
     pdfarranger
     pandoc
     tectonic
