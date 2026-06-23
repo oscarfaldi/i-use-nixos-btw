@@ -109,6 +109,7 @@
     fzf
     ripgrep
     fd
+    tree
 
     jq
     yq-go
