@@ -1,20 +1,33 @@
-# modules/steam.nix
+# ============================================================
+# Steam & Gaming
+# ============================================================
+#
+# Purpose:
+# - Steam gaming platform
+# - Gamescope support for Wayland/Niri
+# - Gamemode performance optimizations
+# - Proton-GE management utility
+#
+# ============================================================
 
 { pkgs, ... }:
 
 {
-  # Steam configuration
-  programs.steam.enable = true;
-
-  # Gamescope (Valve's micro-compositor)
-  programs.gamescope = {
+  programs.steam = {
     enable = true;
-    capSysNice = true; # Grants process priority privileges for smoother performance and frame pacing
+
+    remotePlay.openFirewall = true;
+    dedicatedServer.openFirewall = false;
   };
 
-  # Gaming utilities
+  programs.gamescope = {
+    enable = true;
+    capSysNice = true;
+  };
+
+  programs.gamemode.enable = true;
+
   environment.systemPackages = with pkgs; [
-    gamemode      # CPU/GPU performance optimization daemon
-    protonup-qt   # GUI tool to install and manage custom Proton-GE versions
+    protonup-qt
   ];
 }
