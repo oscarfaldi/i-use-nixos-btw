@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=NAS
+Comment=NAS Operations
+Exec=nas-menu
+Terminal=false
+Icon=network-server
+Categories=System;
