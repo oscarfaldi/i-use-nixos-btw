@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Counter-Strike 2
+Exec=/home/oscarfaldi/System/scripts/games/cs2
+Icon=steam
+Terminal=false
+Categories=Game;
