@@ -93,16 +93,35 @@
 
   <action>
     <icon>folder-remote</icon>
-    <name>Move to NAS Valhalla Staging</name>
+    <name>Move to NAS Valhalla Videos Staging</name>
+    <submenu>NAS</submenu>
+    <unique-id>1782052090035038-902</unique-id>
+    <command>move-to-valhalla-videos-staging %F</command>
+    <description>Move selected video files to NAS staging area</description>
+    <range>*</range>
+    <patterns>
+        *.mp4;*.mkv;*.mov;*.webm;
+        *.avi;*.flv;*.wmv;*.m4v;
+        *.mts;*.m2ts;*.ts;*.mpeg;
+        *.mpg;*.3gp;*.ogv
+    </patterns>
+    <image-files/>
+    <video-files/>
+  </action>
+  
+  <action>
+    <icon>folder-remote</icon>
+    <name>Move to NAS Valhalla Pictures Staging</name>
     <submenu>NAS</submenu>
     <unique-id>1782052090035038-901</unique-id>
-    <command>move-to-valhalla-staging %F</command>
+    <command>move-to-valhalla-pictures-staging %F</command>
     <description>Move selected media files to NAS staging area</description>
     <range>*</range>
     <patterns>
-        *.jpg;*.jpeg;*.png;*.webp;*.gif;
-        *.mp4;*.mov;*.mkv;*.webm;
-        *.mts;*.m2ts;*.ts
+        *.mp4;*.mkv;*.mov;*.webm;
+        *.avi;*.flv;*.wmv;*.m4v;
+        *.mts;*.m2ts;*.ts;*.mpeg;
+        *.mpg;*.3gp;*.ogv
     </patterns>
     <image-files/>
     <video-files/>
