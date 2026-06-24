@@ -27,7 +27,7 @@ in
     (mkScript "rotate-video-right")
     (mkScript "compress-to-zip")
     (mkScript "extract-here")
-    (mkScript "move-to-valhalla-staging")
+    (mkScript "move-to-valhalla-pictures-staging")
     (mkScript "archive-home-folders-to-nas")
   ];
 }
