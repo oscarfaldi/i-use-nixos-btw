@@ -10,6 +10,7 @@
       { id = "ldgfbffkinooeloadekpmfoklnobpien"; } # Raindrop.io
       { id = "olenolhfominlkfmlkolcahemogebpcj"; } # Fast Save and Repost for Instagram
       { id = "mmnhfflobddadjfnimkdhnpafpoggboo"; } # IG Saver 2026 Instagram Downloader for Photos, Videos, Reels & Stories
+      { id = "piibekljdlkbkdchicfdjpnaggolndif"; } # Plucker XBD - X (Twitter) Media One-click Downloader
     ];
 
     commandLineArgs = [
