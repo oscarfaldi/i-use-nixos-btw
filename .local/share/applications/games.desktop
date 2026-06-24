@@ -1,7 +1,8 @@
 [Desktop Entry]
 Type=Application
 Name=Counter-Strike 2
-Exec=/home/oscarfaldi/System/scripts/games/cs2
-Icon=steam
+Comment=Launch Counter-Strike 2
+Exec=cs2
+Icon=steam_icon_730
 Terminal=false
 Categories=Game;
