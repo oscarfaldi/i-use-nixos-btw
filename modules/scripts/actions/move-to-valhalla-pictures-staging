@@ -7,7 +7,7 @@ DEST="/mnt/nas/valhalla/Pictures/Filtered/Staging"
 if [ ! -d "$DEST" ]; then
     notify-send \
         -i dialog-error \
-        "NAS Staging" \
+        "NAS Picture Staging" \
         "Destination folder not available."
     exit 1
 fi
@@ -39,5 +39,5 @@ done
 
 notify-send \
     -i folder-remote \
-    "NAS Staging" \
+    "NAS Picture Staging" \
     "${COUNT} file(s) moved successfully."
