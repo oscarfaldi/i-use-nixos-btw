@@ -28,6 +28,6 @@ in
     (mkScript "compress-to-zip")
     (mkScript "extract-here")
     (mkScript "move-to-valhalla-staging")
-    (mkScript "archive-home-folder-to-nas")
+    (mkScript "archive-home-folders-to-nas")
   ];
 }
