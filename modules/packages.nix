@@ -207,6 +207,8 @@
 
     wlogout
 
+    nvibrant
+
     gparted
     ntfs3g
     exfatprogs
