@@ -225,6 +225,18 @@
   </action>
 
   <action>
+    <icon>applications-multimedia</icon>
+    <name>Convert to ProRes 422 HQ</name>
+    <submenu>Media</submenu>
+    <unique-id>1781935446753343-502</unique-id>
+    <command>convert-to-prores %F</command>
+    <description>Convert selected videos to Apple ProRes 422 HQ for DaVinci Resolve</description>
+    <range>*</range>
+    <patterns>*.mp4;*.mov;*.mkv;*.webm;*.mts;*.m2ts;*.ts;*.avi;*.mxf;*.m4v</patterns>
+    <video-files/>
+  </action>
+  
+  <action>
     <icon>video-x-generic</icon>
     <name>Rename TS → MTS</name>
     <submenu>Media</submenu>
