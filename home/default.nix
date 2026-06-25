@@ -7,6 +7,7 @@
     ./xdg.nix
     ./chromium.nix
     ./thunar.nix
+    ./hidden-desktop-entries.nix
     ./theme-nordic.nix
     # ./theme-graphite.nix
   ];
