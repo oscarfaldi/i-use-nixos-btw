@@ -30,7 +30,7 @@
       ./modules/scripts/themes-tool.nix
       ./modules/scripts/actions-tool.nix
       ./modules/scripts/launchers-tool.nix
-      ./modules/scripts/games-tool.nix
+      ./modules/scripts/apps-tool.nix
     ];
 
   # Enable flakes and error experimental with new Nix CLI
