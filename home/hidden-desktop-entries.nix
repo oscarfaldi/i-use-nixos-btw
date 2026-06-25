@@ -3,12 +3,21 @@
 let
   hiddenDesktopEntries = [
     "blackmagicraw-speedtest.desktop"
+    "blackmagicraw-player.desktop"
     "cups.desktop"
+    "draw.desktop"
+    "math.desktop"
+    "startcenter.desktop"
+    "nixos-manual.desktop"
+    "nvidia-settings.desktop"
     "davinci-control-panels-setup.desktop"
     "davinci-fairlight-studio-utility.desktop"
     "davinci-resolve.desktop"
     "nm-connection-editor.desktop"
     "tectonic.desktop"
+    "thunar-bulk-rename.desktop"
+    "thunar-settings.desktop"
+    "thunar-volman-settings.desktop"
   ];
 in
 {
