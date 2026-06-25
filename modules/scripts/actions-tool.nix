@@ -18,6 +18,7 @@ in
     (mkScript "rename-ts-to-mts")
     (mkScript "convert-to-avif")
     (mkScript "convert-to-pdf")
+    (mkScript "convert-to-prores")
     (mkScript "copy-filename")
     (mkScript "copy-filename-no-extension")
     (mkScript "copy-full-path")
