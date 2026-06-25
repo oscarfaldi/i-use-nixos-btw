@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=DaVinci Resolve
+Comment=Professional Video Editor
+Exec=davinci-resolve
+Icon=davinci-resolve
+Terminal=false
+Categories=AudioVideo;Video;Graphics;
+Keywords=video;editor;davinci;resolve;
+StartupNotify=true
