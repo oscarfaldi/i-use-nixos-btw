@@ -4,7 +4,7 @@ let
 
   mkScript = name:
     pkgs.writeShellScriptBin name
-      (builtins.readFile ../../modules/scripts/games/${name});
+      (builtins.readFile ../../modules/scripts/apps/${name});
 
 in
 {
@@ -15,5 +15,6 @@ in
 
   environment.systemPackages = [
     (mkScript "cs2")
+    (mkScript "davinci-resolve")
   ];
 }
