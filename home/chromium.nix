@@ -24,9 +24,6 @@
 
       # Session
       "--restore-last-session"
-
-      # Hardware Acceleration & Rendering
-      "--enable-features=AcceleratedVideoDecodeLinuxGL"
     ];
   };
 }
