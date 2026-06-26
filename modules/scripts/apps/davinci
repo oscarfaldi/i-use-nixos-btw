@@ -4,4 +4,4 @@ set -euo pipefail
 
 export QT_QPA_PLATFORM=xcb
 
-exec /run/current-system/sw/bin/davinci-resolve "$@"
+exec davinci-resolve "$@"
