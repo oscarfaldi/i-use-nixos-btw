@@ -3,4 +3,4 @@ Type=Application
 Name=Configuration
 Exec=configuration-menu
 Terminal=false
-Icon=nix-snowflake
+Icon=/home/oscarfaldi/System/.config/assets/icons/desktop/configuration.svg
