@@ -29,7 +29,7 @@ let
     "gid=100"
     "file_mode=0664"
     "dir_mode=0775"
-    "cache=strict"
+    "cache=none"
     "x-systemd.automount"
     "noauto"
     "_netdev"
