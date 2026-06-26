@@ -43,7 +43,7 @@ run_ffmpeg() {
         -map 0 \
         -map_metadata 0 \
         -c:v prores_ks \
-        -profile:v 3 \
+        -profile:v 2 \
         -pix_fmt yuv422p10le \
         -c:a pcm_s24le \
         "$output" 2>/dev/null |
