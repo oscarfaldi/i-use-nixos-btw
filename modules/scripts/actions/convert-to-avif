@@ -28,9 +28,9 @@ for FILE in "$@"; do
         "$FILE" \
         "$OUTPUT" >/dev/null 2>&1
     then
-        ((SUCCESS++))
+        ((++SUCCESS))
     else
-        ((FAILED++))
+        ((++FAILED))
     fi
 done
 
