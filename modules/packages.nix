@@ -194,6 +194,8 @@
 
     pavucontrol
 
+    zenity
+
     wl-clipboard
 
     brightnessctl
