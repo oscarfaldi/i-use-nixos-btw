@@ -2,55 +2,125 @@
 
 # ==============================================================================
 # Script Name: Extract Here (Smart Unpacker)
-# Description: Extracts ZIP, 7Z, or RAR archives into a dedicated folder
-#              with the same name as the archive.
+# Description: Extracts supported archives into a dedicated folder with the same
+#              name as the archive.
+#
+# Supported Formats:
+#   - ZIP
+#   - 7Z
+#   - RAR
+#   - TAR
+#   - TAR.GZ / TGZ
+#   - TAR.XZ
+#   - TAR.BZ2
 # ==============================================================================
 
 set -euo pipefail
 
-# 0. Safety Check: Ensure an archive file was passed by Thunar
-if [ $# -eq 0 ]; then
-    notify-send -i dialog-error "Archive Extraction" "No file selected."
+# 0. Safety Check: Ensure at least one archive was selected
+if [ "$#" -eq 0 ]; then
+    notify-send \
+        -i dialog-error \
+        "Archive Extraction" \
+        "No archive selected."
     exit 1
 fi
 
-FILE="$1"
-DIR="$(dirname "$FILE")"
+# Process every selected archive
+for FILE in "$@"; do
 
-# 1. Extract the filename without the path
-BASENAME=$(basename "$FILE")
+    DIR="$(dirname "$FILE")"
 
-# 2. Extract the target directory name by stripping the extension (.zip, .7z, .rar)
-TARGET_NAME=$(echo "$BASENAME" | sed -E 's/\.(zip|7z|rar)$//I')
-TARGET_DIR="$DIR/$TARGET_NAME"
+    # 1. Extract the filename without the path
+    BASENAME="$(basename "$FILE")"
 
-# 3. Create the target directory if it doesn't exist
-mkdir -p "$TARGET_DIR"
+    # 2. Determine the target directory name by stripping the archive extension
+    case "${BASENAME,,}" in
+        *.tar.gz)
+            TARGET_NAME="${BASENAME%.tar.gz}"
+            ;;
+        *.tgz)
+            TARGET_NAME="${BASENAME%.tgz}"
+            ;;
+        *.tar.xz)
+            TARGET_NAME="${BASENAME%.tar.xz}"
+            ;;
+        *.tar.bz2)
+            TARGET_NAME="${BASENAME%.tar.bz2}"
+            ;;
+        *.tar)
+            TARGET_NAME="${BASENAME%.tar}"
+            ;;
+        *.zip)
+            TARGET_NAME="${BASENAME%.zip}"
+            ;;
+        *.7z)
+            TARGET_NAME="${BASENAME%.7z}"
+            ;;
+        *.rar)
+            TARGET_NAME="${BASENAME%.rar}"
+            ;;
+        *)
+            notify-send \
+                -i dialog-error \
+                "Archive Extraction" \
+                "Unsupported archive: $BASENAME"
+            continue
+            ;;
+    esac
 
-# 4. Process extraction based on file extension
-case "${FILE,,}" in
-    *.zip)
-        # Uses -d to force extraction into the specific target directory
-        unzip -o "$FILE" -d "$TARGET_DIR" >/dev/null
-        ;;
+    # 3. Build the extraction directory path
+    TARGET_DIR="$DIR/$TARGET_NAME"
 
-    *.7z)
-        # Uses -o to force extraction into the specific target directory
-        7z x "$FILE" "-o$TARGET_DIR" -y >/dev/null
-        ;;
+    # 4. Prevent accidental overwrite if the folder already exists
+    if [[ -e "$TARGET_DIR" ]]; then
+        notify-send \
+            -i dialog-warning \
+            "Archive Extraction" \
+            "\"$TARGET_NAME\" already exists."
+        continue
+    fi
 
-    *.rar)
-        # Replaces the old destination with the specific target directory path
-        unrar x -o+ "$FILE" "$TARGET_DIR/" >/dev/null
-        ;;
+    # 5. Create the extraction directory
+    mkdir -p "$TARGET_DIR"
 
-    *)
-        # Clean up the empty target directory if the format is unsupported
-        rmdir "$TARGET_DIR" 2>/dev/null || true
-        notify-send -i dialog-error "Archive Extraction" "Unsupported archive format."
-        exit 1
-        ;;
-esac
+    # 6. Extract the archive based on its file extension
+    case "${BASENAME,,}" in
 
-# 5. Trigger system notification on success
-notify-send -i package-x-generic "Archive Extraction" "Archive extracted successfully to $TARGET_NAME/"
+        *.zip)
+            unzip -oq "$FILE" -d "$TARGET_DIR"
+            ;;
+
+        *.7z)
+            7z x "$FILE" "-o$TARGET_DIR" -y >/dev/null
+            ;;
+
+        *.rar)
+            unrar x -o+ "$FILE" "$TARGET_DIR/" >/dev/null
+            ;;
+
+        *.tar.gz|*.tgz)
+            tar -xzf "$FILE" -C "$TARGET_DIR"
+            ;;
+
+        *.tar.xz)
+            tar -xJf "$FILE" -C "$TARGET_DIR"
+            ;;
+
+        *.tar.bz2)
+            tar -xjf "$FILE" -C "$TARGET_DIR"
+            ;;
+
+        *.tar)
+            tar -xf "$FILE" -C "$TARGET_DIR"
+            ;;
+
+    esac
+
+    # 7. Trigger a success notification
+    notify-send \
+        -i package-x-generic \
+        "Archive Extraction" \
+        "\"$BASENAME\" extracted successfully."
+
+done
