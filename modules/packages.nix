@@ -167,6 +167,8 @@
     # Media
     # ------------------------------------------------------------
 
+    davinci-resolve
+
     mpv
     mpvScripts.uosc
     mpvScripts.thumbfast
