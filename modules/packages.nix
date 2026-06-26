@@ -139,11 +139,7 @@
     # ------------------------------------------------------------
 
     thunar
-    tumbler
-    thunar-archive-plugin
-    thunar-volman
-    thunar-media-tags-plugin
-    
+
     yazi
 
     xarchiver
@@ -196,7 +192,7 @@
     # System Controls
     # ------------------------------------------------------------
 
-    pwvucontrol
+    pavucontrol
 
     wl-clipboard
 
