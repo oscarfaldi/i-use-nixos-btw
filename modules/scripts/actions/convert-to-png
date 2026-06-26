@@ -26,9 +26,9 @@ for FILE in "$@"; do
         "$FILE" \
         "$OUTPUT"
     then
-        ((SUCCESS++))
+        ((++SUCCESS))
     else
-        ((FAILED++))
+        ((++FAILED))
     fi
 done
 
