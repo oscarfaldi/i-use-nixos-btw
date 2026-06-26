@@ -7,33 +7,42 @@
 
 set -euo pipefail
 
-# 0. Safety Check: Ensure a file was actually passed by Thunar
-if [ $# -eq 0 ]; then
+# 0. Safety Check: Ensure at least one file was selected
+if [[ $# -eq 0 ]]; then
     notify-send -i dialog-error "AVIF Conversion" "No file selected."
     exit 1
 fi
 
-FILE="$1"
-DIR="$(dirname "$FILE")"
-NAME="$(basename "$FILE")"
-OUTPUT="${DIR}/${NAME%.*}.avif"
+SUCCESS=0
+FAILED=0
 
-# 1. Execute conversion with multi-line readability format
-if avifenc \
-    --min 20 \
-    --max 30 \
-    "$FILE" \
-    "$OUTPUT" >/dev/null 2>&1
-then
-    # 2. Success notification
+# 1. Convert every selected image
+for FILE in "$@"; do
+    DIR="$(dirname "$FILE")"
+    NAME="$(basename "$FILE")"
+    OUTPUT="${DIR}/${NAME%.*}.avif"
+
+    if avifenc \
+        --min 20 \
+        --max 30 \
+        "$FILE" \
+        "$OUTPUT" >/dev/null 2>&1
+    then
+        ((SUCCESS++))
+    else
+        ((FAILED++))
+    fi
+done
+
+# 2. Trigger system notification
+if (( FAILED == 0 )); then
     notify-send \
         -i image-x-generic \
         "AVIF Conversion" \
-        "AVIF created successfully."
+        "$SUCCESS image(s) converted successfully."
 else
-    # 3. Failure notification
     notify-send \
-        -i dialog-error \
+        -i dialog-warning \
         "AVIF Conversion" \
-        "Conversion failed."
+        "$SUCCESS succeeded, $FAILED failed."
 fi
