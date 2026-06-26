@@ -192,7 +192,7 @@
     # System Controls
     # ------------------------------------------------------------
 
-    pavucontrol
+    pwvucontrol
 
     zenity
 
