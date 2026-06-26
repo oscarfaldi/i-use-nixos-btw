@@ -4,5 +4,5 @@ Name=NAS
 Comment=NAS Operations
 Exec=nas-menu
 Terminal=false
-Icon=network-server
+Icon=/home/oscarfaldi/System/.config/assets/icons/desktop/nas.svg
 Categories=System;
