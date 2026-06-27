@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # ============================================================
 # Functions
 # ============================================================
@@ -59,19 +61,21 @@ fi
 
 input="$1"
 
-# Generate output filename (appends _prores.mov to the base name)
+# Generate output filename
 output="${input%.*}_prores.mov"
+
+notify \
+    "Converting to ProRes" \
+    "$(basename "$input")"
 
 # Execute conversion and handle results
 if run_ffmpeg "$input" "$output"; then
-    # Match the timestamp of the output file with the original file
     touch -r "$input" "$output"
 
     notify \
         "Conversion Complete" \
         "$(basename "$output")"
 else
-    # Remove corrupt or incomplete output file on failure
     rm -f "$output"
 
     notify \
