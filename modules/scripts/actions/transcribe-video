@@ -87,7 +87,10 @@ def next_available_srt(video_path: Path) -> Path:
 # ============================================================
 
 if len(sys.argv) != 2:
-    print("[ERROR] Usage: ./script.py <input_video_file>")
+    notify(
+        "Subtitle Generation Failed",
+        "No input file specified",
+    )
     sys.exit(1)
 
 video_path = Path(sys.argv[1]).expanduser()
@@ -159,8 +162,11 @@ try:
             )
             srt.write(f"{segment.text.strip()}\n\n")
 
-except Exception as error:
-    notify("Subtitle Generation Failed", str(error))
+except Exception:
+    notify(
+        "Subtitle Generation Failed",
+        video_path.name
+    )
     raise
 
 # ============================================================
