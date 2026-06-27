@@ -249,10 +249,22 @@
   </action>
 
   <action>
+    <icon>video-x-generic</icon>
+    <name>Rename TS → MTS</name>
+    <submenu>Media</submenu>
+    <unique-id>1781935446753343-503</unique-id>
+    <command>rename-ts-to-mts %F</command>
+    <description>Rename TS files for better thumbnail and MIME support</description>
+    <range>*</range>
+    <patterns>*.ts</patterns>
+    <other-files/>
+  </action>
+  
+  <action>
     <icon>applications-multimedia</icon>
     <name>Convert to ProRes 422 HQ</name>
     <submenu>Content Creation</submenu>
-    <unique-id>1781935446753343-503</unique-id>
+    <unique-id>1781935446753343-504</unique-id>
     <command>convert-to-prores %F</command>
     <description>Convert selected videos to Apple ProRes 422 HQ for DaVinci Resolve</description>
     <range>*</range>
@@ -264,24 +276,12 @@
     <icon>applications-multimedia</icon>
     <name>Transcribe Video to SRT</name>
     <submenu>Content Creation</submenu>
-    <unique-id>1781935446753343-504</unique-id>
+    <unique-id>1781935446753343-505</unique-id>
     <command>transcribe-video %f</command>
     <description>Generate Indonesian SRT subtitles using Faster-Whisper</description>
     <range>*</range>
     <patterns>*.mp4;*.mov;*.mkv;*.webm;*.mts;*.m2ts;*.ts;*.avi;*.mxf;*.m4v</patterns>
     <video-files/>
-  </action>
-  
-  <action>
-    <icon>video-x-generic</icon>
-    <name>Rename TS → MTS</name>
-    <submenu>Media</submenu>
-    <unique-id>1781935446753343-505</unique-id>
-    <command>rename-ts-to-mts %F</command>
-    <description>Rename TS files for better thumbnail and MIME support</description>
-    <range>*</range>
-    <patterns>*.ts</patterns>
-    <other-files/>
   </action>
 
 </actions>
