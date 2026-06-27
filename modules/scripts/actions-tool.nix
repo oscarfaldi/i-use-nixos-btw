@@ -1,37 +1,52 @@
 { config, pkgs, ... }:
 
 let
-
-  mkScript = name:
+  mkShellScript = name:
     pkgs.writeShellScriptBin name
       (builtins.readFile ../../modules/scripts/actions/${name});
 
+  mkPythonScript = name:
+    pkgs.writeScriptBin name
+      (builtins.readFile ../../modules/scripts/actions/${name});
 in
 {
-
   # ============================================================
   # Environment Scripts (Actionable Scripts)
   # ============================================================
-
   environment.systemPackages = [
-    (mkScript "screenshot")
-    (mkScript "rename-ts-to-mts")
-    (mkScript "convert-to-avif")
-    (mkScript "convert-to-png")
-    (mkScript "convert-to-jpeg")
-    (mkScript "convert-to-pdf")
-    (mkScript "convert-to-prores")
-    (mkScript "copy-filename")
-    (mkScript "copy-filename-no-extension")
-    (mkScript "copy-full-path")
-    (mkScript "rotate-image-left")
-    (mkScript "rotate-image-right")
-    (mkScript "rotate-video-left")
-    (mkScript "rotate-video-right")
-    (mkScript "compress-to-zip")
-    (mkScript "extract-here")
-    (mkScript "move-to-valhalla-pictures-staging")
-    (mkScript "move-to-valhalla-videos-staging")
-    (mkScript "archive-home-folders-to-nas")
+    # ------------------------------------------------------------
+    # Shell Scripts
+    # ------------------------------------------------------------
+    (mkShellScript "screenshot")
+    (mkShellScript "rename-ts-to-mts")
+
+    (mkShellScript "convert-to-avif")
+    (mkShellScript "convert-to-png")
+    (mkShellScript "convert-to-jpeg")
+    (mkShellScript "convert-to-pdf")
+    (mkShellScript "convert-to-prores")
+
+    (mkShellScript "copy-filename")
+    (mkShellScript "copy-filename-no-extension")
+    (mkShellScript "copy-full-path")
+
+    (mkShellScript "rotate-image-left")
+    (mkShellScript "rotate-image-right")
+
+    (mkShellScript "rotate-video-left")
+    (mkShellScript "rotate-video-right")
+
+    (mkShellScript "compress-to-zip")
+    (mkShellScript "extract-here")
+
+    (mkShellScript "move-to-valhalla-pictures-staging")
+    (mkShellScript "move-to-valhalla-videos-staging")
+
+    (mkShellScript "archive-home-folders-to-nas")
+
+    # ------------------------------------------------------------
+    # Python Scripts
+    # ------------------------------------------------------------
+    (mkPythonScript "transcribe-video")
   ];
 }
