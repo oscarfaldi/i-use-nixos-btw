@@ -185,6 +185,8 @@
     libopenraw
     libgsf
 
+    discord
+
     grim
     slurp
 
