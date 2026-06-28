@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ==============================================================================
+# Validation
+# ==============================================================================
+
+if [[ $# -ne 1 ]]; then
+    notify-send \
+        "Inspect File Failed" \
+        "No file specified."
+    exit 1
+fi
+
+FILE="$1"
+
+if [[ ! -e "$FILE" ]]; then
+    notify-send \
+        "Inspect File Failed" \
+        "File does not exist."
+    exit 1
+fi
+
+# ==============================================================================
+# Common Information
+# ==============================================================================
+
+EXT="${FILE##*.}"
+EXT="${EXT,,}"
+NAME="$(basename "$FILE")"
+FULL_PATH="$(realpath "$FILE")"
+SIZE="$(numfmt --to=iec-i --suffix=B "$(stat -c %s "$FILE")")"
+MODIFIED="$(stat -c '%y' "$FILE")"
+
+declare REPORT=""
+
+# ==============================================================================
+# Helper Functions
+# ==============================================================================
+
+copy_report() {
+    printf "%s" "$REPORT" | wl-copy
+}
+
+show_report() {
+    yad \
+        --title="Inspect File" \
+        --width=900 \
+        --height=700 \
+        --center \
+        --text-info \
+        --fontname="Monospace 10" \
+        --filename=<(printf "%s" "$REPORT") \
+        --button="Copy Metadata:0" \
+        --button="Close:1"
+
+    local result=$?
+
+    if [[ "$result" -eq 0 ]]; then
+        copy_report
+        notify-send \
+            "Metadata Copied" \
+            "$NAME"
+    fi
+}
+
+# ==============================================================================
+# Video Files
+# ==============================================================================
+
+show_video() {
+    local mediainfo_output
+    local exif_output
+
+    mediainfo_output="$(mediainfo "$FILE" 2>/dev/null || true)"
+    exif_output="$(exiftool "$FILE" 2>/dev/null || true)"
+
+    REPORT="
+FILE
+────────────────────────────────────────
+Name     : $NAME
+Path     : $FULL_PATH
+Size     : $SIZE
+Modified : $MODIFIED
+
+MEDIAINFO
+────────────────────────────────────────
+$mediainfo_output
+
+EXIFTOOL
+────────────────────────────────────────
+$exif_output
+"
+    show_report
+}
+
+# ==============================================================================
+# Fallback
+# ==============================================================================
+
+show_generic() {
+    REPORT="
+FILE
+────────────────────────────────────────
+Name     : $NAME
+Path     : $FULL_PATH
+Size     : $SIZE
+Modified : $MODIFIED
+
+No parser available for: .$EXT
+"
+    show_report
+}
+
+# ==============================================================================
+# Dispatcher
+# ==============================================================================
+
+case "$EXT" in
+    mp4|mov|mkv|webm|avi|mts|m2ts|ts|mxf|m4v|mpg|mpeg|3gp|ogv|wmv|flv)
+        show_video
+        ;;
+    *)
+        show_generic
+        ;;
+esac
