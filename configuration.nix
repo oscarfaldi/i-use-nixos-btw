@@ -24,7 +24,7 @@
       ./modules/pwa.nix
       ./modules/games.nix
       ./modules/smb.nix
-      ./modules/davinci.nix
+      ./modules/content-creation.nix
 
       # Scripts
       ./modules/scripts/systems-tool.nix
