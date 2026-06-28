@@ -284,7 +284,7 @@
   
   <action>
     <icon>applications-multimedia</icon>
-    <name>Convert to ProRes 422 HQ</name>
+    <name>Convert to ProRes 422</name>
     <submenu>Content Creation</submenu>
     <unique-id>1781935446753343-601</unique-id>
     <command>convert-to-prores %F</command>
@@ -294,9 +294,9 @@
     <video-files/>
   </action>
 
-    <action>
+  <action>
     <icon>applications-multimedia</icon>
-    <name>Convert to ProRes 422 HQ (Monitor)</name>
+    <name>Convert to ProRes 422 (Monitor)</name>
     <submenu>Content Creation</submenu>
     <unique-id>1781935446753343-602</unique-id>
     <command>ghostty --title="ProRes Conversion" -e convert-to-prores %F</command>
@@ -308,9 +308,33 @@
 
   <action>
     <icon>applications-multimedia</icon>
-    <name>Transcribe Video to SRT</name>
+    <name>Convert to H.265</name>
     <submenu>Content Creation</submenu>
     <unique-id>1781935446753343-603</unique-id>
+    <command>convert-to-h265 %F</command>
+    <description>Convert selected ProRes videos to H.265 MP4 for upload</description>
+    <range>*</range>
+    <patterns>*.mov;*.MOV;*.mp4;*.MP4;*.mkv;*.MKV;*.mxf;*.MXF</patterns>
+    <video-files/>
+  </action>
+  
+  <action>
+    <icon>applications-multimedia</icon>
+    <name>Convert to H.265 (Monitor)</name>
+    <submenu>Content Creation</submenu>
+    <unique-id>1781935446753343-604</unique-id>
+    <command>ghostty --title="H.265 Conversion" -e convert-to-h265 %F</command>
+    <description>Convert selected ProRes videos to H.265 MP4 for upload with live monitoring</description>
+    <range>*</range>
+    <patterns>*.mov;*.MOV;*.mp4;*.MP4;*.mkv;*.MKV;*.mxf;*.MXF</patterns>
+    <video-files/>
+  </action>
+  
+  <action>
+    <icon>applications-multimedia</icon>
+    <name>Transcribe Video to SRT</name>
+    <submenu>Content Creation</submenu>
+    <unique-id>1781935446753343-605</unique-id>
     <command>transcribe-video %F</command>
     <description>Generate Indonesian SRT subtitles using Faster-Whisper</description>
     <range>*</range>
@@ -318,11 +342,11 @@
     <video-files/>
   </action>
 
-    <action>
+  <action>
     <icon>applications-multimedia</icon>
     <name>Transcribe Video to SRT (Monitor)</name>
     <submenu>Content Creation</submenu>
-    <unique-id>1781935446753343-604</unique-id>
+    <unique-id>1781935446753343-606</unique-id>
     <command>ghostty --title="Subtitle Generation" -e transcribe-video %F</command>
     <description>Generate Indonesian SRT subtitles using Faster-Whisper with live monitoring</description>
     <range>*</range>
