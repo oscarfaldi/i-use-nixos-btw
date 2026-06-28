@@ -151,7 +151,7 @@
 
     atril
     pdfarranger
-    poppler_utils
+    poppler-utils
     pandoc
     tectonic
     img2pdf
