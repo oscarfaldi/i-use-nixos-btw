@@ -80,12 +80,6 @@ in
     })
 
     (mkPWA {
-      name = "Discord";
-      url = "https://discord.com/channels/@me";
-      icon = "/home/oscarfaldi/.config/assets/icons/pwa/discord.svg";
-    })
-
-    (mkPWA {
       name = "Obsidian";
       url = "https://10.10.10.10:3001/";
       icon = "/home/oscarfaldi/.config/assets/icons/pwa/obsidian.svg";
