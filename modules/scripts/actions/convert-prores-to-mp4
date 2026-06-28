@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# ============================================================
+# Functions
+# ============================================================
+
+run_ffmpeg() {
+    local input="$1"
+    local output="$2"
+
+    # Launch Ghostty and monitor the FFmpeg process
+    ghostty \
+        --title="H.265 Conversion" \
+        -e bash -c "
+            ffmpeg \
+                -hide_banner \
+                -stats_period 1 \
+                -i \"$input\" \
+                -map 0:v:0 \
+                -map '0:a?' \
+                -sn \
+                -dn \
+                -c:v libx265 \
+                -preset medium \
+                -crf 22 \
+                -pix_fmt yuv420p10le \
+                -tag:v hvc1 \
+                -c:a aac \
+                -b:a 320k \
+                \"$output\"
+
+            # Capture the exit status of the FFmpeg command
+            STATUS=\$?
+
+            # If FFmpeg fails, keep the terminal open for 5 seconds to inspect errors
+            if [ \$STATUS -ne 0 ]; then
+                echo -e '\n\e[1;31m[ERROR] FFmpeg conversion failed!\e[0m'
+                echo 'Closing window in 5 seconds...'
+                sleep 5
+            fi
+
+            # Forward the exit status out of Ghostty
+            exit \$STATUS
+        "
+}
+
+notify() {
+    local title="$1"
+    local message="$2"
+    notify-send "$title" "$message"
+}
+
+# ============================================================
+# Main
+# ============================================================
+
+# Ensure the input argument from Thunar or CLI is present
+if [ -z "${1:-}" ]; then
+    notify "Error" "No input file specified."
+    exit 1
+fi
+
+input="$1"
+
+# Generate output filename
+output="${input%.*}_h265.mp4"
+
+notify \
+    "Converting to H.265" \
+    "$(basename "$input")"
+
+# Execute conversion and handle results
+if run_ffmpeg "$input" "$output"; then
+    touch -r "$input" "$output"
+
+    notify \
+        "Conversion Complete" \
+        "$(basename "$output")"
+else
+    rm -f "$output"
+
+    notify \
+        "Conversion Failed" \
+        "$(basename "$input")"
+fi
