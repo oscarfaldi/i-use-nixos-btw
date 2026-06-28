@@ -1,10 +1,12 @@
 [Desktop Entry]
-Type=Application
-Name=DaVinci Resolve
-Comment=Professional Video Editor
-Exec=davinci
-Icon=/home/oscarfaldi/System/.config/assets/icons/desktop/davinci-resolve.png
-Terminal=false
-Categories=AudioVideo;Video;Graphics;
-Keywords=video;editor;davinci;resolve;
-StartupNotify=true
+# Type=Application
+# Name=DaVinci Resolve
+# Comment=Professional Video Editor
+# Exec=davinci
+# Icon=/home/oscarfaldi/System/.config/assets/icons/desktop/davinci-resolve.png
+# Terminal=false
+# Categories=AudioVideo;Video;Graphics;
+# Keywords=video;editor;davinci;resolve;
+# StartupNotify=true
+
+Hidden=true
