@@ -92,8 +92,8 @@
       "sync.local"
       "shlink.local"
       "office.local"
-      "now.local"
-      "monitor.local"
+      "glances.local"
+      "grafana.local"
       "unmanic.local"
     ];
   };
