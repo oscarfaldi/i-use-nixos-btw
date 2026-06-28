@@ -1,126 +1,715 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# =============================================================================
+# inspect-file — Thunar Custom Action File Inspector
+# Dependencies: yad, mediainfo, exiftool, poppler-utils, bc, file, stat
+# Install: sudo install -Dm755 inspect-file /usr/local/bin/inspect-file
+# =============================================================================
 
-# ==============================================================================
-# Validation
-# ==============================================================================
+set -uo pipefail
 
-if [[ $# -ne 1 ]]; then
-    notify-send \
-        "Inspect File Failed" \
-        "No file specified."
+# ── Guard ─────────────────────────────────────────────────────────────────────
+if [[ $# -eq 0 ]]; then
+    yad --error --title="Inspect File" \
+        --text="No file specified." \
+        --button="Close":0
     exit 1
 fi
 
 FILE="$1"
 
+# Resolve symlink
+[[ -L "$FILE" ]] && FILE="$(readlink -f "$FILE")"
+
 if [[ ! -e "$FILE" ]]; then
-    notify-send \
-        "Inspect File Failed" \
-        "File does not exist."
+    yad --error --title="Inspect File" \
+        --text="File not found:\n<b>$FILE</b>" \
+        --button="Close":0
     exit 1
 fi
 
-# ==============================================================================
-# Common Information
-# ==============================================================================
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
-EXT="${FILE##*.}"
-EXT="${EXT,,}"
-NAME="$(basename "$FILE")"
-FULL_PATH="$(realpath "$FILE")"
-SIZE="$(numfmt --to=iec-i --suffix=B "$(stat -c %s "$FILE")")"
-MODIFIED="$(stat -c '%y' "$FILE")"
-
-declare REPORT=""
-
-# ==============================================================================
-# Helper Functions
-# ==============================================================================
-
-copy_report() {
-    printf "%s" "$REPORT" | wl-copy
+# mediainfo --Inform shorthand
+mi() {
+    local track="$1" tag="$2"
+    mediainfo "--Inform=${track};%${tag}%" "$FILE" 2>/dev/null || true
 }
 
-show_report() {
-    yad \
-        --title="Inspect File" \
-        --width=900 \
-        --height=700 \
-        --center \
-        --text-info \
-        --fontname="Monospace 10" \
-        --filename=<(printf "%s" "$REPORT") \
-        --button="Copy Metadata:0" \
-        --button="Close:1"
+# exiftool single-tag shorthand
+exif() {
+    exiftool -s3 -"$1" "$FILE" 2>/dev/null \
+        | head -1 \
+        | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' \
+        || true
+}
 
-    local result=$?
+# First non-empty value from a list of fallbacks
+# Usage: coalesce "val1" "val2" "val3"
+coalesce() {
+    for v in "$@"; do
+        if [[ -n "$v" && "$v" != "-" && "$v" != "0" ]]; then
+            printf '%s' "$v"
+            return
+        fi
+    done
+}
 
-    if [[ "$result" -eq 0 ]]; then
-        copy_report
-        notify-send \
-            "Metadata Copied" \
-            "$NAME"
+# Human-readable size
+human_size() {
+    local b="$1"
+    if   (( b >= 1073741824 )); then printf "%.2f GB" "$(echo "scale=2; $b/1073741824" | bc)"
+    elif (( b >= 1048576 ));    then printf "%.2f MB" "$(echo "scale=2; $b/1048576"    | bc)"
+    elif (( b >= 1024 ));       then printf "%.2f KB" "$(echo "scale=2; $b/1024"       | bc)"
+    else printf "%d B" "$b"
     fi
 }
 
-# ==============================================================================
-# Video Files
-# ==============================================================================
+# Clipboard copy (Wayland → X11 fallback)
+copy_to_clipboard() {
+    if   command -v wl-copy &>/dev/null; then wl-copy   < "$1"
+    elif command -v xclip   &>/dev/null; then xclip -selection clipboard < "$1"
+    elif command -v xsel    &>/dev/null; then xsel --clipboard --input   < "$1"
+    fi
+}
+export -f copy_to_clipboard
 
-show_video() {
-    local mediainfo_output
-    local exif_output
+# ── Extension detection (case-insensitive) ────────────────────────────────────
+# This handles DJI / GoPro / camera files that use uppercase extensions
+# e.g. DJI Osmo Pocket 3 → .MP4, GoPro → .MP4, Canon → .CR3 .MOV
+RAW_EXT="${FILE##*.}"
+EXT="${RAW_EXT,,}"   # force lowercase — handles MP4, MOV, JPEG, CR3, etc.
 
-    mediainfo_output="$(mediainfo "$FILE" 2>/dev/null || true)"
-    exif_output="$(exiftool "$FILE" 2>/dev/null || true)"
+# Edge case: no extension at all
+[[ "$FILE" == "${FILE%.*}" ]] && EXT=""
 
-    REPORT="
-FILE
-────────────────────────────────────────
-Name     : $NAME
-Path     : $FULL_PATH
-Size     : $SIZE
-Modified : $MODIFIED
+# ── YAD notebook key (random to avoid collision if multiple instances run) ────
+KEY=$RANDOM
+FNAME=$(basename "$FILE")
+TITLE="Inspect — $FNAME"
 
-MEDIAINFO
-────────────────────────────────────────
-$mediainfo_output
+# ── Tab builders ──────────────────────────────────────────────────────────────
+# Each function spawns a yad --plug in the background.
+# Tab numbering must be sequential starting from 1.
+# Functions echo the tab label — caller collects them for --tab= args.
 
-EXIFTOOL
-────────────────────────────────────────
-$exif_output
-"
-    show_report
+# ─────────────────────────────────────────────────────────────────────────────
+# TAB: FILE (always present, always tab 1)
+# ─────────────────────────────────────────────────────────────────────────────
+tab_file() {
+    local tabnum="$1"
+    local name path mime type_desc size_bytes size_human created modified perms
+
+    name=$(basename "$FILE")
+    path=$(dirname "$FILE")
+    size_bytes=$(stat -c "%s" "$FILE")
+    size_human=$(human_size "$size_bytes")
+    mime=$(file --brief --mime-type "$FILE")
+    type_desc=$(file --brief "$FILE")
+    created=$(stat -c "%w" "$FILE" 2>/dev/null || true)
+    modified=$(stat -c "%y" "$FILE" | cut -d'.' -f1)
+    perms=$(stat -c "%A" "$FILE")
+
+    # Birth time not supported on many Linux filesystems
+    [[ -z "$created" || "$created" == "-" ]] && created="—"
+
+    yad --plug="$KEY" --tabnum="$tabnum" \
+        --list --no-selection \
+        --column="Property" \
+        --column="Value" \
+        "Name"       "$name" \
+        "Path"       "$path" \
+        "Type"       "$type_desc" \
+        "MIME"       "$mime" \
+        "Size"       "$size_human  ($size_bytes bytes)" \
+        "Permissions" "$perms" \
+        "Modified"   "$modified" \
+        "Created"    "$created" \
+        &
 }
 
-# ==============================================================================
-# Fallback
-# ==============================================================================
+# ─────────────────────────────────────────────────────────────────────────────
+# TAB: VIDEO
+# ─────────────────────────────────────────────────────────────────────────────
+tab_video() {
+    local tabnum="$1"
 
-show_generic() {
-    REPORT="
-FILE
-────────────────────────────────────────
-Name     : $NAME
-Path     : $FULL_PATH
-Size     : $SIZE
-Modified : $MODIFIED
+    local v_format v_codec v_codec_id v_width v_height v_aspect v_fps
+    local v_bitdepth v_duration v_bitrate v_scantype
+    local a_codec a_channels a_samplerate a_bitrate
+    local r_device r_date r_rotation
+    local c_colorspace c_range c_primaries c_transfer
 
-No parser available for: .$EXT
-"
-    show_report
+    v_format=$(coalesce "$(mi General Format)")
+    v_codec=$(coalesce "$(mi Video Format)")
+    v_codec_id=$(coalesce "$(mi Video CodecID)")
+    v_width=$(coalesce "$(mi Video Width)")
+    v_height=$(coalesce "$(mi Video Height)")
+    v_aspect=$(coalesce "$(mi Video 'DisplayAspectRatio/String')")
+    v_fps=$(coalesce "$(mi Video FrameRate)")
+    v_bitdepth=$(coalesce "$(mi Video BitDepth)")
+    v_duration=$(coalesce "$(mi General 'Duration/String')")
+    v_bitrate=$(coalesce "$(mi General 'OverallBitRate/String')")
+
+    a_codec=$(coalesce "$(mi Audio Format)")
+    a_channels=$(coalesce "$(mi Audio 'Channel(s)/String')")
+    a_samplerate=$(coalesce "$(mi Audio 'SamplingRate/String')")
+    a_bitrate=$(coalesce "$(mi Audio 'BitRate/String')")
+
+    r_device=$(coalesce "$(exif Model)" "$(exif CameraModelName)")
+    r_date=$(coalesce "$(exif MediaCreateDate)" "$(exif CreateDate)" "$(mi General Encoded_Date)")
+    r_rotation=$(coalesce "$(exif Rotation)" "$(mi Video Rotation)")
+
+    c_colorspace=$(coalesce "$(mi Video ColorSpace)" "$(exif ColorSpace)")
+    c_range=$(coalesce "$(mi Video colour_range)" "$(exif VideoFullRangeFlag)")
+    c_primaries=$(coalesce "$(mi Video colour_primaries)" "$(exif ColorPrimaries)")
+    c_transfer=$(coalesce "$(mi Video transfer_characteristics)" "$(exif TransferCharacteristics)")
+
+    local res="—"
+    [[ -n "$v_width" && -n "$v_height" ]] && res="${v_width}×${v_height}"
+
+    local codec_str="$v_codec"
+    [[ -n "$v_codec_id" ]] && codec_str+=" ($v_codec_id)"
+
+    yad --plug="$KEY" --tabnum="$tabnum" \
+        --list --no-selection \
+        --column="Property" \
+        --column="Value" \
+        "Format"         "${v_format:-—}" \
+        "Codec"          "${codec_str:-—}" \
+        "Resolution"     "$res" \
+        "Aspect Ratio"   "${v_aspect:-—}" \
+        "FPS"            "${v_fps:-—}" \
+        "Bit Depth"      "${v_bitdepth:+${v_bitdepth}-bit}" \
+        "Duration"       "${v_duration:-—}" \
+        "Bitrate"        "${v_bitrate:-—}" \
+        "Audio Codec"    "${a_codec:-—}" \
+        "Channels"       "${a_channels:-—}" \
+        "Sample Rate"    "${a_samplerate:-—}" \
+        "Audio Bitrate"  "${a_bitrate:-—}" \
+        "Device"         "${r_device:-—}" \
+        "Recorded Date"  "${r_date:-—}" \
+        "Rotation"       "${r_rotation:+${r_rotation}°}" \
+        "Color Space"    "${c_colorspace:-—}" \
+        "Color Range"    "${c_range:-—}" \
+        "Color Primaries" "${c_primaries:-—}" \
+        "Transfer"       "${c_transfer:-—}" \
+        &
 }
 
-# ==============================================================================
-# Dispatcher
-# ==============================================================================
+# ─────────────────────────────────────────────────────────────────────────────
+# TAB: AUDIO info  |  TAB: TAGS  — dua tab terpisah
+# ─────────────────────────────────────────────────────────────────────────────
+tab_audio_info() {
+    local tabnum="$1"
+    local a_codec a_duration a_bitrate a_channels a_samplerate
 
+    a_codec=$(coalesce "$(mi Audio Format)" "$(mi General Format)")
+    a_duration=$(coalesce "$(mi General 'Duration/String')")
+    a_bitrate=$(coalesce "$(mi General 'OverallBitRate/String')")
+    a_channels=$(coalesce "$(mi Audio 'Channel(s)/String')")
+    a_samplerate=$(coalesce "$(mi Audio 'SamplingRate/String')")
+
+    yad --plug="$KEY" --tabnum="$tabnum" \
+        --list --no-selection \
+        --column="Property" \
+        --column="Value" \
+        "Codec"       "${a_codec:-—}" \
+        "Duration"    "${a_duration:-—}" \
+        "Bitrate"     "${a_bitrate:-—}" \
+        "Channels"    "${a_channels:-—}" \
+        "Sample Rate" "${a_samplerate:-—}" \
+        &
+}
+
+tab_audio_tags() {
+    local tabnum="$1"
+    local t_title t_artist t_album_artist t_album t_genre t_year t_track t_disc t_comment t_composer
+
+    t_title=$(coalesce "$(exif Title)")
+    t_artist=$(coalesce "$(exif Artist)" "$(exif Performer)")
+
+    # Album Artist — ID3v2: TPE2, Vorbis: ALBUMARTIST, iTunes: aART
+    # exiftool exposes this as "Band" (ID3), "AlbumArtist", or "Ensemble"
+    t_album_artist=$(coalesce \
+        "$(exif AlbumArtist)" \
+        "$(exif Band)" \
+        "$(exif Ensemble)" \
+        "$(exif 'Album Artist')")
+
+    t_album=$(coalesce "$(exif Album)")
+    t_genre=$(coalesce "$(exif Genre)")
+    t_year=$(coalesce "$(exif Year)" "$(exif RecordingYear)" "$(exif Date)" "$(exif ContentCreateDate)")
+    t_track=$(coalesce "$(exif Track)" "$(exif TrackNumber)")
+    t_disc=$(coalesce "$(exif PartOfSet)" "$(exif DiscNumber)")
+    t_composer=$(coalesce "$(exif Composer)")
+    t_comment=$(coalesce "$(exif Comment)")
+
+    yad --plug="$KEY" --tabnum="$tabnum" \
+        --list --no-selection \
+        --column="Tag" \
+        --column="Value" \
+        "Title"        "${t_title:-—}" \
+        "Artist"       "${t_artist:-—}" \
+        "Album Artist" "${t_album_artist:-—}" \
+        "Album"        "${t_album:-—}" \
+        "Genre"        "${t_genre:-—}" \
+        "Year"         "${t_year:-—}" \
+        "Track"        "${t_track:-—}" \
+        "Disc"         "${t_disc:-—}" \
+        "Composer"     "${t_composer:-—}" \
+        "Comment"      "${t_comment:-—}" \
+        &
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TAB: IMAGE  |  TAB: CAMERA  |  TAB: LOCATION (conditional)
+# ─────────────────────────────────────────────────────────────────────────────
+tab_image_info() {
+    local tabnum="$1"
+    local i_width i_height i_megapix i_aspect i_bitdepth i_colorspace i_profile
+
+    i_width=$(coalesce "$(exif ImageWidth)" "$(mi Video Width)")
+    i_height=$(coalesce "$(exif ImageHeight)" "$(mi Video Height)")
+    i_bitdepth=$(coalesce "$(exif BitDepth)" "$(mi General BitDepth)")
+    i_colorspace=$(coalesce "$(exif ColorSpaceData)" "$(exif ColorSpace)" "$(mi General ColorSpace)")
+    i_profile=$(coalesce "$(exif ProfileDescription)" "$(exif ICCProfileName)")
+
+    local res="—"
+    if [[ -n "$i_width" && -n "$i_height" ]]; then
+        res="${i_width}×${i_height}"
+        i_megapix=$(echo "scale=2; $i_width * $i_height / 1000000" | bc)
+        i_aspect=$(echo "$i_width $i_height" | awk '{
+            function gcd(a,b){return b==0?a:gcd(b,a%b)}
+            g=gcd($1,$2); printf "%d:%d",$1/g,$2/g
+        }')
+    fi
+
+    yad --plug="$KEY" --tabnum="$tabnum" \
+        --list --no-selection \
+        --column="Property" \
+        --column="Value" \
+        "Resolution"   "$res" \
+        "Megapixels"   "${i_megapix:+${i_megapix} MP}" \
+        "Aspect Ratio" "${i_aspect:-—}" \
+        "Bit Depth"    "${i_bitdepth:+${i_bitdepth}-bit}" \
+        "Color Space"  "${i_colorspace:-—}" \
+        "ICC Profile"  "${i_profile:-—}" \
+        &
+}
+
+tab_camera_info() {
+    local tabnum="$1"
+    local c_make c_model c_camera c_lens c_iso c_shutter c_aperture c_focal c_ev c_flash c_software c_date
+
+    c_make=$(coalesce "$(exif Make)")
+    c_model=$(coalesce "$(exif Model)" "$(exif CameraModelName)")
+    # Combine Make + Model, avoiding duplication when Make is already in Model
+    if [[ -n "$c_make" && -n "$c_model" ]]; then
+        if [[ "$c_model" == "$c_make"* ]]; then
+            c_camera="$c_model"
+        else
+            c_camera="$c_make $c_model"
+        fi
+    else
+        c_camera=$(coalesce "$c_model" "$c_make")
+    fi
+
+    c_lens=$(coalesce "$(exif LensModel)" "$(exif Lens)" "$(exif LensInfo)")
+    c_iso=$(coalesce "$(exif ISO)")
+    c_shutter=$(coalesce "$(exif ExposureTime)" "$(exif ShutterSpeedValue)")
+    local raw_aperture; raw_aperture=$(coalesce "$(exif FNumber)" "$(exif ApertureValue)")
+    [[ -n "$raw_aperture" ]] && c_aperture="f/$raw_aperture" || c_aperture="—"
+    c_focal=$(coalesce "$(exif FocalLength)")
+    c_ev=$(coalesce "$(exif ExposureCompensation)" "$(exif ExposureBiasValue)")
+    c_flash=$(coalesce "$(exif Flash)")
+    c_software=$(coalesce "$(exif Software)")
+    c_date=$(coalesce "$(exif DateTimeOriginal)" "$(exif CreateDate)")
+
+    yad --plug="$KEY" --tabnum="$tabnum" \
+        --list --no-selection \
+        --column="Property" \
+        --column="Value" \
+        "Camera"        "${c_camera:-—}" \
+        "Lens"          "${c_lens:-—}" \
+        "ISO"           "${c_iso:+ISO $c_iso}" \
+        "Shutter"       "${c_shutter:-—}" \
+        "Aperture"      "$c_aperture" \
+        "Focal Length"  "${c_focal:-—}" \
+        "Exp. Comp."    "${c_ev:-—}" \
+        "Flash"         "${c_flash:-—}" \
+        "Software"      "${c_software:-—}" \
+        "Captured"      "${c_date:-—}" \
+        &
+}
+
+tab_location() {
+    local tabnum="$1"
+    local g_lat g_lon g_alt g_speed g_dir g_ref_lat g_ref_lon
+
+    g_lat=$(coalesce "$(exif GPSLatitude)")
+    g_lon=$(coalesce "$(exif GPSLongitude)")
+    g_ref_lat=$(coalesce "$(exif GPSLatitudeRef)")
+    g_ref_lon=$(coalesce "$(exif GPSLongitudeRef)")
+    g_alt=$(coalesce "$(exif GPSAltitude)")
+    g_speed=$(coalesce "$(exif GPSSpeed)")
+    g_dir=$(coalesce "$(exif GPSImgDirection)")
+
+    [[ -n "$g_ref_lat" ]] && g_lat="$g_lat $g_ref_lat"
+    [[ -n "$g_ref_lon" ]] && g_lon="$g_lon $g_ref_lon"
+
+    yad --plug="$KEY" --tabnum="$tabnum" \
+        --list --no-selection \
+        --column="Property" \
+        --column="Value" \
+        "GPS Latitude"  "${g_lat:-—}" \
+        "GPS Longitude" "${g_lon:-—}" \
+        "Altitude"      "${g_alt:-—}" \
+        "Speed"         "${g_speed:-—}" \
+        "Direction"     "${g_dir:-—}" \
+        &
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TAB: PDF / OFFICE DOCUMENT
+# ─────────────────────────────────────────────────────────────────────────────
+tab_pdf() {
+    local tabnum="$1"
+    local pages pdf_ver author title producer creator subject created modified keywords
+
+    if command -v pdfinfo &>/dev/null; then
+        local _info; _info=$(pdfinfo "$FILE" 2>/dev/null)
+        pages=$(    echo "$_info" | awk -F':[[:space:]]+' '/^Pages:/{print $2}')
+        pdf_ver=$(  echo "$_info" | awk -F':[[:space:]]+' '/^PDF version:/{print $2}')
+        author=$(   echo "$_info" | awk -F':[[:space:]]+' '/^Author:/{print $2}')
+        title=$(    echo "$_info" | awk -F':[[:space:]]+' '/^Title:/{print $2}')
+        producer=$( echo "$_info" | awk -F':[[:space:]]+' '/^Producer:/{print $2}')
+        creator=$(  echo "$_info" | awk -F':[[:space:]]+' '/^Creator:/{print $2}')
+        created=$(  echo "$_info" | awk -F':[[:space:]]+' '/^CreationDate:/{print $2}')
+        modified=$( echo "$_info" | awk -F':[[:space:]]+' '/^ModDate:/{print $2}')
+        subject=$(  echo "$_info" | awk -F':[[:space:]]+' '/^Subject:/{print $2}')
+        keywords=$( echo "$_info" | awk -F':[[:space:]]+' '/^Keywords:/{print $2}')
+    fi
+
+    # Supplement with exiftool
+    pages=$(coalesce    "$pages"    "$(exif PageCount)")
+    pdf_ver=$(coalesce  "$pdf_ver"  "$(exif PDFVersion)")
+    author=$(coalesce   "$author"   "$(exif Author)")
+    title=$(coalesce    "$title"    "$(exif Title)")
+    producer=$(coalesce "$producer" "$(exif Producer)")
+    creator=$(coalesce  "$creator"  "$(exif Creator)")
+    created=$(coalesce  "$created"  "$(exif CreateDate)")
+    modified=$(coalesce "$modified" "$(exif ModifyDate)")
+    subject=$(coalesce  "$subject"  "$(exif Subject)")
+    keywords=$(coalesce "$keywords" "$(exif Keywords)")
+
+    yad --plug="$KEY" --tabnum="$tabnum" \
+        --list --no-selection \
+        --column="Property" \
+        --column="Value" \
+        "Pages"       "${pages:-—}" \
+        "PDF Version" "${pdf_ver:-—}" \
+        "Title"       "${title:-—}" \
+        "Subject"     "${subject:-—}" \
+        "Keywords"    "${keywords:-—}" \
+        "Author"      "${author:-—}" \
+        "Creator"     "${creator:-—}" \
+        "Producer"    "${producer:-—}" \
+        "Created"     "${created:-—}" \
+        "Modified"    "${modified:-—}" \
+        &
+}
+
+tab_office() {
+    local tabnum="$1"
+    local title author last_editor company application app_version revision
+    local created modified pages words sheets slides
+
+    title=$(coalesce        "$(exif Title)")
+    author=$(coalesce       "$(exif Author)" "$(exif Creator)")
+    last_editor=$(coalesce  "$(exif LastModifiedBy)")
+    company=$(coalesce      "$(exif Company)")
+    application=$(coalesce  "$(exif Application)" "$(exif Software)" "$(exif CreatorTool)")
+    app_version=$(coalesce  "$(exif AppVersion)")
+    revision=$(coalesce     "$(exif Revision)" "$(exif RevisionNumber)")
+    created=$(coalesce      "$(exif CreateDate)")
+    modified=$(coalesce     "$(exif ModifyDate)")
+    pages=$(coalesce        "$(exif Pages)" "$(exif PageCount)")
+    words=$(coalesce        "$(exif Words)")
+    sheets=$(coalesce       "$(exif Sheets)")
+    slides=$(coalesce       "$(exif Slides)" "$(exif Paragraphs)")
+
+    local app_str="$application"
+    [[ -n "$app_version" ]] && app_str+=" v$app_version"
+
+    yad --plug="$KEY" --tabnum="$tabnum" \
+        --list --no-selection \
+        --column="Property" \
+        --column="Value" \
+        "Title"        "${title:-—}" \
+        "Author"       "${author:-—}" \
+        "Last Editor"  "${last_editor:-—}" \
+        "Company"      "${company:-—}" \
+        "Application"  "${app_str:-—}" \
+        "Revision"     "${revision:-—}" \
+        "Pages"        "${pages:-—}" \
+        "Words"        "${words:-—}" \
+        "Sheets"       "${sheets:-—}" \
+        "Slides"       "${slides:-—}" \
+        "Created"      "${created:-—}" \
+        "Modified"     "${modified:-—}" \
+        &
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TAB: TEXT / CODE
+# ─────────────────────────────────────────────────────────────────────────────
+tab_text() {
+    local tabnum="$1"
+    local lines words chars encoding
+
+    lines=$(wc -l < "$FILE" 2>/dev/null || echo "—")
+    words=$(wc -w < "$FILE" 2>/dev/null || echo "—")
+    chars=$(wc -c < "$FILE" 2>/dev/null || echo "—")
+    encoding=$(file --brief --mime-encoding "$FILE" 2>/dev/null || echo "—")
+
+    yad --plug="$KEY" --tabnum="$tabnum" \
+        --list --no-selection \
+        --column="Property" \
+        --column="Value" \
+        "Encoding"  "$encoding" \
+        "Lines"     "$lines" \
+        "Words"     "$words" \
+        "Chars"     "$chars" \
+        &
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TAB: GENERIC (exiftool dump)
+# ─────────────────────────────────────────────────────────────────────────────
+tab_generic() {
+    local tabnum="$1"
+
+    # Feed key/value pairs from exiftool into yad list
+    exiftool -s -f "$FILE" 2>/dev/null \
+        | grep -v "^-$" \
+        | awk -F' : ' '{
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", $1)
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2)
+            if ($1 != "" && $2 != "" && $2 != "-")
+                printf "%s\n%s\n", $1, $2
+        }' \
+        | head -200 \
+        | yad --plug="$KEY" --tabnum="$tabnum" \
+            --list --no-selection \
+            --column="Tag" \
+            --column="Value" \
+            &
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Build copy-friendly plain-text summary (for the Copy button)
+# ─────────────────────────────────────────────────────────────────────────────
+build_copy_text() {
+    local sep="────────────────────────"
+
+    printf "FILE\n%s\n" "$sep"
+    printf "%-22s %s\n" "Name"        "$(basename "$FILE")"
+    printf "%-22s %s\n" "Path"        "$(dirname "$FILE")"
+    printf "%-22s %s\n" "Type"        "$(file --brief "$FILE")"
+    printf "%-22s %s\n" "MIME"        "$(file --brief --mime-type "$FILE")"
+    local sb; sb=$(stat -c "%s" "$FILE")
+    printf "%-22s %s\n" "Size"        "$(human_size "$sb") ($sb bytes)"
+    printf "%-22s %s\n" "Modified"    "$(stat -c "%y" "$FILE" | cut -d'.' -f1)"
+    printf "\n"
+
+    case "$EXT" in
+        mp4|mov|mkv|webm|avi|mts|m2ts|ts|mxf|m4v|mpg|mpeg|3gp|ogv|wmv|flv)
+            printf "VIDEO\n%s\n" "$sep"
+            printf "%-22s %s\n" "Format"         "$(mi General Format)"
+            printf "%-22s %s\n" "Codec"          "$(mi Video Format)"
+            printf "%-22s %s\n" "Resolution"     "$(mi Video Width)×$(mi Video Height)"
+            printf "%-22s %s\n" "Aspect Ratio"   "$(mi Video 'DisplayAspectRatio/String')"
+            printf "%-22s %s\n" "FPS"            "$(mi Video FrameRate)"
+            printf "%-22s %s\n" "Bit Depth"      "$(mi Video BitDepth)-bit"
+            printf "%-22s %s\n" "Duration"       "$(mi General 'Duration/String')"
+            printf "%-22s %s\n" "Bitrate"        "$(mi General 'OverallBitRate/String')"
+            printf "\nAUDIO TRACK\n%s\n" "$sep"
+            printf "%-22s %s\n" "Codec"          "$(mi Audio Format)"
+            printf "%-22s %s\n" "Channels"       "$(mi Audio 'Channel(s)/String')"
+            printf "%-22s %s\n" "Sample Rate"    "$(mi Audio 'SamplingRate/String')"
+            printf "%-22s %s\n" "Bitrate"        "$(mi Audio 'BitRate/String')"
+            printf "\nRECORDING\n%s\n" "$sep"
+            printf "%-22s %s\n" "Device"         "$(coalesce "$(exif Model)" "$(exif CameraModelName)")"
+            printf "%-22s %s\n" "Recorded Date"  "$(coalesce "$(exif MediaCreateDate)" "$(exif CreateDate)")"
+            printf "%-22s %s\n" "Rotation"       "$(coalesce "$(exif Rotation)" "$(mi Video Rotation)")°"
+            printf "\nCOLOR\n%s\n" "$sep"
+            printf "%-22s %s\n" "Color Space"    "$(coalesce "$(mi Video ColorSpace)" "$(exif ColorSpace)")"
+            printf "%-22s %s\n" "Color Range"    "$(coalesce "$(mi Video colour_range)" "$(exif VideoFullRangeFlag)")"
+            printf "%-22s %s\n" "Color Primaries" "$(coalesce "$(mi Video colour_primaries)" "$(exif ColorPrimaries)")"
+            printf "%-22s %s\n" "Transfer"       "$(coalesce "$(mi Video transfer_characteristics)" "$(exif TransferCharacteristics)")"
+            ;;
+
+        mp3|flac|wav|m4a|aac|ogg|opus|wma|aiff|alac|ape)
+            printf "AUDIO\n%s\n" "$sep"
+            printf "%-22s %s\n" "Codec"          "$(coalesce "$(mi Audio Format)" "$(mi General Format)")"
+            printf "%-22s %s\n" "Duration"       "$(mi General 'Duration/String')"
+            printf "%-22s %s\n" "Bitrate"        "$(mi General 'OverallBitRate/String')"
+            printf "%-22s %s\n" "Channels"       "$(mi Audio 'Channel(s)/String')"
+            printf "%-22s %s\n" "Sample Rate"    "$(mi Audio 'SamplingRate/String')"
+            printf "\nTAGS\n%s\n" "$sep"
+            printf "%-22s %s\n" "Title"          "$(exif Title)"
+            printf "%-22s %s\n" "Artist"         "$(coalesce "$(exif Artist)" "$(exif Performer)")"
+            printf "%-22s %s\n" "Album Artist"   "$(coalesce "$(exif AlbumArtist)" "$(exif Band)" "$(exif Ensemble)")"
+            printf "%-22s %s\n" "Album"          "$(exif Album)"
+            printf "%-22s %s\n" "Genre"          "$(exif Genre)"
+            printf "%-22s %s\n" "Year"           "$(coalesce "$(exif Year)" "$(exif RecordingYear)")"
+            printf "%-22s %s\n" "Track"          "$(coalesce "$(exif Track)" "$(exif TrackNumber)")"
+            printf "%-22s %s\n" "Disc"           "$(coalesce "$(exif PartOfSet)" "$(exif DiscNumber)")"
+            printf "%-22s %s\n" "Composer"       "$(exif Composer)"
+            ;;
+
+        jpg|jpeg|png|gif|bmp|webp|avif|heic|heif|tif|tiff|svg|jxl|raw|cr2|cr3|nef|arw|dng|orf|rw2|raf)
+            local iw ih
+            iw=$(coalesce "$(exif ImageWidth)" "$(mi Video Width)")
+            ih=$(coalesce "$(exif ImageHeight)" "$(mi Video Height)")
+            printf "IMAGE\n%s\n" "$sep"
+            printf "%-22s %s\n" "Resolution"     "${iw}×${ih}"
+            printf "%-22s %s\n" "Megapixels"     "$(echo "scale=2; $iw * $ih / 1000000" | bc) MP"
+            printf "%-22s %s\n" "Bit Depth"      "$(coalesce "$(exif BitDepth)" "$(mi General BitDepth)")-bit"
+            printf "%-22s %s\n" "Color Space"    "$(coalesce "$(exif ColorSpaceData)" "$(exif ColorSpace)")"
+            printf "%-22s %s\n" "ICC Profile"    "$(coalesce "$(exif ProfileDescription)" "$(exif ICCProfileName)")"
+            printf "\nCAMERA\n%s\n" "$sep"
+            local cm; cm=$(coalesce "$(exif Make)")
+            local cmod; cmod=$(coalesce "$(exif Model)" "$(exif CameraModelName)")
+            [[ "$cmod" == "$cm"* ]] && printf "%-22s %s\n" "Camera" "$cmod" \
+                                    || printf "%-22s %s\n" "Camera" "$cm $cmod"
+            printf "%-22s %s\n" "Lens"           "$(coalesce "$(exif LensModel)" "$(exif Lens)")"
+            printf "%-22s %s\n" "ISO"            "ISO $(exif ISO)"
+            printf "%-22s %s\n" "Shutter"        "$(coalesce "$(exif ExposureTime)" "$(exif ShutterSpeedValue)")"
+            local ap; ap=$(coalesce "$(exif FNumber)" "$(exif ApertureValue)")
+            printf "%-22s %s\n" "Aperture"       "f/$ap"
+            printf "%-22s %s\n" "Focal Length"   "$(exif FocalLength)"
+            printf "%-22s %s\n" "Captured"       "$(coalesce "$(exif DateTimeOriginal)" "$(exif CreateDate)")"
+            local glat; glat=$(exif GPSLatitude)
+            local glon; glon=$(exif GPSLongitude)
+            if [[ -n "$glat" || -n "$glon" ]]; then
+                printf "\nLOCATION\n%s\n" "$sep"
+                printf "%-22s %s %s\n" "GPS Latitude"  "$glat" "$(exif GPSLatitudeRef)"
+                printf "%-22s %s %s\n" "GPS Longitude" "$glon" "$(exif GPSLongitudeRef)"
+                printf "%-22s %s\n"    "Altitude"      "$(exif GPSAltitude)"
+            fi
+            ;;
+
+        pdf)
+            local _info=""
+            command -v pdfinfo &>/dev/null && _info=$(pdfinfo "$FILE" 2>/dev/null)
+            printf "DOCUMENT\n%s\n" "$sep"
+            printf "%-22s %s\n" "Pages"       "$(echo "$_info" | awk -F':[[:space:]]+' '/^Pages:/{print $2}')"
+            printf "%-22s %s\n" "PDF Version" "$(echo "$_info" | awk -F':[[:space:]]+' '/^PDF version:/{print $2}')"
+            printf "%-22s %s\n" "Title"       "$(echo "$_info" | awk -F':[[:space:]]+' '/^Title:/{print $2}')"
+            printf "%-22s %s\n" "Author"      "$(echo "$_info" | awk -F':[[:space:]]+' '/^Author:/{print $2}')"
+            printf "%-22s %s\n" "Creator"     "$(echo "$_info" | awk -F':[[:space:]]+' '/^Creator:/{print $2}')"
+            printf "%-22s %s\n" "Producer"    "$(echo "$_info" | awk -F':[[:space:]]+' '/^Producer:/{print $2}')"
+            printf "%-22s %s\n" "Created"     "$(echo "$_info" | awk -F':[[:space:]]+' '/^CreationDate:/{print $2}')"
+            printf "%-22s %s\n" "Modified"    "$(echo "$_info" | awk -F':[[:space:]]+' '/^ModDate:/{print $2}')"
+            ;;
+
+        doc|docx|xls|xlsx|ppt|pptx|odt|ods|odp|odg|odf|sxw|sxc|sxi)
+            printf "DOCUMENT\n%s\n" "$sep"
+            printf "%-22s %s\n" "Title"        "$(exif Title)"
+            printf "%-22s %s\n" "Author"       "$(coalesce "$(exif Author)" "$(exif Creator)")"
+            printf "%-22s %s\n" "Last Editor"  "$(exif LastModifiedBy)"
+            printf "%-22s %s\n" "Company"      "$(exif Company)"
+            local appv; appv=$(exif AppVersion)
+            printf "%-22s %s\n" "Application"  "$(coalesce "$(exif Application)" "$(exif Software)") ${appv:+v$appv}"
+            printf "%-22s %s\n" "Revision"     "$(coalesce "$(exif Revision)" "$(exif RevisionNumber)")"
+            printf "%-22s %s\n" "Pages"        "$(coalesce "$(exif Pages)" "$(exif PageCount)")"
+            printf "%-22s %s\n" "Words"        "$(exif Words)"
+            printf "%-22s %s\n" "Created"      "$(exif CreateDate)"
+            printf "%-22s %s\n" "Modified"     "$(exif ModifyDate)"
+            ;;
+
+        *)
+            printf "METADATA (exiftool)\n%s\n" "$sep"
+            exiftool -s2 "$FILE" 2>/dev/null | head -40 || true
+            ;;
+    esac
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MAIN — spawn tabs, launch notebook
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Temp file for Copy button
+TMPFILE=$(mktemp /tmp/inspect-XXXXXX.txt)
+build_copy_text > "$TMPFILE"
+export INSPECT_TMPFILE="$TMPFILE"
+trap 'rm -f "$TMPFILE"' EXIT
+
+# Tab tracking
+TAB_LABELS=()
+TABNUM=0
+
+spawn_tab() {
+    local label="$1"
+    local fn="$2"
+    (( TABNUM++ ))
+    TAB_LABELS+=( --tab="$label" )
+    "$fn" "$TABNUM"
+}
+
+# Tab 1 always = FILE
+spawn_tab "File" tab_file
+
+# Type-specific tabs
 case "$EXT" in
     mp4|mov|mkv|webm|avi|mts|m2ts|ts|mxf|m4v|mpg|mpeg|3gp|ogv|wmv|flv)
-        show_video
+        spawn_tab "Video"    tab_video
+        ;;
+    mp3|flac|wav|m4a|aac|ogg|opus|wma|aiff|alac|ape)
+        spawn_tab "Audio"    tab_audio_info
+        spawn_tab "Tags"     tab_audio_tags
+        ;;
+    jpg|jpeg|png|gif|bmp|webp|avif|heic|heif|tif|tiff|svg|jxl|raw|cr2|cr3|nef|arw|dng|orf|rw2|raf)
+        spawn_tab "Image"    tab_image_info
+        spawn_tab "Camera"   tab_camera_info
+        # Only spawn Location tab if GPS data exists
+        GPS_CHECK=$(exif GPSLatitude)
+        [[ -n "$GPS_CHECK" ]] && spawn_tab "Location" tab_location
+        ;;
+    pdf)
+        spawn_tab "Document" tab_pdf
+        ;;
+    doc|docx|xls|xlsx|ppt|pptx|odt|ods|odp|odg|odf|sxw|sxc|sxi)
+        spawn_tab "Document" tab_office
+        ;;
+    txt|md|rst|org|log|csv|json|yaml|yml|toml|ini|conf|cfg|xml|html|htm|css|js|ts|py|sh|bash|zsh|fish|nix|rb|go|rs|c|h|cpp|hpp|java|kt)
+        spawn_tab "Content"  tab_text
         ;;
     *)
-        show_generic
+        spawn_tab "Metadata" tab_generic
         ;;
 esac
+
+# Copy command — inline bash, reads INSPECT_TMPFILE from env
+COPY_CMD='bash -c "
+    if   command -v wl-copy &>/dev/null; then wl-copy   < \"$INSPECT_TMPFILE\"
+    elif command -v xclip   &>/dev/null; then xclip -selection clipboard < \"$INSPECT_TMPFILE\"
+    elif command -v xsel    &>/dev/null; then xsel --clipboard --input   < \"$INSPECT_TMPFILE\"
+    fi
+    notify-send -i dialog-information \"Inspect File\" \"Metadata copied to clipboard\" 2>/dev/null || true
+"'
+
+# Launch notebook — wait for all --plug tabs to register first
+yad --notebook \
+    --width=600 \
+    --height=460 \
+    --title="$TITLE" \
+    --window-icon="dialog-information" \
+    --key="$KEY" \
+    "${TAB_LABELS[@]}" \
+    --button="Copy!edit-copy!Copy all metadata to clipboard:$COPY_CMD" \
+    --button="Close!window-close:0" \
+    2>/dev/null
+
+exit 0
