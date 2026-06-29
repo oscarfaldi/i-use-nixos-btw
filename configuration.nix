@@ -74,24 +74,6 @@
     ];
   };
 
-  nix.settings = {
-    substituters = [
-      "http://10.10.10.10:8867/rainier"
-      # "https://aseipp-nix-cache.global.ssl.fastly.net"
-    ];
-  
-    trusted-public-keys = [
-      "rainier:tY59FXb62Uqu2rZ9ZrTqLTL9Md/hh4yY7CNDRjelpVI="
-    ];
-  };
-
-  # Change cache path download
-  # nix.settings = {
-    # substituters = [
-     # "https://aseipp-nix-cache.global.ssl.fastly.net"
-   # ];
-  # };
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
