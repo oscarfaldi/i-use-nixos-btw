@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=btop
+Name=BTOP++
 Comment=Resource Monitor
 Exec=btop-launch
-Icon=utilities-system-monitor
+Icon=/home/oscarfaldi/System/.config/assets/icons/desktop/btop.svg
 Terminal=false
 Categories=System;Monitor;
