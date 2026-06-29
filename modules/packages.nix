@@ -198,6 +198,8 @@
     # System Controls
     # ------------------------------------------------------------
 
+    attic-client
+
     pwvucontrol
 
     wl-clipboard
