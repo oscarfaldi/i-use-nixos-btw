@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=btop
+Comment=Resource Monitor
+Exec=btop-launch
+Icon=utilities-system-monitor
+Terminal=false
+Categories=System;Monitor;
