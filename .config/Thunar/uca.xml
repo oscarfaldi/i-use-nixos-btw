@@ -120,7 +120,7 @@
         *.avif;*.AVIF;*.gif;*.GIF;*.bmp;*.BMP;*.tif;*.TIF;
         *.tiff;*.TIFF;*.heic;*.HEIC;*.heif;*.HEIF;*.jxl;*.JXL;
         *.raw;*.RAW;*.dng;*.DNG;*.cr2;*.CR2;*.cr3;*.CR3;
-        *.nef;*.NEF;*.arw;*.ARW;*.rw2;*.RW2;*.orf;*.ORF
+        *.nef;*.NEF;*.arw;*.ARW;*.rw2;*.RW2;*.orf;*.ORF;
         *.mp4;*.MP4;*.mov;*.MOV;*.mkv;*.MKV;*.webm;*.WEBM;
         *.avi;*.AVI;*.flv;*.FLV;*.wmv;*.WMV;*.m4v;*.M4V;
         *.mts;*.MTS;*.m2ts;*.M2TS;*.ts;*.TS;*.mpeg;*.MPEG;
@@ -144,7 +144,7 @@
         *.avif;*.AVIF;*.gif;*.GIF;*.bmp;*.BMP;*.tif;*.TIF;
         *.tiff;*.TIFF;*.heic;*.HEIC;*.heif;*.HEIF;*.jxl;*.JXL;
         *.raw;*.RAW;*.dng;*.DNG;*.cr2;*.CR2;*.cr3;*.CR3;
-        *.nef;*.NEF;*.arw;*.ARW;*.rw2;*.RW2;*.orf;*.ORF
+        *.nef;*.NEF;*.arw;*.ARW;*.rw2;*.RW2;*.orf;*.ORF;
         *.mp4;*.MP4;*.mov;*.MOV;*.mkv;*.MKV;*.webm;*.WEBM;
         *.avi;*.AVI;*.flv;*.FLV;*.wmv;*.WMV;*.m4v;*.M4V;
         *.mts;*.MTS;*.m2ts;*.M2TS;*.ts;*.TS;*.mpeg;*.MPEG;
