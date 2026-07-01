@@ -18,6 +18,7 @@ let
     "snapshot"
     "valhalla"
     "archive"
+    "appdata"
   ];
 
   # Common CIFS mount options shared by all mounts
@@ -29,7 +30,7 @@ let
     "gid=100"
     "file_mode=0664"
     "dir_mode=0775"
-    "cache=none"
+    "cache=strict"
     "x-systemd.automount"
     "noauto"
     "_netdev"
