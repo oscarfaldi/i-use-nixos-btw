@@ -57,13 +57,13 @@
   # services.blueman.enable = true;
 
   # Syncthing
-  # services.syncthing = {
-  #   enable = true;
-  #   user = "oscarfaldi";
-  #   dataDir = "/home/oscarfaldi";
-  #   configDir = "/home/oscarfaldi/.config/syncthing";
-  #   openDefaultPorts = true;
-  # };
+  services.syncthing = {
+    enable = true;
+    user = "oscarfaldi";
+    dataDir = "/home/oscarfaldi";
+    configDir = "/home/oscarfaldi/.config/syncthing";
+    openDefaultPorts = true;
+  };
 
   # ============================================================
   # Desktop Applications
@@ -157,7 +157,7 @@
     img2pdf
 
     libreoffice
-    # obsidian
+    obsidian
     mousepad
 
     cifs-utils
