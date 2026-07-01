@@ -1,0 +1,459 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+if [[ $# -eq 0 ]]; then
+    yad --error --title="Inspect File" --text="No file specified." --button="Close":0
+    exit 1
+fi
+
+FILE="$1"
+[[ -L "$FILE" ]] && FILE="$(readlink -f "$FILE")"
+
+if [[ ! -e "$FILE" ]]; then
+    yad --error --title="Inspect File" --text="File not found:\n<b>$FILE</b>" --button="Close":0
+    exit 1
+fi
+
+# Helpers
+mi() { mediainfo "--Inform=${1};%${2}%" "$FILE" 2>/dev/null || true; }
+
+exif() {
+    exiftool -s3 -"$1" "$FILE" 2>/dev/null | head -1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || true
+}
+
+coalesce() {
+    for v in "$@"; do
+        [[ -n "$v" && "$v" != "-" && "$v" != "0" ]] && { printf '%s' "$v"; return; }
+    done
+}
+
+human_size() {
+    local b="$1"
+    b=${b//[^0-9]/}
+    
+    if [ -z "$b" ] || [ "$b" -eq 0 ]; then
+        echo "0 B"
+        return
+    fi
+
+    local kb=$((b / 1024))
+    local mb=$((kb / 1024))
+    local gb=$((mb / 1024))
+
+    if   (( gb > 0 )); then printf "%.2f GB" "$(awk "BEGIN {print $b/1073741824}")"
+    elif (( mb > 0 )); then printf "%.2f MB" "$(awk "BEGIN {print $b/1048576}")"
+    elif (( kb > 0 )); then printf "%.2f KB" "$(awk "BEGIN {print $b/1024}")"
+    else printf "%d B" "$b"
+    fi
+}
+
+RAW_EXT="${FILE##*.}"
+EXT="${RAW_EXT,,}"
+[[ "$FILE" == "${FILE%.*}" ]] && EXT=""
+FNAME=$(basename "$FILE")
+TITLE="Inspect - $FNAME"
+
+ROWS=()
+COPY_LINES=()
+
+_add_section() {
+    ROWS+=( "SECTION_MARKER" "$1" )
+    COPY_LINES+=( "" "--- $1 ---" )
+}
+
+_add_spacer() {
+    ROWS+=( "SPACER" "SPACER" )
+}
+
+_add_row() {
+    local key="$1"
+    local val="${2:-}"
+    [[ -z "$val" || "$val" == "-" ]] && val="N/A"
+    ROWS+=( "$key" "$val" )
+    COPY_LINES+=( "$(printf '%-24s %s' "$key" "$val")" )
+}
+
+section() { _add_spacer; _add_section "$1"; }
+row()     { _add_row "  $1" "$2"; }
+
+# Build sections
+build_file_section() {
+    local name path mime type_desc size_bytes size_human created modified perms
+    name=$(basename "$FILE")
+    path=$(dirname "$FILE")
+    size_bytes=$(stat -c "%s" "$FILE" 2>/dev/null | tr -d '\n' || echo "0")
+    size_human=$(human_size "$size_bytes")
+    mime=$(file --brief --mime-type "$FILE" 2>/dev/null || echo "unknown")
+    type_desc=$(file --brief "$FILE" 2>/dev/null || echo "unknown")
+    modified=$(stat -c "%y" "$FILE" 2>/dev/null | sed 's/\.[0-9]* /  /' || echo "N/A")
+    created=$(stat -c "%w" "$FILE" 2>/dev/null || echo "N/A")
+    perms=$(stat -c "%A %U:%G" "$FILE" 2>/dev/null || echo "N/A")
+    
+    _add_section "FILE INFO"
+    row "Name"        "$name"
+    row "Path"        "$path"
+    row "Type"        "$type_desc"
+    row "MIME"        "$mime"
+    row "Size"        "$size_human  ($size_bytes bytes)"
+    row "Permissions" "$perms"
+    row "Modified"    "$modified"
+    row "Created"     "$created"
+}
+
+build_video_section() {
+    local v_format v_codec v_codec_id v_width v_height v_aspect v_fps
+    local v_bitdepth v_duration v_bitrate
+    local a_codec a_channels a_samplerate a_bitrate
+    local r_device r_date r_rotation
+    local c_colorspace c_range c_primaries c_transfer
+
+    v_format=$(coalesce "$(mi General Format)")
+    v_codec=$(coalesce "$(mi Video Format)")
+    v_codec_id=$(coalesce "$(mi Video CodecID)")
+    v_width=$(coalesce "$(mi Video Width)")
+    v_height=$(coalesce "$(mi Video Height)")
+    v_aspect=$(coalesce "$(mi Video 'DisplayAspectRatio/String')")
+    v_fps=$(coalesce "$(mi Video FrameRate)")
+    v_bitdepth=$(coalesce "$(mi Video BitDepth)")
+    v_duration=$(coalesce "$(mi General 'Duration/String')")
+    v_bitrate=$(coalesce "$(mi General 'OverallBitRate/String')")
+
+    a_codec=$(coalesce "$(mi Audio Format)")
+    a_channels=$(coalesce "$(mi Audio 'Channel(s)/String')")
+    a_samplerate=$(coalesce "$(mi Audio 'SamplingRate/String')")
+    a_bitrate=$(coalesce "$(mi Audio 'BitRate/String')")
+
+    r_device=$(coalesce "$(exif Model)" "$(exif CameraModelName)")
+    r_date=$(coalesce "$(exif MediaCreateDate)" "$(exif CreateDate)" "$(mi General Encoded_Date)")
+    r_rotation=$(coalesce "$(exif Rotation)" "$(mi Video Rotation)")
+
+    c_colorspace=$(coalesce "$(mi Video ColorSpace)" "$(exif ColorSpace)")
+    c_range=$(coalesce "$(mi Video colour_range)" "$(exif VideoFullRangeFlag)")
+    c_primaries=$(coalesce "$(mi Video colour_primaries)" "$(exif ColorPrimaries)")
+    c_transfer=$(coalesce "$(mi Video transfer_characteristics)" "$(exif TransferCharacteristics)")
+
+    local res="N/A"
+    [[ -n "$v_width" && -n "$v_height" ]] && res="${v_width} x ${v_height}"
+
+    local codec_str="${v_codec:-N/A}"
+    [[ -n "$v_codec_id" ]] && codec_str+="  (${v_codec_id})"
+
+    section "VIDEO"
+    row "Format"          "${v_format:-N/A}"
+    row "Codec"           "$codec_str"
+    row "Resolution"      "$res"
+    row "Aspect Ratio"    "${v_aspect:-N/A}"
+    row "Frame Rate"      "${v_fps:+${v_fps} fps}"
+    row "Bit Depth"       "${v_bitdepth:+${v_bitdepth}-bit}"
+    row "Duration"        "${v_duration:-N/A}"
+    row "Bitrate"         "${v_bitrate:-N/A}"
+
+    section "AUDIO TRACK"
+    row "Codec"           "${a_codec:-N/A}"
+    row "Channels"        "${a_channels:-N/A}"
+    row "Sample Rate"     "${a_samplerate:-N/A}"
+    row "Bitrate"         "${a_bitrate:-N/A}"
+
+    section "RECORDING"
+    row "Device"          "${r_device:-N/A}"
+    row "Recorded Date"   "${r_date:-N/A}"
+    row "Rotation"        "${r_rotation:+${r_rotation} deg}"
+
+    section "COLOR"
+    row "Color Space"     "${c_colorspace:-N/A}"
+    row "Color Range"     "${c_range:-N/A}"
+    row "Color Primaries" "${c_primaries:-N/A}"
+    row "Transfer Char."  "${c_transfer:-N/A}"
+}
+
+build_audio_section() {
+    local a_codec a_duration a_bitrate a_channels a_samplerate
+    local t_title t_artist t_album_artist t_album t_genre t_year t_track t_disc t_composer t_comment
+
+    a_codec=$(coalesce "$(mi Audio Format)" "$(mi General Format)")
+    a_duration=$(coalesce "$(mi General 'Duration/String')")
+    a_bitrate=$(coalesce "$(mi General 'OverallBitRate/String')")
+    a_channels=$(coalesce "$(mi Audio 'Channel(s)/String')")
+    a_samplerate=$(coalesce "$(mi Audio 'SamplingRate/String')")
+
+    t_title=$(coalesce "$(exif Title)")
+    t_artist=$(coalesce "$(exif Artist)" "$(exif Performer)")
+    t_album_artist=$(coalesce "$(exif AlbumArtist)" "$(exif Band)" "$(exif Ensemble)")
+    t_album=$(coalesce "$(exif Album)")
+    t_genre=$(coalesce "$(exif Genre)")
+    t_year=$(coalesce "$(exif Year)" "$(exif RecordingYear)" "$(exif Date)")
+    t_track=$(coalesce "$(exif Track)" "$(exif TrackNumber)")
+    t_disc=$(coalesce "$(exif PartOfSet)" "$(exif DiscNumber)")
+    t_composer=$(coalesce "$(exif Composer)")
+    t_comment=$(coalesce "$(exif Comment)")
+
+    section "AUDIO"
+    row "Codec"        "${a_codec:-N/A}"
+    row "Duration"     "${a_duration:-N/A}"
+    row "Bitrate"      "${a_bitrate:-N/A}"
+    row "Channels"     "${a_channels:-N/A}"
+    row "Sample Rate"  "${a_samplerate:-N/A}"
+
+    section "TAGS"
+    row "Title"        "${t_title:-N/A}"
+    row "Artist"       "${t_artist:-N/A}"
+    row "Album Artist" "${t_album_artist:-N/A}"
+    row "Album"        "${t_album:-N/A}"
+    row "Genre"        "${t_genre:-N/A}"
+    row "Year"         "${t_year:-N/A}"
+    row "Track"        "${t_track:-N/A}"
+    row "Disc"         "${t_disc:-N/A}"
+    row "Composer"     "${t_composer:-N/A}"
+    row "Comment"      "${t_comment:-N/A}"
+}
+
+build_image_section() {
+    local i_width i_height i_megapix i_aspect i_bitdepth i_colorspace i_profile
+    local c_make c_model c_camera c_lens c_iso c_shutter c_aperture c_focal c_ev c_flash c_software c_date
+
+    i_width=$(coalesce "$(exif ImageWidth)" "$(mi Video Width)")
+    i_height=$(coalesce "$(exif ImageHeight)" "$(mi Video Height)")
+    i_bitdepth=$(coalesce "$(exif BitDepth)" "$(mi General BitDepth)")
+    i_colorspace=$(coalesce "$(exif ColorSpaceData)" "$(exif ColorSpace)" "$(mi General ColorSpace)")
+    i_profile=$(coalesce "$(exif ProfileDescription)" "$(exif ICCProfileName)")
+
+    local res="N/A"
+    if [[ -n "$i_width" && -n "$i_height" ]]; then
+        res="${i_width} x ${i_height}"
+        i_megapix=$(echo "scale=1; $i_width * $i_height / 1000000" | bc)
+        i_aspect=$(echo "$i_width $i_height" | awk '{
+            function gcd(a,b){return b==0?a:gcd(b,a%b)}
+            g=gcd($1,$2); printf "%d:%d",$1/g,$2/g
+        }')
+    fi
+
+    section "IMAGE"
+    row "Resolution"   "$res"
+    row "Megapixels"   "${i_megapix:+${i_megapix} MP}"
+    row "Aspect Ratio" "${i_aspect:-N/A}"
+    row "Bit Depth"    "${i_bitdepth:+${i_bitdepth}-bit}"
+    row "Color Space"  "${i_colorspace:-N/A}"
+    row "ICC Profile"  "${i_profile:-N/A}"
+
+    c_make=$(coalesce "$(exif Make)")
+    c_model=$(coalesce "$(exif Model)" "$(exif CameraModelName)")
+    if [[ -n "$c_make" && -n "$c_model" ]]; then
+        [[ "$c_model" == "$c_make" ]] && c_camera="$c_model" || c_camera="$c_make $c_model"
+    else
+        c_camera=$(coalesce "$c_model" "$c_make")
+    fi
+
+    c_lens=$(coalesce "$(exif LensModel)" "$(exif Lens)" "$(exif LensInfo)")
+    c_iso=$(coalesce "$(exif ISO)")
+    c_shutter=$(coalesce "$(exif ExposureTime)" "$(exif ShutterSpeedValue)")
+    local raw_ap; raw_ap=$(coalesce "$(exif FNumber)" "$(exif ApertureValue)")
+    [[ -n "$raw_ap" ]] && c_aperture="f/${raw_ap}" || c_aperture="N/A"
+    c_focal=$(coalesce "$(exif FocalLength)")
+    c_ev=$(coalesce "$(exif ExposureCompensation)" "$(exif ExposureBiasValue)")
+    c_flash=$(coalesce "$(exif Flash)")
+    c_software=$(coalesce "$(exif Software)")
+    c_date=$(coalesce "$(exif DateTimeOriginal)" "$(exif CreateDate)")
+
+    section "CAMERA"
+    row "Camera"       "${c_camera:-N/A}"
+    row "Lens"         "${c_lens:-N/A}"
+    row "ISO"          "${c_iso:+ISO ${c_iso}}"
+    row "Shutter"      "${c_shutter:-N/A}"
+    row "Aperture"     "${c_aperture:-N/A}"
+    row "Focal Length" "${c_focal:-N/A}"
+    row "Exp. Comp."   "${c_ev:-N/A}"
+    row "Flash"        "${c_flash:-N/A}"
+    row "Software"     "${c_software:-N/A}"
+    row "Captured"     "${c_date:-N/A}"
+
+    local g_lat g_lon
+    g_lat=$(exif GPSLatitude 2>/dev/null || true)
+    g_lon=$(exif GPSLongitude 2>/dev/null || true)
+    if [[ -n "$g_lat" || -n "$g_lon" ]]; then
+        local g_ref_lat g_ref_lon g_alt g_speed g_dir
+        g_ref_lat=$(coalesce "$(exif GPSLatitudeRef)")
+        g_ref_lon=$(coalesce "$(exif GPSLongitudeRef)")
+        g_alt=$(coalesce "$(exif GPSAltitude)")
+        g_speed=$(coalesce "$(exif GPSSpeed)")
+        g_dir=$(coalesce "$(exif GPSImgDirection)")
+        [[ -n "$g_ref_lat" ]] && g_lat="$g_lat $g_ref_lat"
+        [[ -n "$g_ref_lon" ]] && g_lon="$g_lon $g_ref_lon"
+
+        section "LOCATION"
+        row "GPS Latitude"  "${g_lat:-N/A}"
+        row "GPS Longitude" "${g_lon:-N/A}"
+        row "Altitude"      "${g_alt:-N/A}"
+        row "Speed"         "${g_speed:-N/A}"
+        row "Direction"     "${g_dir:-N/A}"
+    fi
+}
+
+build_pdf_section() {
+    local pages pdf_ver author title producer creator subject created modified keywords
+    if command -v pdfinfo &>/dev/null; then
+        local _info
+        _info=$(pdfinfo "$FILE" 2>/dev/null)
+        pages=$(    echo "$_info" | awk -F':[[:space:]]+' '/^Pages:/{print $2}')
+        pdf_ver=$(  echo "$_info" | awk -F':[[:space:]]+' '/^PDF version:/{print $2}')
+        author=$(   echo "$_info" | awk -F':[[:space:]]+' '/^Author:/{print $2}')
+        title=$(    echo "$_info" | awk -F':[[:space:]]+' '/^Title:/{print $2}')
+        producer=$( echo "$_info" | awk -F':[[:space:]]+' '/^Producer:/{print $2}')
+        creator=$(  echo "$_info" | awk -F':[[:space:]]+' '/^Creator:/{print $2}')
+        created=$(  echo "$_info" | awk -F':[[:space:]]+' '/^CreationDate:/{print $2}')
+        modified=$( echo "$_info" | awk -F':[[:space:]]+' '/^ModDate:/{print $2}')
+        subject=$(  echo "$_info" | awk -F':[[:space:]]+' '/^Subject:/{print $2}')
+        keywords=$( echo "$_info" | awk -F':[[:space:]]+' '/^Keywords:/{print $2}')
+    fi
+
+    pages=$(coalesce    "$pages"    "$(exif PageCount)")
+    pdf_ver=$(coalesce  "$pdf_ver"  "$(exif PDFVersion)")
+    author=$(coalesce   "$author"   "$(exif Author)")
+    title=$(coalesce    "$title"    "$(exif Title)")
+    producer=$(coalesce "$producer" "$(exif Producer)")
+    creator=$(coalesce  "$creator"  "$(exif Creator)")
+    created=$(coalesce  "$created"  "$(exif CreateDate)")
+    modified=$(coalesce "$modified" "$(exif ModifyDate)")
+    subject=$(coalesce  "$subject"  "$(exif Subject)")
+    keywords=$(coalesce "$keywords" "$(exif Keywords)")
+
+    section "DOCUMENT"
+    row "Pages"       "${pages:-N/A}"
+    row "PDF Version" "${pdf_ver:-N/A}"
+    row "Title"       "${title:-N/A}"
+    row "Subject"     "${subject:-N/A}"
+    row "Keywords"    "${keywords:-N/A}"
+    row "Author"      "${author:-N/A}"
+    row "Creator"     "${creator:-N/A}"
+    row "Producer"    "${producer:-N/A}"
+    row "Created"     "${created:-N/A}"
+    row "Modified"    "${modified:-N/A}"
+}
+
+build_office_section() {
+    local title author last_editor company application app_version revision
+    local created modified pages words sheets slides
+
+    title=$(coalesce       "$(exif Title)")
+    author=$(coalesce      "$(exif Author)" "$(exif Creator)")
+    last_editor=$(coalesce "$(exif LastModifiedBy)")
+    company=$(coalesce     "$(exif Company)")
+    application=$(coalesce "$(exif Application)" "$(exif Software)" "$(exif CreatorTool)")
+    app_version=$(coalesce "$(exif AppVersion)")
+    revision=$(coalesce    "$(exif Revision)" "$(exif RevisionNumber)")
+    created=$(coalesce     "$(exif CreateDate)")
+    modified=$(coalesce    "$(exif ModifyDate)")
+    pages=$(coalesce       "$(exif Pages)" "$(exif PageCount)")
+    words=$(coalesce       "$(exif Words)")
+    sheets=$(coalesce      "$(exif Sheets)")
+    slides=$(coalesce      "$(exif Slides)")
+
+    local app_str="${application:-N/A}"
+    [[ -n "$app_version" ]] && app_str+=" v${app_version}"
+
+    section "DOCUMENT"
+    row "Title"       "${title:-N/A}"
+    row "Author"      "${author:-N/A}"
+    row "Last Editor" "${last_editor:-N/A}"
+    row "Company"     "${company:-N/A}"
+    row "Application" "${app_str:-N/A}"
+    row "Revision"    "${revision:-N/A}"
+    row "Pages"       "${pages:-N/A}"
+    row "Words"       "${words:-N/A}"
+    row "Sheets"      "${sheets:-N/A}"
+    row "Slides"      "${slides:-N/A}"
+    row "Created"     "${created:-N/A}"
+    row "Modified"    "${modified:-N/A}"
+}
+
+build_text_section() {
+    local lines words chars encoding
+    lines=$(wc -l < "$FILE" 2>/dev/null || echo "N/A")
+    words=$(wc -w < "$FILE" 2>/dev/null || echo "N/A")
+    chars=$(wc -c < "$FILE" 2>/dev/null || echo "N/A")
+    encoding=$(file --brief --mime-encoding "$FILE" 2>/dev/null || echo "N/A")
+
+    section "CONTENT"
+    row "Encoding" "$encoding"
+    row "Lines"    "$lines"
+    row "Words"    "$words"
+    row "Chars"    "$chars"
+}
+
+build_generic_section() {
+    section "METADATA"
+    while IFS=': ' read -r key val; do
+        key="${key%%+( )}"
+        val="${val##*( )}"
+        [[ -z "$key" || -z "$val" || "$val" == "-" ]] && continue
+        row "$key" "$val"
+    done < <(exiftool -s2 "$FILE" 2>/dev/null | head -60)
+}
+
+# Populate ROWS
+build_file_section
+
+case "$EXT" in
+    mp4|mov|mkv|webm|avi|mts|m2ts|ts|mxf|m4v|mpg|mpeg|3gp|ogv|wmv|flv)
+        build_video_section ;;
+    mp3|flac|wav|m4a|aac|ogg|opus|wma|aiff|alac|ape)
+        build_audio_section ;;
+    jpg|jpeg|png|gif|bmp|webp|avif|heic|heif|tif|tiff|svg|jxl|raw|cr2|cr3|nef|arw|dng|orf|rw2|raf)
+        build_image_section ;;
+    pdf)
+        build_pdf_section ;;
+    doc|docx|xls|xlsx|ppt|pptx|odt|ods|odp|odg|odf|sxw|sxc|sxi)
+        build_office_section ;;
+    txt|md|rst|org|log|csv|json|yaml|yml|toml|ini|conf|cfg|xml|html|htm|css|js|ts|py|sh|bash|zsh|fish|nix|rb|go|rs|c|h|cpp|hpp|java|kt)
+        build_text_section ;;
+    *)
+        build_generic_section ;;
+esac
+
+# Copy
+TMPFILE=$(mktemp /tmp/inspect-XXXXXX.txt)
+printf '%s\n' "${COPY_LINES[@]}" > "$TMPFILE"
+export INSPECT_TMPFILE="$TMPFILE"
+trap 'rm -f "$TMPFILE"' EXIT
+
+COPY_CMD='bash -c "
+    if   command -v wl-copy >/dev/null 2>&1; then wl-copy < \"$INSPECT_TMPFILE\"
+    elif command -v xclip  >/dev/null 2>&1; then xclip -selection clipboard < \"$INSPECT_TMPFILE\"
+    elif command -v xsel   >/dev/null 2>&1; then xsel --clipboard --input < \"$INSPECT_TMPFILE\"
+    fi
+    notify-send -i dialog-information \"Inspect File\" \"Copied to clipboard\" 2>/dev/null || true
+"'
+
+# Render
+FINAL_ROWS=()
+i=0
+while (( i < ${#ROWS[@]} )); do
+    col1="${ROWS[$i]}"
+    col2="${ROWS[$((i+1))]}"
+
+    if [[ "$col1" == "SECTION_MARKER" ]]; then
+        FINAL_ROWS+=( "<b><big> ${col2}</big></b>" "" )
+    elif [[ "$col1" == "SPACER" ]]; then
+        FINAL_ROWS+=( "" "" )
+    else
+        FINAL_ROWS+=( "$col1" "$col2" )
+    fi
+    (( i += 2 ))
+done
+
+# Launch
+yad \
+    --app-id="inspect-file" \
+    --title="$TITLE" \
+    --window-icon="dialog-information" \
+    --list \
+    --no-selection \
+    --no-click \
+    --column="Property               " \
+    --column="Value" \
+    --button="<b>Copy</b>!edit-copy!Copy metadata to clipboard:$COPY_CMD" \
+    --button="<b>Close</b>!window-close:0" \
+    -- \
+    "${FINAL_ROWS[@]}" \
+    2>/dev/null
+
+exit 0
