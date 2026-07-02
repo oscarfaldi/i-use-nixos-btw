@@ -4,11 +4,11 @@
 # Glacier Bootstrap
 #
 # Description:
-# Configures Glacier as the primary Nix binary cache before the first
-# Rainier installation build.
+# Configures Glacier as the primary Nix binary cache before running the
+# Rainier installer.
 # ==============================================================================
 
-set -e
+set -euo pipefail
 
 # ------------------------------------------------------------------------------
 # Configuration
@@ -16,8 +16,9 @@ set -e
 GLACIER_URL="http://10.10.10.171:8501"
 
 GLACIER_KEY="ncps.local:MIxzb9CCWYX8qk2Ec79fKD/d4nvc0anIoEL+A7YJVDE="
-
 NIXOS_KEY="cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+
+NIX_CONF="/etc/nix/nix.conf"
 
 # ------------------------------------------------------------------------------
 # Helpers
@@ -25,34 +26,60 @@ NIXOS_KEY="cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
 print_header() {
     local title="$1"
 
+    echo
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo " $title"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo
 }
 
-# ------------------------------------------------------------------------------
-# Glacier Setup
-# ------------------------------------------------------------------------------
-verify_glacier() {
-    print_header "Checking Glacier"
-
-    if curl -fsSL "${GLACIER_URL}/nix-cache-info" >/dev/null; then
-        echo "✓ Glacier reachable"
-    else
-        echo "✗ Glacier unavailable"
-        exit 1
-    fi
-
+fail() {
     echo
+    echo "✗ $1"
+    echo
+    exit 1
 }
 
-configure_nix_daemon() {
-    print_header "Configuring Nix Daemon"
+# ------------------------------------------------------------------------------
+# Validation
+# ------------------------------------------------------------------------------
+check_glacier_reachable() {
+    print_header "Checking Glacier Connectivity"
+
+    if ! curl -fsSL "${GLACIER_URL}/nix-cache-info" >/dev/null; then
+        fail "Glacier is unreachable (${GLACIER_URL})"
+    fi
+
+    echo "✓ Glacier reachable"
+}
+
+check_glacier_pubkey() {
+    print_header "Checking Glacier Public Key"
+
+    PUBKEY=$(curl -fsSL "${GLACIER_URL}/pubkey")
+
+    if [[ "$PUBKEY" != "$GLACIER_KEY" ]]; then
+        echo "Expected:"
+        echo "$GLACIER_KEY"
+        echo
+        echo "Received:"
+        echo "$PUBKEY"
+
+        fail "Glacier public key mismatch"
+    fi
+
+    echo "✓ Public key verified"
+}
+
+# ------------------------------------------------------------------------------
+# Nix Configuration
+# ------------------------------------------------------------------------------
+configure_nix() {
+    print_header "Configuring Nix"
 
     sudo mkdir -p /etc/nix
 
-    sudo tee /etc/nix/nix.conf >/dev/null <<EOF
+    sudo tee "$NIX_CONF" >/dev/null <<EOF
 experimental-features = nix-command flakes
 
 substituters = ${GLACIER_URL} https://cache.nixos.org
@@ -60,43 +87,60 @@ substituters = ${GLACIER_URL} https://cache.nixos.org
 trusted-public-keys = ${GLACIER_KEY} ${NIXOS_KEY}
 EOF
 
-    echo "✓ Nix daemon configured"
-    echo
+    [[ -f "$NIX_CONF" ]] || fail "Failed to create nix.conf"
+
+    grep -q "$GLACIER_URL" "$NIX_CONF" \
+        || fail "Glacier substituter missing from nix.conf"
+
+    echo "✓ nix.conf updated"
 }
 
-restart_daemon() {
+restart_nix_daemon() {
     print_header "Restarting Nix Daemon"
 
-    if systemctl list-unit-files | grep -q nix-daemon.service; then
+    if systemctl list-unit-files | grep -q "^nix-daemon.service"; then
         sudo systemctl restart nix-daemon
     fi
 
-    echo "✓ Daemon restarted"
-    echo
+    sleep 2
+
+    echo "✓ Nix daemon restarted"
 }
 
-verify_configuration() {
-    print_header "Verifying Configuration"
+verify_nix_configuration() {
+    print_header "Verifying Nix Configuration"
 
-    nix config show | grep substituters
+    CURRENT_SUBSTITUTERS="$(nix config show substituters)"
+
+    echo "$CURRENT_SUBSTITUTERS"
 
     echo
+
+    if [[ "$CURRENT_SUBSTITUTERS" != *"$GLACIER_URL"* ]]; then
+        fail "Nix is not using Glacier"
+    fi
+
     echo "✓ Glacier active"
-    echo
 }
 
 # ------------------------------------------------------------------------------
 # Main
 # ------------------------------------------------------------------------------
 main() {
-    verify_glacier
-    configure_nix_daemon
-    restart_daemon
-    verify_configuration
+    print_header "Glacier Bootstrap"
+
+    check_glacier_reachable
+    check_glacier_pubkey
+
+    configure_nix
+    restart_nix_daemon
+    verify_nix_configuration
 
     print_header "Bootstrap Complete"
 
-    echo "Run:"
+    echo "Glacier is now active."
+    echo
+    echo "Next step:"
     echo
     echo "  ./install"
     echo
