@@ -183,12 +183,6 @@ input {
         spawn-at-startup "mako"
         spawn-at-startup "swayidle"
         spawn-at-startup "waybar"
-	
-	// Applications
-        spawn-at-startup "chromium" "--app=https://chatgpt.com"
-        spawn-at-startup "chromium" "--app=https://web.whatsapp.com"
-        spawn-at-startup "chromium" "--app=https://mail.google.com"
-        spawn-at-startup "chromium" "--app=http://10.10.10.10:8081"
 
 // ============================================================
 // WINDOW RULES
