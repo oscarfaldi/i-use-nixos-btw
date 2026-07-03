@@ -84,7 +84,6 @@
 
     ghostty
     neovim
-    zed-editor
 
     # ------------------------------------------------------------
     # Terminal Utilities
@@ -204,6 +203,7 @@
 
     yad
 
+    smartmontools
     gparted
     ntfs3g
     exfatprogs
