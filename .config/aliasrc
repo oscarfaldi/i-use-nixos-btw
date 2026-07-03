@@ -44,17 +44,20 @@ alias f='fd'
 alias rg='rg --smart-case'
 
 # =====================================================
-# System Monitoring
+# Apps & System Monitoring
 # =====================================================
 
 # System info
 alias ff='fastfetch'
 
+# Check all disks available
+alias disks='lsblk -d -o TRAN,NAME,MODEL,SIZE'
+
+# SMART function through smartctl
+alias smart='sudo smartctl -a'
+
 # Process viewer
 alias bt='btop'
-
-# Modern ps
-alias pp='procs'
 
 # =====================================================
 # Storage
@@ -72,11 +75,6 @@ alias dfh='df -h'
 
 # Open NixOS config
 alias nixconf='cd /etc/nixos'
-
-# Rebuild shortcuts
-alias ns='sudo nixos-rebuild switch'
-alias nt='sudo nixos-rebuild test'
-alias nb='sudo nixos-rebuild boot'
 
 # =====================================================
 # Git
@@ -107,5 +105,4 @@ alias dots='cd ~/.config'
 # Misc
 # =====================================================
 
-alias cls='clear'
 alias c='clear'
