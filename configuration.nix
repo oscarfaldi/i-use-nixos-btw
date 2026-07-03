@@ -91,6 +91,31 @@
     ];
   };
 
+  # ZRAM: compressed RAM swap, 50% ceiling (~16GB, safety net for heavy browsing)
+  zramSwap = {
+    enable = true;
+    algorithm = "zstd";
+    memoryPercent = 50;
+    priority = 100;
+  };
+  
+  # High swappiness since zram is RAM-to-RAM, not disk-backed
+  boot.kernel.sysctl."vm.swappiness" = 180;
+  
+  # OOMD: kills worst memory offender (e.g. leaking Chromium tab) before system freezes
+  systemd.oomd = {
+    enable = true;
+    enableRootSlice = true;
+    enableUserSlices = true;
+  };
+  
+  systemd.oomd.extraConfig = {
+    DefaultMemoryPressureDurationSec = "20s";
+  };
+  
+  # CPU governor: max frequency always, no ramp-up latency on bursty builds
+  powerManagement.cpuFreqGovernor = "performance";
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
