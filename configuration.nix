@@ -109,7 +109,7 @@
     enableUserSlices = true;
   };
   
-  systemd.oomd.extraConfig = {
+  systemd.oomd.settings.OOM = {
     DefaultMemoryPressureDurationSec = "20s";
   };
   
