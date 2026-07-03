@@ -7,6 +7,7 @@
     extensions = [
       { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
       { id = "ddkjiahejlhfcafbddmgiahcphecmpfh"; } # uBlock Origin Lite
+      { id = "cpgaheeihidjmolbakklolchdplenjai"; } # Turbo Downloader for Instagram
       { id = "ldgfbffkinooeloadekpmfoklnobpien"; } # Raindrop.io
       { id = "piibekljdlkbkdchicfdjpnaggolndif"; } # Plucker XBD - X (Twitter) Media One-click Downloader
     ];
@@ -19,9 +20,6 @@
       # Wayland
       "--ozone-platform=wayland"
       "--enable-wayland-ime"
-
-      # Session
-      "--restore-last-session"
     ];
   };
 }
