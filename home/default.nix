@@ -5,7 +5,7 @@
     ./files.nix
     ./shell.nix
     ./xdg.nix
-    ./chromium.nix
+    ./firefox.nix
     ./thunar.nix
     ./theme-nordic.nix
     # ./theme-graphite.nix
