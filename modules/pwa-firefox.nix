@@ -10,7 +10,7 @@ let
       desktopName = name;
 
       # Launch URL in Firefox
-      exec = "pwa ${url}";
+      exec = "firefox --new-window ${url}";
 
       icon = icon;
 
