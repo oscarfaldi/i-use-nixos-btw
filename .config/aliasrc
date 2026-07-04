@@ -63,9 +63,6 @@ alias bt='btop'
 # Storage
 # =====================================================
 
-# Modern disk usage
-alias dust='dust'
-
 # Human-readable disk free
 alias dfh='df -h'
 
