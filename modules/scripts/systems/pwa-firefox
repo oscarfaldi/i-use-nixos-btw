@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-firefox --new-window --kiosk "$1" &
-
-sleep 0.8
-
-niri msg action fullscreen-window
