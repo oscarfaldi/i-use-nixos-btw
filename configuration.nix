@@ -14,14 +14,13 @@
       ./modules/audio.nix
       ./modules/appearance.nix
       ./modules/home.nix
-      ./modules/chromium-policy.nix
       ./modules/greeter.nix
       ./modules/packages.nix
       ./modules/network.nix
       ./modules/nvidia.nix
       ./modules/tmpfs.nix
       ./modules/keyboard.nix
-      ./modules/pwa.nix
+      ./modules/pwa-firefox.nix
       ./modules/games.nix
       ./modules/smb.nix
       ./modules/content-creation.nix
