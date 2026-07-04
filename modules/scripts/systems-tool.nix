@@ -21,5 +21,6 @@ in
     (mkScript "version")
     (mkScript "nas-recover")
     (mkScript "nas-debug")
+    (mkScript "pwa-firefox")
   ];
 }
