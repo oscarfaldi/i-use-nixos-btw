@@ -49,7 +49,7 @@ input {
         accel-speed 0
 
         // Increase scrolling speed
-        scroll-factor 1.5
+        scroll-factor 1.25
     }
 
     // Focus window when mouse hovers over it
