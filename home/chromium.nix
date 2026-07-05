@@ -19,7 +19,6 @@
 
       # Wayland
       "--ozone-platform=x11"
-      "--enable-wayland-ime"
     ];
   };
 }
