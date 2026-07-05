@@ -13,7 +13,7 @@
       "BackgroundModeEnabled": false,
       "ShoppingListEnabled": false,
 
-      "MetricsReportingEnabled": false
+      "MetricsReportingEnabled": false,
 
       "NewTabPageLocation": "about:blank"
     }
