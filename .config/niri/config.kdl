@@ -272,8 +272,8 @@ input {
 
 binds {
     // ─── Applications ───
-    Mod+Return                          hotkey-overlay-title="Open Terminal: Ghosty" { spawn "ghostty"; }
-    Mod+B                               hotkey-overlay-title="Open Browser: Chromium" { spawn "chromium"; }
+    Mod+Return                          hotkey-overlay-title="Open Terminal: Ghostty" { spawn "ghostty"; }
+    Mod+B                               hotkey-overlay-title="Open Browser: Firefox" { spawn "firefox"; }
     Mod+D                               hotkey-overlay-title="Open App Launcher: Fuzzel" { spawn "fuzzel"; }
     Mod+E                               hotkey-overlay-title="File Manager: Thunar" { spawn "thunar"; }
     Mod+Shift+L                         hotkey-overlay-title="Lock Screen: Swaylock" { spawn "swaylock"; }
