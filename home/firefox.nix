@@ -16,7 +16,7 @@
       PasswordManagerEnabled = false;
       OfferToSaveLogins = false;
 
-      NewTabPage = false;  # Full blank new tab
+      NewTabPage = false;
 
       FirefoxHome = {
         SponsoredTopSites = false;
@@ -63,7 +63,7 @@
         "browser.startup.page" = 3;
         "general.smoothScroll" = false;
 
-        "browser.newtabpage.enabled" = false;  # Backup for New Tab
+        "browser.newtabpage.enabled" = false;
         "browser.newtabpage.activity-stream.showSponsored" = false;
         "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;
         "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
