@@ -24,8 +24,33 @@
         SponsoredPocket = false;
       };
 
+    policies = {
+      DisableTelemetry = true;
+      DisableFirefoxStudies = true;
+      DisablePocket = true;
+      PasswordManagerEnabled = false;
+      OfferToSaveLogins = false;
+      NewTabPage = false;
+      FirefoxHome = {
+        SponsoredTopSites = false;
+        SponsoredPocket = false;
+      };
+
       # Search engine suggestions, not Firefox Suggest
       SearchSuggestEnabled = true;
+
+      # Skip first-run / onboarding / "safe paws" welcome screen sepenuhnya
+      OverrideFirstRunPage = "";
+      OverridePostUpdatePage = "";
+      UserMessaging = {
+        WhatsNew = false;
+        ExtensionRecommendations = false;
+        FeatureRecommendations = false;
+        UrlbarInterventions = false;
+        MoreFromMozilla = false;
+        SkipOnboarding = true;
+        Locked = true;
+      };
 
       # Declarative extension installation directly from Mozilla Add-ons (AMO)
       Extensions = {
