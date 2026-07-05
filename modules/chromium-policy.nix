@@ -14,6 +14,10 @@
       "ShoppingListEnabled": false,
 
       "MetricsReportingEnabled": false
+
+      "NTPCardsVisible": false,
+      "NTPMiddleSlotAnnouncementVisible": false,
+      "NTPCustomBackgroundEnabled": false
     }
   '';
 }
