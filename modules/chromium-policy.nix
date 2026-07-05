@@ -15,9 +15,7 @@
 
       "MetricsReportingEnabled": false
 
-      "NTPCardsVisible": false,
-      "NTPMiddleSlotAnnouncementVisible": false,
-      "NTPCustomBackgroundEnabled": false
+      "NewTabPageLocation": "about:blank"
     }
   '';
 }
