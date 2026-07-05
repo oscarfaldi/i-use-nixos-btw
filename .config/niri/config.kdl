@@ -163,7 +163,7 @@ input {
 
     cursor {
         xcursor-theme "Bibata-Modern-Ice"
-        xcursor-size 27
+        xcursor-size 25
     }
 
     hotkey-overlay {
