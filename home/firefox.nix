@@ -7,6 +7,7 @@
 
   programs.firefox = {
     enable = true;
+    configPath = ".mozilla/firefox";
 
     policies = {
       DisableTelemetry = true;
@@ -23,6 +24,7 @@
         SponsoredPocket = false;
       };
 
+      # Search engine suggestions, not Firefox Suggest
       SearchSuggestEnabled = true;
 
       # Declarative extension installation directly from Mozilla Add-ons (AMO)
@@ -49,7 +51,6 @@
 
     profiles.default = {
       settings = {
-        "browser.ml.enable" = false;
         "toolkit.telemetry.enabled" = false;
         "datareporting.healthreport.uploadEnabled" = false;
         "app.shield.optoutstudies.enabled" = false;
