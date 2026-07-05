@@ -13,24 +13,10 @@
       DisableTelemetry = true;
       DisableFirefoxStudies = true;
       DisablePocket = true;
-
-      PasswordManagerEnabled = false;
-      OfferToSaveLogins = false;
-
-      NewTabPage = false;
-
-      FirefoxHome = {
-        SponsoredTopSites = false;
-        SponsoredPocket = false;
-      };
-
-    policies = {
-      DisableTelemetry = true;
-      DisableFirefoxStudies = true;
-      DisablePocket = true;
       PasswordManagerEnabled = false;
       OfferToSaveLogins = false;
       NewTabPage = false;
+
       FirefoxHome = {
         SponsoredTopSites = false;
         SponsoredPocket = false;
