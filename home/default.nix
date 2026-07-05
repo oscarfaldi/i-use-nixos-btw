@@ -8,7 +8,6 @@
     ./firefox.nix
     ./thunar.nix
     ./theme-nordic.nix
-    # ./theme-graphite.nix
   ];
 
   home.username = "oscarfaldi";
