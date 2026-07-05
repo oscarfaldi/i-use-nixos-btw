@@ -20,8 +20,7 @@
       ./modules/nvidia.nix
       ./modules/tmpfs.nix
       ./modules/keyboard.nix
-      ./modules/chromium-policy.nix
-      ./modules/pwa-chromium.nix
+      ./modules/pwa-firefox.nix
       ./modules/games.nix
       ./modules/smb.nix
       ./modules/content-creation.nix
