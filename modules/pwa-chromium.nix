@@ -32,6 +32,12 @@ in
     })
 
     (mkPWA {
+      name = "Open WebUI";
+      url = "http://10.10.10.10:8072/";
+      icon = "/home/oscarfaldi/.config/assets/icons/pwa/openwebui.svg";
+    })
+
+    (mkPWA {
       name = "Canva";
       url = "https://canva.com";
       icon = "/home/oscarfaldi/.config/assets/icons/pwa/canva.svg";
