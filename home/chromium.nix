@@ -18,7 +18,7 @@
       "--disable-features=TabHoverCardImages"
 
       # Wayland
-      "--ozone-platform=x11"
+      "--ozone-platform=wayland"
     ];
   };
 }
