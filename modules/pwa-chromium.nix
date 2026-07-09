@@ -38,12 +38,6 @@ in
     })
 
     (mkPWA {
-      name = "Canva";
-      url = "https://canva.com";
-      icon = "/home/oscarfaldi/.config/assets/icons/pwa/canva.svg";
-    })
-
-    (mkPWA {
       name = "Gemini";
       url = "https://gemini.google.com";
       icon = "/home/oscarfaldi/.config/assets/icons/pwa/gemini.svg";
