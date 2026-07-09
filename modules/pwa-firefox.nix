@@ -34,12 +34,6 @@ in
     })
 
     (mkWebApp {
-      name = "Canva";
-      url = "https://canva.com";
-      icon = "/home/oscarfaldi/.config/assets/icons/pwa/canva.svg";
-    })
-
-    (mkWebApp {
       name = "Gemini";
       url = "https://gemini.google.com";
       icon = "/home/oscarfaldi/.config/assets/icons/pwa/gemini.svg";
