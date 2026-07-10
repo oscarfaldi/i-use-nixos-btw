@@ -46,6 +46,8 @@
         <property name="misc-open-new-window-as-tab" type="bool" value="false"/>
         <property name="misc-transfer-use-partial" type="string" value="THUNAR_USE_PARTIAL_MODE_NEVER"/>
         <property name="misc-date-custom-style" type="string" value="%d %b %Y | %H:%M:%S"/>
+        <property name="misc-volume-management" type="bool" value="false"/>
+        <property name="misc-folder-item-count" type="string" value="THUNAR_FOLDER_ITEM_COUNT_ALWAYS"/>
       </channel>
     '';
     force = true; 
