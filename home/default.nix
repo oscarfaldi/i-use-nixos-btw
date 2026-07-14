@@ -8,6 +8,7 @@
     ./chromium.nix
     ./thunar.nix
     ./theme-nordic.nix
+    ./onlyoffice.nix
   ];
 
   home.username = "oscarfaldi";
