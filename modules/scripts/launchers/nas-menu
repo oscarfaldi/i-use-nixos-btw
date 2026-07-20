@@ -7,7 +7,7 @@ fuzzel --dmenu -p "NAS"
 
 case "$choice" in
     "Archive Home Folder to NAS")
-        ghostty -e archive-home-folder-to-nas
+        ghostty -e archive-home-folders-to-nas
         ;;
     "NAS Recover")
         ghostty -e nas-recover all
