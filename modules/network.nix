@@ -95,6 +95,9 @@
       "glances.local"
       "grafana.local"
       "unmanic.local"
+      "dn.local"
+      "slskd.local"
+      "metube.local"
     ];
   };
 
