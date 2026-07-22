@@ -1,50 +1,107 @@
 { config, pkgs, lib, ... }:
 
+let
+  onlyofficeFonts = with pkgs; [
+    # ==========================================================
+    # Nerd Fonts
+    # ==========================================================
+
+    nerd-fonts.iosevka-term-slab
+    nerd-fonts.jetbrains-mono
+
+    # ==========================================================
+    # Monospace
+    # ==========================================================
+
+    jetbrains-mono
+    ibm-plex
+
+    # ==========================================================
+    # UI Fonts
+    # ==========================================================
+
+    inter
+
+    # ==========================================================
+    # Microsoft Fonts
+    # ==========================================================
+
+    corefonts
+    vista-fonts
+    liberation_ttf
+
+    # ==========================================================
+    # Unicode Coverage
+    # ==========================================================
+
+    noto-fonts
+    noto-fonts-cjk-sans
+    noto-fonts-cjk-serif
+    noto-fonts-color-emoji
+  ];
+in
 {
+  # ============================================================
+  # ONLYOFFICE Font Workaround
+  # ============================================================
+
   home.activation.onlyoffice-fonts =
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       FONT_DIR="$HOME/.local/share/fonts/onlyoffice"
 
-      echo "Setting up ONLYOFFICE fonts..."
-
+      rm -rf "$FONT_DIR"
       mkdir -p "$FONT_DIR"
 
-      find /run/current-system/sw/share/fonts \
-        -type f \
-        \( -iname "*.ttf" -o -iname "*.otf" -o -iname "*.ttc" \) \
-        -exec cp -f {} "$FONT_DIR/" \; \
-        2>/dev/null || true
+      copy_fonts() {
+        if [ -d "$1/share/fonts" ]; then
+          find "$1/share/fonts" \
+            -type f \
+            \( -iname "*.ttf" -o -iname "*.otf" -o -iname "*.ttc" \) \
+            -exec cp -f {} "$FONT_DIR/" \;
+        fi
+      }
 
-      ${pkgs.fontconfig}/bin/fc-cache -f "$FONT_DIR"
+      ${lib.concatMapStringsSep "\n" (pkg: ''
+        copy_fonts "${pkg}"
+      '') onlyofficeFonts}
+
+      ${pkgs.fontconfig}/bin/fc-cache -fv "$FONT_DIR"
 
       rm -rf \
-        "$HOME/.local/share/onlyoffice/desktopeditors/data/fonts" \
-        2>/dev/null || true
+        "$HOME/.local/share/onlyoffice/desktopeditors/data/fonts"
     '';
 
+  # ============================================================
+  # ONLYOFFICE Notes
+  # ============================================================
+
   xdg.configFile."onlyoffice/README".text = ''
-    ONLYOFFICE Configuration Notes
+    Preferred Configuration
 
-    Preferred settings:
+    Theme
+    -----
+    • Dark
 
-    Theme:
-      Modern Dark
+    Default Font
+    ------------
+    • Arial
 
-    Spreadsheet:
-      Font: Arial
-      Size: 10
+    Spreadsheet
+    -----------
+    • Font Size: 11
 
-    Regional:
-      Currency: IDR
-      Date: DD/MM/YYYY
-      Decimal separator: .
-      Thousands separator: ,
+    Auto Recovery
+    -------------
+    • Enabled
+    • Every 1 minute
 
-    Autosave:
-      Enabled
+    Number Format
+    -------------
+    • Decimal Separator: .
+    • Thousands Separator: ,
 
-    Auto Recovery:
-      Enabled
-      Interval: 1 minute
+    Date Format
+    -----------
+    • DD/MM/YYYY
   '';
 }
