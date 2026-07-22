@@ -98,6 +98,7 @@
       "dn.local"
       "slskd.local"
       "metube.local"
+      "artillery.local"
     ];
   };
 
