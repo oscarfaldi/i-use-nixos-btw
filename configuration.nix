@@ -88,6 +88,9 @@
     trusted-public-keys = [
       "ncps.local:MIxzb9CCWYX8qk2Ec79fKD/d4nvc0anIoEL+A7YJVDE="
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+
+    connect-timeout = 2;
+    stalled-download-timeout = 5;
     ];
   };
 
