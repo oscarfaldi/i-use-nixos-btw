@@ -339,7 +339,7 @@
   <action>
     <icon>folder-videos</icon>
     <name>Batch Compress Videos to MKV</name>
-    <submenu>Content Creation</submenu>
+    <submenu>Media</submenu>
     <unique-id>1781935446753343-506</unique-id>
     <command>ghostty -e batch-compress-to-mkv %f</command>
     <description>Compress every video in the selected folder to HEVC Main10 MKV (non-recursive)</description>
