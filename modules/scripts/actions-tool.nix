@@ -26,6 +26,7 @@ in
     (mkShellScript "convert-to-pdf")
     (mkShellScript "compress-to-mkv")
     (mkShellScript "compress-to-mp4")
+    (mkShellScript "batch-compress-to-mkv")
 
     (mkShellScript "copy-filename")
     (mkShellScript "copy-filename-no-extension")
