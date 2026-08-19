@@ -142,23 +142,6 @@ restore_libreoffice() {
     echo
 }
 
-restore_qalculate() {
-    print_header "Qalculate Configuration"
-
-    mkdir -p "$HOME/.config/qalculate"
-
-    if [[ -f "$CONFIG_DIR/.config/qalculate/qalculate-gtk.cfg" ]]; then
-        cp -f \
-            "$CONFIG_DIR/.config/qalculate/qalculate-gtk.cfg" \
-            "$HOME/.config/qalculate/qalculate-gtk.cfg"
-        echo "✓ Qalculate settings restored."
-    else
-        echo "• No Qalculate settings found."
-    fi
-
-    echo
-}
-
 bootstrap_system() {
     print_header "Rebuilding Rainier System"
     echo "Building next generation for boot (using ncps cache for this build)..."
@@ -200,7 +183,6 @@ main() {
     configure_nix_channels
     setup_smb_credentials
     restore_libreoffice
-    restore_qalculate
     bootstrap_system
 
     print_header "Final Step"
