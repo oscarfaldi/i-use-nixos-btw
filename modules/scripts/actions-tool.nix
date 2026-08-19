@@ -24,8 +24,8 @@ in
     (mkShellScript "convert-to-png")
     (mkShellScript "convert-to-jpeg")
     (mkShellScript "convert-to-pdf")
-    (mkShellScript "convert-to-prores")
-    (mkShellScript "convert-to-h265")
+    (mkShellScript "compress-to-mkv")
+    (mkShellScript "compress-to-mp4")
 
     (mkShellScript "copy-filename")
     (mkShellScript "copy-filename-no-extension")
