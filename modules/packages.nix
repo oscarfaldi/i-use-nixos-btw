@@ -195,7 +195,7 @@
     brightnessctl
     playerctl
 
-    qalculate-gtk
+    gnome-calculator
 
     wlogout
 
