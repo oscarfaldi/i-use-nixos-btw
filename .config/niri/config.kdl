@@ -227,7 +227,7 @@ input {
 	// --- SIMPLE FLOATING WINDOWS ---
 	window-rule {
 	    match app-id="nm-connection-editor"
-	    match app-id="gnome-calculator"
+	    match app-id="org.gnome.Calculator"
 	    match app-id="qimgv"
 	    match app-id="mpv"
 	    open-floating true
