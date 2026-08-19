@@ -2,15 +2,17 @@
 
 # ==============================================================================
 # Script Name: PDF Converter
-# Description: Converts images and Text to PDF
+# Description: Converts images, text, and Office documents to PDF
 # ==============================================================================
 
 set -euo pipefail
 
 for FILE in "$@"; do
 
+    [[ -f "$FILE" ]] || continue
+
     EXT="${FILE##*.}"
-    EXT="$(echo "$EXT" | tr '[:upper:]' '[:lower:]')"
+    EXT="${EXT,,}"
 
     OUTPUT="${FILE%.*}.pdf"
 
@@ -22,6 +24,15 @@ for FILE in "$@"; do
                 "$FILE" \
                 --pdf-engine=tectonic \
                 -o "$OUTPUT"
+            ;;
+
+        doc|docx|odt|rtf|ppt|pptx|xls|xlsx)
+
+            soffice \
+                --headless \
+                --convert-to pdf \
+                --outdir "$(dirname "$FILE")" \
+                "$FILE" >/dev/null
             ;;
 
         jpg|jpeg|png|tif|tiff)
@@ -36,7 +47,7 @@ for FILE in "$@"; do
             notify-send \
                 -i dialog-error \
                 "Convert to PDF" \
-                "Unsupported format: $FILE"
+                "Unsupported format: $(basename "$FILE")"
 
             continue
             ;;
