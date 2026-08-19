@@ -1,0 +1,219 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# ============================================================
+# MKV Compress
+#
+# Compress videos for long-term NAS storage using NVIDIA NVENC.
+#
+# Video:
+#   Codec        : HEVC (H.265)
+#   Profile      : Main10 (10-bit)
+#   Preset       : P4
+#   Rate Control : Constant QP (26)
+#   Lookahead    : OFF
+#   Spatial AQ   : ON
+#   AQ Strength  : 4
+#
+# Audio:
+#   Copy original stream
+#
+# Output:
+#   <filename>-encoded.mkv
+#
+# Supports:
+#   - Single file
+#   - Multiple selected files
+#   - Folder selection (non-recursive)
+#
+# Intended for Thunar Custom Actions using %F.
+# ============================================================
+
+notify() {
+    notify-send "$1" "$2"
+}
+
+get_output_path() {
+    local input="$1"
+    echo "${input%.*}-encoded.mkv"
+}
+
+is_video_file() {
+    case "${1,,}" in
+        *.mkv|*.mp4|*.mov|*.webm|*.m4v|*.ts|*.mts|*.m2ts|*.avi|*.mxf)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+run_ffmpeg() {
+    local input="$1"
+    local output="$2"
+    local duration
+    local status
+
+    duration=$(ffprobe \
+        -v error \
+        -show_entries format=duration \
+        -of default=noprint_wrappers=1:nokey=1 \
+        "$input")
+
+    set +e
+
+    ghostty \
+        --title="MKV Compress" \
+        -e bash -c "
+            DURATION=$duration
+
+            echo
+            echo '============================================================'
+            echo ' MKV Compress'
+            echo '============================================================'
+            echo
+            echo 'Input : $input'
+            echo 'Output: $output'
+            echo
+            echo 'Codec  : HEVC Main10'
+            echo 'Preset : P4'
+            echo 'QP     : 26'
+            echo 'Audio  : Copy'
+            echo
+            echo '============================================================'
+            echo
+
+            ffmpeg \
+                -hide_banner \
+                -nostats \
+                -progress pipe:1 \
+                -hwaccel cuda \
+                -hwaccel_device 0 \
+                -init_hw_device cuda=hw \
+                -filter_hw_device hw \
+                -hwaccel_output_format cuda \
+                -i \"$input\" \
+                -map 0:v:0 \
+                -map '0:a?' \
+                -map_metadata 0 \
+                -map_chapters 0 \
+                -sn \
+                -dn \
+                -c:v hevc_nvenc \
+                -gpu 0 \
+                -preset p4 \
+                -profile:v main10 \
+                -pix_fmt p010le \
+                -rc constqp \
+                -qp 26 \
+                -rc-lookahead 0 \
+                -spatial-aq 1 \
+                -aq-strength 4 \
+                -c:a copy \
+                -y \"$output\" |
+            while IFS='=' read -r key value; do
+                if [[ \"\$key\" == 'out_time_ms' ]]; then
+                    PERCENT=\$(awk -v t=\"\$value\" -v d=\"\$DURATION\" 'BEGIN {
+                        p=(t/1000000)/d*100
+                        if (p>100) p=100
+                        printf \"%.1f\", p
+                    }')
+                    printf '\rProgress: %5s%%' \"\$PERCENT\"
+                elif [[ \"\$key\" == 'progress' && \"\$value\" == 'end' ]]; then
+                    printf '\rProgress: 100.0%%\n'
+                fi
+            done
+
+            STATUS=\${PIPESTATUS[0]}
+
+            echo
+
+            if [ \$STATUS -ne 0 ]; then
+                echo -e '\e[1;31m[ERROR] Compression failed.\e[0m'
+                rm -f \"$output\"
+                echo
+                echo 'Closing in 5 seconds...'
+                sleep 5
+            else
+                echo -e '\e[1;32m[OK] Compression complete.\e[0m'
+                echo
+                echo \"$output\"
+                echo
+                echo 'Closing in 5 seconds...'
+                sleep 5
+            fi
+
+            exit \$STATUS
+        "
+
+    status=$?
+
+    set -e
+
+    return "$status"
+}
+
+process_file() {
+    local input="$1"
+    local output
+
+    if ! is_video_file "$input"; then
+        notify "MKV Compress" "$(basename "$input") is not a supported video file."
+        return 0
+    fi
+
+    output="$(get_output_path "$input")"
+
+    notify "MKV Compress" "Compressing $(basename "$input")"
+
+    if run_ffmpeg "$input" "$output"; then
+        touch -r "$input" "$output"
+        notify "MKV Compress" "$(basename "$output") completed."
+    else
+        rm -f "$output"
+        notify "MKV Compress" "$(basename "$input") failed."
+        return 1
+    fi
+}
+
+process_folder() {
+    local folder="$1"
+    local found=0
+
+    while IFS= read -r -d '' file; do
+        found=1
+        process_file "$file"
+    done < <(
+        find "$folder" \
+            -maxdepth 1 \
+            -type f \
+            -print0
+    )
+
+    if [[ "$found" -eq 0 ]]; then
+        notify "MKV Compress" "No supported videos found in $(basename "$folder")."
+    fi
+}
+
+# ============================================================
+# Main
+# ============================================================
+
+if [[ "$#" -eq 0 ]]; then
+    notify "MKV Compress" "No input file or folder specified."
+    exit 1
+fi
+
+for input in "$@"; do
+    if [[ -d "$input" ]]; then
+        process_folder "$input"
+
+    elif [[ -f "$input" ]]; then
+        process_file "$input"
+
+    else
+        notify "MKV Compress" "Invalid path: $(basename "$input")"
+    fi
+done
