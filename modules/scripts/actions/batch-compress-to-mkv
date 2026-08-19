@@ -9,7 +9,7 @@ set -euo pipefail
 #
 # Video:
 #   Codec        : HEVC (H.265)
-#   Profile      : Main10 (10-bit)
+#   Profile      : Main
 #   Preset       : P4
 #   Rate Control : Constant QP (26)
 #   Lookahead    : OFF
@@ -119,7 +119,7 @@ echo " BATCH COMPRESS TO MKV"
 echo "============================================================"
 echo "Directory : $DIRECTORY"
 echo "Found     : $total video files"
-echo "Codec     : HEVC Main10"
+echo "Codec     : HEVC"
 echo "Preset    : P4"
 echo "QP        : 26"
 echo "Audio     : Copy"
@@ -174,23 +174,20 @@ for input in "${files[@]}"; do
     ffmpeg \
         -hide_banner \
         -loglevel warning \
-        -hwaccel cuda \
         -hwaccel_device 0 \
+        -hwaccel cuda \
         -init_hw_device cuda=hw \
         -filter_hw_device hw \
         -hwaccel_output_format cuda \
         -i "$input" \
         -map 0:v:0 \
         -map '0:a?' \
-        -map_metadata 0 \
-        -map_chapters 0 \
         -sn \
         -dn \
         -c:v hevc_nvenc \
         -gpu 0 \
         -preset p4 \
-        -profile:v main10 \
-        -pix_fmt p010le \
+        -profile:v main \
         -rc constqp \
         -qp 26 \
         -rc-lookahead 0 \
