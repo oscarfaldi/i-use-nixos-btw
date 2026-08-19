@@ -9,7 +9,7 @@ set -euo pipefail
 #
 # Video:
 #   Codec        : HEVC (H.265)
-#   Profile      : Main10 (10-bit)
+#   Profile      : Main
 #   Preset       : P4
 #   Rate Control : Constant QP (26)
 #   Lookahead    : OFF
@@ -77,7 +77,7 @@ run_ffmpeg() {
             echo 'Input : $input'
             echo 'Output: $output'
             echo
-            echo 'Codec  : HEVC Main10'
+            echo 'Codec  : HEVC'
             echo 'Preset : P4'
             echo 'QP     : 26'
             echo 'Audio  : Copy'
@@ -89,23 +89,20 @@ run_ffmpeg() {
                 -hide_banner \
                 -nostats \
                 -progress pipe:1 \
-                -hwaccel cuda \
                 -hwaccel_device 0 \
+                -hwaccel cuda \
                 -init_hw_device cuda=hw \
                 -filter_hw_device hw \
                 -hwaccel_output_format cuda \
                 -i \"$input\" \
                 -map 0:v:0 \
                 -map '0:a?' \
-                -map_metadata 0 \
-                -map_chapters 0 \
                 -sn \
                 -dn \
                 -c:v hevc_nvenc \
                 -gpu 0 \
                 -preset p4 \
-                -profile:v main10 \
-                -pix_fmt p010le \
+                -profile:v main \
                 -rc constqp \
                 -qp 26 \
                 -rc-lookahead 0 \
@@ -131,17 +128,22 @@ run_ffmpeg() {
             echo
 
             if [ \$STATUS -ne 0 ]; then
-                echo -e '\e[1;31m[ERROR] Compression failed.\e[0m'
+                echo
+                echo -e '\e[1;31m[ERROR] Compression failed!\e[0m'
+                echo
+                echo 'Output file will be removed.'
                 rm -f \"$output\"
                 echo
-                echo 'Closing in 5 seconds...'
+                echo 'Closing window in 5 seconds...'
                 sleep 5
             else
-                echo -e '\e[1;32m[OK] Compression complete.\e[0m'
                 echo
+                echo -e '\e[1;32m[OK] Compression complete!\e[0m'
+                echo
+                echo 'Output:'
                 echo \"$output\"
                 echo
-                echo 'Closing in 5 seconds...'
+                echo 'Closing window in 5 seconds...'
                 sleep 5
             fi
 
@@ -160,20 +162,35 @@ process_file() {
     local output
 
     if ! is_video_file "$input"; then
-        notify "MKV Compress" "$(basename "$input") is not a supported video file."
+        notify \
+            "MKV Compress" \
+            "$(basename "$input") is not a supported video file."
+
         return 0
     fi
 
     output="$(get_output_path "$input")"
 
-    notify "MKV Compress" "Compressing $(basename "$input")"
+    notify \
+        "MKV Compress" \
+        "Compressing $(basename "$input")"
 
     if run_ffmpeg "$input" "$output"; then
+
         touch -r "$input" "$output"
-        notify "MKV Compress" "$(basename "$output") completed."
+
+        notify \
+            "MKV Compress" \
+            "$(basename "$output") completed."
+
     else
+
         rm -f "$output"
-        notify "MKV Compress" "$(basename "$input") failed."
+
+        notify \
+            "MKV Compress" \
+            "$(basename "$input") failed."
+
         return 1
     fi
 }
@@ -193,7 +210,9 @@ process_folder() {
     )
 
     if [[ "$found" -eq 0 ]]; then
-        notify "MKV Compress" "No supported videos found in $(basename "$folder")."
+        notify \
+            "MKV Compress" \
+            "No supported videos found in $(basename "$folder")."
     fi
 }
 
@@ -202,11 +221,15 @@ process_folder() {
 # ============================================================
 
 if [[ "$#" -eq 0 ]]; then
-    notify "MKV Compress" "No input file or folder specified."
+    notify \
+        "MKV Compress" \
+        "No input file or folder specified."
+
     exit 1
 fi
 
 for input in "$@"; do
+
     if [[ -d "$input" ]]; then
         process_folder "$input"
 
@@ -214,6 +237,9 @@ for input in "$@"; do
         process_file "$input"
 
     else
-        notify "MKV Compress" "Invalid path: $(basename "$input")"
+        notify \
+            "MKV Compress" \
+            "Invalid path: $(basename "$input")"
     fi
+
 done
