@@ -1,0 +1,359 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# ============================================================
+# Batch Compress to MKV
+#
+# Compress every video inside a selected folder using NVIDIA NVENC.
+#
+# Video:
+#   Codec        : HEVC (H.265)
+#   Profile      : Main10 (10-bit)
+#   Preset       : P4
+#   Rate Control : Constant QP (26)
+#   Lookahead    : OFF
+#   Spatial AQ   : ON
+#   AQ Strength  : 4
+#
+# Audio:
+#   Copy original stream
+#
+# Container:
+#   MKV
+#
+# Supports:
+#   - Single folder input
+#   - Non-recursive scan
+#
+# Intended for Thunar Custom Actions using %f.
+# ============================================================
+
+# ============================================================
+# Validate Input
+# ============================================================
+
+if [[ "$#" -ne 1 ]]; then
+    echo "Usage: batch-compress-to-mkv <folder>"
+    exit 1
+fi
+
+DIRECTORY="$1"
+
+if [[ ! -d "$DIRECTORY" ]]; then
+    echo "Invalid directory."
+    exit 1
+fi
+
+# ============================================================
+# Cleanup
+# ============================================================
+
+tmp=""
+
+cleanup() {
+    echo
+    echo
+    echo "Interrupted."
+
+    [[ -n "$tmp" && -f "$tmp" ]] && rm -f "$tmp"
+
+    exit 130
+}
+
+trap cleanup INT TERM
+
+# ============================================================
+# Scan Files
+# ============================================================
+
+files=()
+
+while IFS= read -r -d '' file; do
+    files+=("$file")
+done < <(
+    find "$DIRECTORY" \
+        -maxdepth 1 \
+        -type f \
+        \( \
+            -iname '*.mkv' \
+            -o -iname '*.mp4' \
+            -o -iname '*.m4v' \
+            -o -iname '*.mov' \
+            -o -iname '*.avi' \
+            -o -iname '*.wmv' \
+            -o -iname '*.asf' \
+            -o -iname '*.webm' \
+            -o -iname '*.mpg' \
+            -o -iname '*.mpeg' \
+            -o -iname '*.m2ts' \
+            -o -iname '*.mts' \
+            -o -iname '*.ts' \
+            -o -iname '*.mxf' \
+            -o -iname '*.flv' \
+            -o -iname '*.f4v' \
+            -o -iname '*.ogv' \
+            -o -iname '*.3gp' \
+            -o -iname '*.3g2' \
+            -o -iname '*.vob' \
+            -o -iname '*.divx' \
+        \) \
+        -print0
+)
+
+total=${#files[@]}
+current=0
+success=0
+failed=0
+total_original=0
+total_final=0
+batch_start=$(date +%s)
+
+# ============================================================
+# Header
+# ============================================================
+
+echo
+echo "============================================================"
+echo " BATCH COMPRESS TO MKV"
+echo "============================================================"
+echo "Directory : $DIRECTORY"
+echo "Found     : $total video files"
+echo "Codec     : HEVC Main10"
+echo "Preset    : P4"
+echo "QP        : 26"
+echo "Audio     : Copy"
+echo "============================================================"
+
+if [[ "$total" -eq 0 ]]; then
+    echo
+    echo "No video files found."
+    exit 0
+fi
+
+# ============================================================
+# Process Files
+# ============================================================
+
+for input in "${files[@]}"; do
+
+    current=$((current + 1))
+
+    filename="$(basename "$input")"
+    extension="${input##*.}"
+    extension_lower="${extension,,}"
+
+    if [[ "$extension_lower" == "mkv" ]]; then
+        output="$input"
+    else
+        output="${input%.*}.mkv"
+    fi
+
+    tmp="${output}.nvenc-tmp.mkv"
+
+    echo
+    echo "============================================================"
+    echo "[$current/$total] $filename"
+    echo "============================================================"
+
+    duration=$(ffprobe \
+        -v error \
+        -show_entries format=duration \
+        -of default=noprint_wrappers=1:nokey=1 \
+        "$input")
+
+    if [[ -z "$duration" ]]; then
+        echo "[FAILED] Could not determine duration."
+        failed=$((failed + 1))
+        continue
+    fi
+
+    original_size=$(stat -c%s "$input")
+    encode_start=$(date +%s)
+
+    ffmpeg \
+        -hide_banner \
+        -loglevel warning \
+        -hwaccel cuda \
+        -hwaccel_device 0 \
+        -init_hw_device cuda=hw \
+        -filter_hw_device hw \
+        -hwaccel_output_format cuda \
+        -i "$input" \
+        -map 0:v:0 \
+        -map '0:a?' \
+        -map_metadata 0 \
+        -map_chapters 0 \
+        -sn \
+        -dn \
+        -c:v hevc_nvenc \
+        -gpu 0 \
+        -preset p4 \
+        -profile:v main10 \
+        -pix_fmt p010le \
+        -rc constqp \
+        -qp 26 \
+        -rc-lookahead 0 \
+        -spatial-aq 1 \
+        -aq-strength 4 \
+        -c:a copy \
+        -y \
+        -progress pipe:1 \
+        -nostats \
+        "$tmp" 2>&1 |
+    while IFS= read -r line; do
+
+        if [[ "$line" == out_time_us=* ]]; then
+
+            current_us="${line#*=}"
+
+            current_seconds=$(awk "BEGIN {print $current_us / 1000000}")
+
+            percent=$(awk \
+                -v current="$current_seconds" \
+                -v total="$duration" \
+                'BEGIN {
+                    if (total > 0)
+                        printf "%.1f", (current / total) * 100
+                    else
+                        print "0.0"
+                }')
+
+            elapsed=$(($(date +%s) - encode_start))
+
+            speed=$(awk \
+                -v current="$current_seconds" \
+                -v elapsed="$elapsed" \
+                'BEGIN {
+                    if (elapsed > 0)
+                        printf "%.2f", current / elapsed
+                    else
+                        print "0.00"
+                }')
+
+            eta=$(awk \
+                -v current="$current_seconds" \
+                -v total="$duration" \
+                -v elapsed="$elapsed" \
+                'BEGIN {
+                    if (current > 0)
+                        printf "%.0f", (total-current)*elapsed/current
+                    else
+                        print 0
+                }')
+
+            eta_h=$((eta / 3600))
+            eta_m=$(((eta % 3600) / 60))
+            eta_s=$((eta % 60))
+
+            printf "\rProgress: %6s%% | Speed: %5sx | ETA: %02d:%02d:%02d" \
+                "$percent" \
+                "$speed" \
+                "$eta_h" \
+                "$eta_m" \
+                "$eta_s"
+        fi
+    done
+
+    ffmpeg_exit_code=${PIPESTATUS[0]}
+
+    echo
+
+    if [[ "$ffmpeg_exit_code" -eq 0 && -s "$tmp" ]]; then
+
+        touch -r "$input" "$tmp"
+
+        final_size=$(stat -c%s "$tmp")
+
+        total_original=$((total_original + original_size))
+        total_final=$((total_final + final_size))
+
+        saved=$((original_size - final_size))
+
+        percent_saved=$(awk \
+            -v original="$original_size" \
+            -v final="$final_size" \
+            'BEGIN {
+                if (original > 0)
+                    printf "%.1f", (1-final/original)*100
+                else
+                    print "0.0"
+            }')
+
+        if [[ "$extension_lower" == "mkv" ]]; then
+            mv -f "$tmp" "$input"
+        else
+            mv -f "$tmp" "$output"
+            rm -f "$input"
+        fi
+
+        echo
+        echo "[OK] $filename"
+        echo "Source : $(numfmt --to=iec "$original_size")"
+        echo "Output : $(numfmt --to=iec "$final_size")"
+        echo "Saved  : $(numfmt --to=iec "$saved") ($percent_saved%)"
+
+        if [[ "$extension_lower" != "mkv" ]]; then
+            echo "New file: $(basename "$output")"
+        fi
+
+        success=$((success + 1))
+
+    else
+
+        echo
+        echo "[FAILED] $filename"
+        echo "Original source preserved."
+
+        rm -f "$tmp"
+
+        failed=$((failed + 1))
+    fi
+
+done
+
+# ============================================================
+# Summary
+# ============================================================
+
+batch_end=$(date +%s)
+elapsed=$((batch_end - batch_start))
+
+echo
+echo
+echo "============================================================"
+echo " BATCH COMPLETE"
+echo "============================================================"
+echo "Processed     : $current/$total"
+echo "Successful    : $success"
+echo "Failed        : $failed"
+echo
+
+echo "Original size : $(numfmt --to=iec "$total_original")"
+echo "Final size    : $(numfmt --to=iec "$total_final")"
+
+if [[ "$total_original" -gt 0 ]]; then
+
+    total_saved=$((total_original - total_final))
+
+    total_percent=$(awk \
+        -v original="$total_original" \
+        -v final="$total_final" \
+        'BEGIN {
+            printf "%.1f", (1-final/original)*100
+        }')
+
+    echo "Space saved   : $(numfmt --to=iec "$total_saved") ($total_percent%)"
+fi
+
+elapsed_h=$((elapsed / 3600))
+elapsed_m=$(((elapsed % 3600) / 60))
+elapsed_s=$((elapsed % 60))
+
+echo
+printf "Elapsed       : %02d:%02d:%02d\n" \
+    "$elapsed_h" \
+    "$elapsed_m" \
+    "$elapsed_s"
+
+echo "============================================================"
