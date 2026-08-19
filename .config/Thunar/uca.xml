@@ -99,9 +99,9 @@
     <submenu>Documents</submenu>
     <unique-id>1781935446753343-301</unique-id>
     <command>convert-to-pdf %F</command>
-    <description>Convert text or images to PDF</description>
+    <description>Convert text, images, and Office documents to PDF</description>
     <range>*</range>
-    <patterns>*.md;*.txt;*.jpg;*.jpeg;*.png;*.tif;*.tiff</patterns>
+    <patterns>*.md;*.txt;*.doc;*.docx;*.odt;*.rtf;*.ppt;*.pptx;*.xls;*.xlsx;*.jpg;*.jpeg;*.png;*.tif;*.tiff</patterns>
     <other-files/>
     <text-files/>
     <image-files/>
@@ -288,63 +288,74 @@
     <other-files/>
   </action>
 
-  <!-- ========================================== -->
-  <!-- 6. VIDEO PROCESSING                        -->
-  <!-- ========================================== -->
-  
   <action>
     <icon>applications-multimedia</icon>
-    <name>Convert to ProRes 422</name>
-    <submenu>Content Creation</submenu>
-    <unique-id>1781935446753343-601</unique-id>
-    <command>convert-to-prores %F</command>
-    <description>Convert selected videos to Apple ProRes 422 HQ for DaVinci Resolve</description>
+    <name>Compress Video to MKV</name>
+    <submenu>Media</submenu>
+    <unique-id>1781935446753343-504</unique-id>
+    <command>compress-to-mkv %F</command>
+    <description>Compress selected videos to HEVC Main10 in MKV for long-term storage</description>
     <range>*</range>
-    <patterns>*.mp4;*.MP4;*.mov;*.MOV;*.mkv;*.MKV;*.webm;*.mts;*.m2ts;*.ts;*.avi;*.mxf;*.m4v</patterns>
+    <patterns>
+        *.mp4;*.MP4;*.mov;*.MOV;
+        *.mkv;*.MKV;*.webm;*.WEBM;
+        *.m4v;*.M4V;*.avi;*.AVI;
+        *.ts;*.TS;*.mts;*.MTS;
+        *.m2ts;*.M2TS;*.mxf;*.MXF;
+        *.wmv;*.WMV;*.asf;*.ASF;
+        *.mpg;*.MPG;*.mpeg;*.MPEG;
+        *.flv;*.FLV;*.f4v;*.F4V;
+        *.ogv;*.OGV;*.3gp;*.3GP;
+        *.3g2;*.3G2;*.vob;*.VOB;
+        *.divx;*.DIVX
+    </patterns>
     <video-files/>
   </action>
 
   <action>
     <icon>applications-multimedia</icon>
-    <name>Convert to ProRes 422 (Monitor)</name>
-    <submenu>Content Creation</submenu>
-    <unique-id>1781935446753343-602</unique-id>
-    <command>ghostty --title="ProRes Conversion" -e convert-to-prores %F</command>
-    <description>Convert selected videos to Apple ProRes 422 HQ for DaVinci Resolve with live monitoring</description>
+    <name>Compress Video to MP4</name>
+    <submenu>Media</submenu>
+    <unique-id>1781935446753343-505</unique-id>
+    <command>compress-to-mp4 %F</command>
+    <description>Compress selected videos to HEVC Main10 in MP4 for maximum compatibility</description>
     <range>*</range>
-    <patterns>*.mp4;*.MP4;*.mov;*.MOV;*.mkv;*.MKV;*.webm;*.mts;*.m2ts;*.ts;*.avi;*.mxf;*.m4v</patterns>
+    <patterns>
+        *.mp4;*.MP4;*.mov;*.MOV;
+        *.mkv;*.MKV;*.webm;*.WEBM;
+        *.m4v;*.M4V;*.avi;*.AVI;
+        *.ts;*.TS;*.mts;*.MTS;
+        *.m2ts;*.M2TS;*.mxf;*.MXF;
+        *.wmv;*.WMV;*.asf;*.ASF;
+        *.mpg;*.MPG;*.mpeg;*.MPEG;
+        *.flv;*.FLV;*.f4v;*.F4V;
+        *.ogv;*.OGV;*.3gp;*.3GP;
+        *.3g2;*.3G2;*.vob;*.VOB;
+        *.divx;*.DIVX
+    </patterns>
     <video-files/>
   </action>
 
   <action>
-    <icon>applications-multimedia</icon>
-    <name>Convert to H.265</name>
+    <icon>folder-videos</icon>
+    <name>Batch Compress Videos to MKV</name>
     <submenu>Content Creation</submenu>
-    <unique-id>1781935446753343-603</unique-id>
-    <command>convert-to-h265 %F</command>
-    <description>Convert selected ProRes videos to H.265 MP4 for upload</description>
+    <unique-id>1781935446753343-506</unique-id>
+    <command>ghostty -e batch-compress-to-mkv %f</command>
+    <description>Compress every video in the selected folder to HEVC Main10 MKV (non-recursive)</description>
     <range>*</range>
-    <patterns>*.mov;*.MOV;*.mp4;*.MP4;*.mkv;*.MKV;*.mxf;*.MXF</patterns>
-    <video-files/>
+    <directories/>
   </action>
-  
-  <action>
-    <icon>applications-multimedia</icon>
-    <name>Convert to H.265 (Monitor)</name>
-    <submenu>Content Creation</submenu>
-    <unique-id>1781935446753343-604</unique-id>
-    <command>ghostty --title="H.265 Conversion" -e convert-to-h265 %F</command>
-    <description>Convert selected ProRes videos to H.265 MP4 for upload with live monitoring</description>
-    <range>*</range>
-    <patterns>*.mov;*.MOV;*.mp4;*.MP4;*.mkv;*.MKV;*.mxf;*.MXF</patterns>
-    <video-files/>
-  </action>
+
+  <!-- ========================================== -->
+  <!-- 6. CONTENT CREATION                        -->
+  <!-- ========================================== -->
   
   <action>
     <icon>applications-multimedia</icon>
     <name>Transcribe Video to SRT</name>
     <submenu>Content Creation</submenu>
-    <unique-id>1781935446753343-605</unique-id>
+    <unique-id>1781935446753343-601</unique-id>
     <command>transcribe-video %F</command>
     <description>Generate Indonesian SRT subtitles using Faster-Whisper</description>
     <range>*</range>
@@ -356,7 +367,7 @@
     <icon>applications-multimedia</icon>
     <name>Transcribe Video to SRT (Monitor)</name>
     <submenu>Content Creation</submenu>
-    <unique-id>1781935446753343-606</unique-id>
+    <unique-id>1781935446753343-602</unique-id>
     <command>ghostty --title="Subtitle Generation" -e transcribe-video %F</command>
     <description>Generate Indonesian SRT subtitles using Faster-Whisper with live monitoring</description>
     <range>*</range>
