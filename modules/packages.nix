@@ -202,7 +202,7 @@
 
     nvibrant
 
-    yad
+    zenity
 
     smartmontools
     gparted
