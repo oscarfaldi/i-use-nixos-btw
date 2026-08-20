@@ -170,7 +170,6 @@
     ffmpeg
     ffmpegthumbnailer
 
-    mediainfo
     exiftool
 
     libwebp
