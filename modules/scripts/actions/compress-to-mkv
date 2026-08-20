@@ -10,9 +10,9 @@ set -euo pipefail
 # Video:
 #   Codec        : HEVC (H.265)
 #   Profile      : Main
-#   Preset       : P4
-#   Rate Control : Constant QP (26)
-#   Lookahead    : OFF
+#   Preset       : P5
+#   Rate Control : Constant QP (24)
+#   Lookahead    : 20
 #   Spatial AQ   : ON
 #   AQ Strength  : 4
 #
@@ -78,8 +78,8 @@ run_ffmpeg() {
             echo 'Output: $output'
             echo
             echo 'Codec  : HEVC'
-            echo 'Preset : P4'
-            echo 'QP     : 26'
+            echo 'Preset : P5'
+            echo 'QP     : 24'
             echo 'Audio  : Copy'
             echo
             echo '============================================================'
@@ -101,11 +101,11 @@ run_ffmpeg() {
                 -dn \
                 -c:v hevc_nvenc \
                 -gpu 0 \
-                -preset p4 \
+                -preset p5 \
                 -profile:v main \
                 -rc constqp \
-                -qp 26 \
-                -rc-lookahead 0 \
+                -qp 24 \
+                -rc-lookahead 20 \
                 -spatial-aq 1 \
                 -aq-strength 4 \
                 -c:a copy \
