@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=SMART Report
+Comment=Check SMART health for all drives
+Exec=ghostty --title="SMART Report" -e smart-report
+Icon=/home/oscarfaldi/System/.config/assets/icons/desktop/hard-drive.svg
+Terminal=false
+Categories=System;Utility;
+Keywords=smart;smartctl;disk;ssd;hdd;nvme;health;storage;
