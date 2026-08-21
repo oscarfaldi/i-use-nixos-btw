@@ -1,6 +1,6 @@
 # i-use-nixos-btw
 
-My name is Oscar Faldi, you can call me Fal. Here is my personal NixOS declarative configuration.
+Here is my personal NixOS declarative configuration.
 
 This repository contains my complete desktop setup, development environment, personal scripts, dotfiles, wallpapers, and system configuration.
 
