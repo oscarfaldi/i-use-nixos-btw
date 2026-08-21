@@ -19,6 +19,7 @@ in
     (mkScript "rebuild-boot")
     (mkScript "upgrade")
     (mkScript "version")
+    (mkScript "smart-report")
     (mkScript "nas-recover")
     (mkScript "nas-debug")
   ];
