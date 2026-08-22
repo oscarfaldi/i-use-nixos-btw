@@ -240,7 +240,7 @@ input {
 	    match app-id="mousepad"
 	    match app-id="pwvucontrol"
 	    match app-id="soffice"
-	    match app-id="GParted"
+	    match app-id="gnome-disks"
 	    match app-id="xdg-desktop-portal-gtk"
 	    match app-id="zenity"
 	    open-floating true
