@@ -32,7 +32,7 @@
   # Privilege escalation framework
   security.polkit.enable = true;
 
-  # Provide pkexec wrapper required by GParted and other Polkit apps
+  # Enable the pkexec setuid wrapper so GUI apps can request Polkit authentication.
   security.wrappers.pkexec = {
     source = "${pkgs.polkit}/bin/pkexec";
     owner = "root";
@@ -204,7 +204,7 @@
     zenity
 
     smartmontools
-    gparted
+    gnome-disk-utility
     ntfs3g
     exfatprogs
     parabolic
