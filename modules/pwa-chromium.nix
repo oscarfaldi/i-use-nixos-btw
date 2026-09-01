@@ -80,7 +80,7 @@ in
     })
 
     (mkPWA {
-      name = "Grafana";
+      name = "Krusader";
       url = "https://10.10.10.10:8242/";
       icon = "/home/oscarfaldi/.config/assets/icons/pwa/krusader.svg";
     })
