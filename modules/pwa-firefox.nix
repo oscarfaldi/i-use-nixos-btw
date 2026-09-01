@@ -76,6 +76,12 @@ in
     })
 
     (mkWebApp {
+      name = "Krusader";
+      url = "http://10.10.10.10:8242/";
+      icon = "/home/oscarfaldi/.config/assets/icons/pwa/krusader.svg";
+    })
+
+    (mkWebApp {
       name = "Grafana";
       url = "http://10.10.10.10:3050/";
       icon = "/home/oscarfaldi/.config/assets/icons/pwa/grafana.svg";
