@@ -81,6 +81,12 @@ in
 
     (mkPWA {
       name = "Grafana";
+      url = "https://10.10.10.10:8242/";
+      icon = "/home/oscarfaldi/.config/assets/icons/pwa/krusader.svg";
+    })
+
+    (mkPWA {
+      name = "Grafana";
       url = "http://10.10.10.10:3050/";
       icon = "/home/oscarfaldi/.config/assets/icons/pwa/grafana.svg";
     })
