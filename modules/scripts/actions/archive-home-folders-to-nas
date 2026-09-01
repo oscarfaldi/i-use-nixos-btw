@@ -2,7 +2,7 @@
 
 set -Eeuo pipefail
 
-ARCHIVE_ROOT="/mnt/nas/archive/Archive"
+ARCHIVE_ROOT="/run/user/1000/gvfs/smb-share:server=10.10.20.10,share=archive/Archive"
 ARCHIVE_NAME="Archive-$(date +%F)"
 DEST="${ARCHIVE_ROOT}/${ARCHIVE_NAME}"
 
