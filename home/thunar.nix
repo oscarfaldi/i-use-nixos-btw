@@ -10,27 +10,29 @@
     text = ''
       <?xml version="1.0" encoding="UTF-8"?>
       <channel name="thunar" version="1.0">
+
+        <!-- View -->
         <property name="last-icon-view-zoom-level" type="string" value="THUNAR_ZOOM_LEVEL_50_PERCENT"/>
         <property name="last-details-view-zoom-level" type="string" value="THUNAR_ZOOM_LEVEL_38_PERCENT"/>
         <property name="last-show-hidden" type="bool" value="true"/>
         <property name="last-view" type="string" value="ThunarDetailsView"/>
         <property name="last-location-bar" type="string" value="ThunarLocationButtons"/>
-        
+
         <!-- Sidebar & Window Geometry -->
         <property name="last-separator-position" type="int" value="250"/>
         <property name="shortcuts-icon-size" type="string" value="THUNAR_ICON_SIZE_24"/>
         <property name="tree-icon-size" type="string" value="THUNAR_ICON_SIZE_16"/>
         <property name="shortcuts-icon-emblems" type="bool" value="true"/>
-        
-        <!-- Strict Priority Hierarchy Sorting -->
+
+        <!-- Sorting -->
         <property name="last-sort-column" type="string" value="THUNAR_COLUMN_NAME"/>
         <property name="last-sort-order" type="string" value="GTK_SORT_ASCENDING"/>
         <property name="misc-folders-first" type="bool" value="true"/>
 
-        <!-- Column Arrangement: Strict compact placement -->
+        <!-- Columns -->
         <property name="last-details-view-visible-columns" type="string" value="THUNAR_COLUMN_NAME,THUNAR_COLUMN_DATE_MODIFIED,THUNAR_COLUMN_TYPE,THUNAR_COLUMN_SIZE"/>
         <property name="last-details-view-column-order" type="string" value="THUNAR_COLUMN_NAME,THUNAR_COLUMN_DATE_MODIFIED,THUNAR_COLUMN_TYPE,THUNAR_COLUMN_SIZE"/>
-        
+
         <!-- Fix The Gap: Force tight column spacing instead of stretching across the screen -->
         <property name="last-details-view-fixed-columns" type="bool" value="true"/>
         <property name="last-details-view-column-widths" type="string" value="250,180,240,300,50,50,50,50,380,50,50,100,50,300"/>
@@ -48,8 +50,27 @@
         <property name="misc-date-custom-style" type="string" value="%d %b %Y | %H:%M:%S"/>
         <property name="misc-volume-management" type="bool" value="false"/>
         <property name="misc-folder-item-count" type="string" value="THUNAR_FOLDER_ITEM_COUNT_ALWAYS"/>
+
+        <!-- Hidden Network Bookmarks -->
+        <property name="hidden-bookmarks" type="array">
+          <value type="string" value="academy on 10.10.20.10"/>
+          <value type="string" value="appdata on 10.10.20.10"/>
+          <value type="string" value="archive on 10.10.20.10"/>
+          <value type="string" value="download on 10.10.20.10"/>
+          <value type="string" value="family on 10.10.20.10"/>
+          <value type="string" value="games on 10.10.20.10"/>
+          <value type="string" value="media-music on 10.10.20.10"/>
+          <value type="string" value="media-video on 10.10.20.10"/>
+          <value type="string" value="mulino on 10.10.20.10"/>
+          <value type="string" value="oscarfaldi on 10.10.20.10"/>
+          <value type="string" value="personalbranding on 10.10.20.10"/>
+          <value type="string" value="snapshot on 10.10.20.10"/>
+          <value type="string" value="toolkit on 10.10.20.10"/>
+          <value type="string" value="valhalla on 10.10.20.10"/>
+        </property>
+
       </channel>
     '';
-    force = true; 
+    force = true;
   };
 }
