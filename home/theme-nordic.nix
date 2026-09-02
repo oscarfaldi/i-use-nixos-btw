@@ -46,10 +46,26 @@
   };
 
   # ============================================================
-  # Starship
+  # Starship Theme Colors
   # ============================================================
 
-  programs.starship.settings.palette = "tokyo_night";
+  programs.starship.settings = {
+    palette = "tokyo_night";
+
+    palettes.tokyo_night = {
+      color_fg0 = "#bbc3d4";
+      color_bg1 = "#1b1f26";
+      color_bg3 = "#3b4252";
+
+      color_red = "#bf616a";
+      color_green = "#a3be8c";
+      color_yellow = "#ebcb8b";
+      color_blue = "#5e81ac";
+      color_purple = "#b48ead";
+      color_aqua = "#8fbcbb";
+      color_orange = "#d08770";
+    };
+  };
 
   # ============================================================
   # Fuzzel
