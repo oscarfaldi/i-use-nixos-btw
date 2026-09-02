@@ -11,7 +11,7 @@
 # - Desktop Automation, Security & Utilities
 # ==============================================================================
 
-{ config, pkgs, ... }:
+{ ... }:
 
 {
   home.file = {
@@ -19,18 +19,20 @@
     # --------------------------------------------------------------------------
     # Core Shell & Terminal Environment
     # --------------------------------------------------------------------------
-    ".config/zsh/.zshrc".source             = ../.config/zsh/.zshrc;
-    ".config/aliasrc".source                = ../.config/aliasrc;
-    ".config/fastfetch".source              = ../.config/fastfetch;
-    ".config/ghostty".source                = ../.config/ghostty;
+    ".config/aliasrc".source   = ../.config/aliasrc;
+    ".config/fastfetch".source = ../.config/fastfetch;
+
+    # Ghostty Assets
+    ".config/ghostty/shaders".source =
+      ../.config/ghostty/shaders;
 
     # --------------------------------------------------------------------------
     # System Interface & Wayland Compositor (Niri)
     # --------------------------------------------------------------------------
-    ".config/niri".source                   = ../.config/niri;
-    ".config/waybar".source                 = ../.config/waybar;
-    ".config/wlogout".source                = ../.config/wlogout;
-    ".config/assets".source                 = ../.config/assets;
+    ".config/niri".source    = ../.config/niri;
+    ".config/waybar".source  = ../.config/waybar;
+    ".config/wlogout".source = ../.config/wlogout;
+    ".config/assets".source  = ../.config/assets;
 
     # --------------------------------------------------------------------------
     # Applications, Viewers & Media Tools
@@ -45,15 +47,19 @@
     # --------------------------------------------------------------------------
     # Desktop Automation, Security & Utilities
     # --------------------------------------------------------------------------
-    ".config/swaylock".source               = ../.config/swaylock;
-    ".config/swayidle".source               = ../.config/swayidle;
-    ".config/Thunar".source                 = ../.config/Thunar;
-    ".config/gtk-3.0/bookmarks".source      = ../.config/gtk-3.0/bookmarks;
-    ".config/mimeapps.list".source          = ../.config/mimeapps.list;
-    
-    # System Integration
-    ".config/xdg-desktop-portal".source     = ../.config/xdg-desktop-portal;
-    ".local/share/applications".source      = ../.local/share/applications;
+    ".config/swaylock".source          = ../.config/swaylock;
+    ".config/swayidle".source          = ../.config/swayidle;
+    ".config/Thunar".source            = ../.config/Thunar;
+    ".config/gtk-3.0/bookmarks".source = ../.config/gtk-3.0/bookmarks;
+    ".config/mimeapps.list".source     = ../.config/mimeapps.list;
 
+    # --------------------------------------------------------------------------
+    # System Integration
+    # --------------------------------------------------------------------------
+    ".config/xdg-desktop-portal".source =
+      ../.config/xdg-desktop-portal;
+
+    ".local/share/applications".source =
+      ../.local/share/applications;
   };
 }
