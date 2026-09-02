@@ -2,14 +2,14 @@
 
 {
   # ============================================================
-  # Fonts Configuration
+  # Fonts
   # ============================================================
 
   fonts = {
     packages = with pkgs; [
 
       # ----------------------------------------------------------
-      # Nerd Fonts (Unstable Syntax Compatibility)
+      # Nerd Fonts
       # ----------------------------------------------------------
 
       nerd-fonts.iosevka-term-slab
@@ -29,12 +29,12 @@
       inter
 
       # ----------------------------------------------------------
-      # Microsoft Standard Fonts (Windows Defaults)
+      # Microsoft Standard Fonts
       # ----------------------------------------------------------
 
-      corefonts           # Arial, Times New Roman, Courier New, Verdana
-      vista-fonts          # Calibri, Cambria, Consolas, Segoe UI
-      liberation_ttf      # Open-source exact metric fallbacks for MS Fonts
+      corefonts # Arial, Times New Roman, Courier New, Verdana
+      vista-fonts # Calibri, Cambria, Consolas, Segoe UI
+      liberation_ttf # Open-source exact metric fallbacks for MS Fonts
 
       # ----------------------------------------------------------
       # Unicode Coverage
@@ -81,32 +81,4 @@
       };
     };
   };
-
-  # ============================================================
-  # Visual Environment Packages (Themes & Icons)
-  # ============================================================
-
-  environment.systemPackages = with pkgs; [
-
-    # ----------------------------------------------------------
-    # GTK Themes
-    # ----------------------------------------------------------
-
-    glib
-    gtk-engine-murrine
-    nordic
-
-    # ----------------------------------------------------------
-    # Icon Themes
-    # ----------------------------------------------------------
-
-    papirus-icon-theme
-    papirus-folders
-
-    # ----------------------------------------------------------
-    # Cursor Themes
-    # ----------------------------------------------------------
-
-    bibata-cursors
-  ];
 }
