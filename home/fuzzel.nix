@@ -1,6 +1,10 @@
 { ... }:
 
 {
+  # ============================================================
+  # Fuzzel
+  # ============================================================
+
   programs.fuzzel = {
     enable = true;
 
@@ -9,7 +13,6 @@
         font = "JetBrainsMono Nerd Font:size=13";
         dpi-aware = "auto";
         prompt = "";
-        icon-theme = "papirus-icon-theme";
         icons-enabled = true;
         fields = "filename,name,generic";
         password-character = "*";
@@ -17,6 +20,7 @@
         match-mode = "fzf";
         show-actions = false;
 
+        # Layout
         anchor = "center";
         lines = 10;
         width = 45;
@@ -31,6 +35,7 @@
         exit-on-keyboard-focus-loss = true;
       };
 
+      # Border
       border = {
         width = 2;
         radius = 0;
