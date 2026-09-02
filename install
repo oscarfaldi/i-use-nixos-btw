@@ -2,128 +2,402 @@
 
 # ==============================================================================
 # Rainier Initialization & Setup Script
-# 
-# Description: Switches Rainier to unstable channel, installs home-manager,
-#              imports hardware configuration, sets up SMB credentials,
-#              and performs the initial system bootstrap.
 #
-# NOTE: Uses --option substituters/trusted-public-keys on the nixos-rebuild
-#       call itself so the ncps cache is active DURING this build, not just
-#       after the reboot (nixos-rebuild boot doesn't switch nix.conf live).
+# Description:
+#   Bootstraps a fresh NixOS installation into the complete Rainier system.
+#
+# Responsibilities:
+#   - Imports hardware-configuration.nix
+#   - Switches Nix channels to unstable
+#   - Configures SMB credentials
+#   - Optionally restores Syncthing identity from NAS
+#   - Restores LibreOffice settings
+#   - Performs the first NixOS rebuild using the ncps cache
+#   - Reboots into the completed system
+#
+# Syncthing bootstrap:
+#   - Uses smbclient directly
+#   - DOES NOT create a CIFS/kernel mount
+#   - DOES NOT depend on GVFS
+#   - Retrieves cert.pem and key.pem from the NAS
+#   - Stores them locally in ~/.config/syncthing/
+#   - Failure is NON-FATAL: installation continues with a warning
+#
+# Expected workflow:
+#
+#   git clone <repo>
+#   chmod +x install
+#   ./install
+#
+# The only expected interactive input is the SMB username/password if the
+# credential file does not already exist.
 # ==============================================================================
 
-set -e
+set -euo pipefail
 
 # ------------------------------------------------------------------------------
-# Configuration & Variables
+# Configuration
 # ------------------------------------------------------------------------------
+
 CONFIG_DIR="$HOME/System"
 TARGET_CONFIG="./configuration.nix"
+
 SMB_CRED_FILE="/etc/smb-credentials"
+
+# NAS SMB share used ONLY for direct bootstrap access.
+# No filesystem mount is created.
+SMB_BOOTSTRAP_SHARE="//10.10.20.10/toolkit"
+SYNCTHING_REMOTE_DIR="Syncthing"
+
+# Local Syncthing identity.
+SYNCTHING_CONFIG_DIR="$HOME/.config/syncthing"
+SYNCTHING_CERT="$SYNCTHING_CONFIG_DIR/cert.pem"
+SYNCTHING_KEY="$SYNCTHING_CONFIG_DIR/key.pem"
+
+# Rainier's existing Syncthing identity.
+# Informational only at this stage.
+EXPECTED_SYNCTHING_DEVICE_ID="CW6KEXA-LJKBC6W-KYYKRJZ-BGAEUPZ-OHONXDF-VPIBUEC-RFSZLMY-74EGFQC"
+
+# Hardware configuration.
 HW_CONFIG_SRC="/etc/nixos/hardware-configuration.nix"
 HW_CONFIG_DST="./hardware-configuration.nix"
 
-# Must match nix.settings in configuration.nix — single source of truth is
-# configuration.nix, these are just used to bootstrap the FIRST build before
-# that config is switched to.
+# Bootstrap cache settings.
+# Must match nix.settings in configuration.nix.
 NIX_CACHE_SUBSTITUTERS="http://10.10.10.171:8501 https://cache.nixos.org"
+
 NIX_CACHE_TRUSTED_KEYS="ncps.local:MIxzb9CCWYX8qk2Ec79fKD/d4nvc0anIoEL+A7YJVDE= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
 
+
 # ------------------------------------------------------------------------------
-# UI Helper Functions
+# UI Helpers
 # ------------------------------------------------------------------------------
+
 print_header() {
     local title="$1"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    echo
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo " $title"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo
 }
 
+
+print_warning() {
+    local message="$1"
+
+    echo
+    echo "⚠ WARNING"
+    echo "$message"
+    echo
+}
+
+
 # ------------------------------------------------------------------------------
-# Core Setup Functions
+# Hardware Configuration
 # ------------------------------------------------------------------------------
+
 import_hardware_config() {
     print_header "Import Hardware Configuration"
 
     if [[ -f "$HW_CONFIG_SRC" ]]; then
-        echo "Found hardware configuration in /etc/nixos"
+        echo "Found hardware configuration in /etc/nixos."
+        echo "Copying to repository..."
+
         cp "$HW_CONFIG_SRC" "$HW_CONFIG_DST"
-        echo "✓ Hardware configuration imported to repository."
+
+        echo "✓ Hardware configuration imported."
     elif [[ -f "$HW_CONFIG_DST" ]]; then
-        echo "✓ Hardware configuration already exists in repository."
+        echo "✓ hardware-configuration.nix already exists in repository."
         echo "  Skipping import."
     else
-        echo "✗ hardware-configuration.nix not found anywhere."
-        echo "  Checked:"
-        echo "    - $HW_CONFIG_SRC"
-        echo "    - $HW_CONFIG_DST"
+        echo "✗ hardware-configuration.nix not found."
+
+        echo
+        echo "Checked:"
+        echo "  - $HW_CONFIG_SRC"
+        echo "  - $HW_CONFIG_DST"
+        echo
+
         exit 1
     fi
 
     echo
     echo "Cleaning /etc/nixos ..."
+
     sudo find /etc/nixos -mindepth 1 -delete
+
     echo "✓ /etc/nixos cleaned."
-    echo
 }
+
+
+# ------------------------------------------------------------------------------
+# Repository Ownership
+# ------------------------------------------------------------------------------
 
 fix_ownership() {
     print_header "Repository Ownership"
 
-    if find "$CONFIG_DIR" -user root | grep -q .; then
+    if find "$CONFIG_DIR" -user root -print -quit | grep -q .; then
         echo "Root-owned files detected."
+        echo "Fixing repository ownership..."
+
         sudo chown -R "$(id -un):$(id -gn)" "$CONFIG_DIR"
+
         echo "✓ Ownership fixed."
     else
-        echo "✓ Ownership already correct."
+        echo "✓ Repository ownership already correct."
     fi
-
-    echo
 }
+
+
+# ------------------------------------------------------------------------------
+# Nix Channels
+# ------------------------------------------------------------------------------
 
 configure_nix_channels() {
     print_header "Channels Configuration"
-    echo "Updating Nix channels to unstable..."
+
+    echo "Switching Nix channels to unstable..."
     echo
 
     sudo nix-channel --remove nixos 2>/dev/null || true
     sudo nix-channel --remove home-manager 2>/dev/null || true
 
-    sudo nix-channel --add https://channels.nixos.org/nixos-unstable nixos
-    sudo nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+    sudo nix-channel \
+        --add \
+        https://channels.nixos.org/nixos-unstable \
+        nixos
+
+    sudo nix-channel \
+        --add \
+        https://github.com/nix-community/home-manager/archive/master.tar.gz \
+        home-manager
 
     sudo nix-channel --update
+
     echo
     echo "✓ Unstable channel and home-manager enabled."
-    echo
 }
+
+
+# ------------------------------------------------------------------------------
+# SMB Credentials
+# ------------------------------------------------------------------------------
 
 setup_smb_credentials() {
     print_header "SMB Credentials Setup"
 
-    if [[ ! -f "$SMB_CRED_FILE" ]]; then
-        echo "SMB credential file not found."
-        echo
+    if [[ -f "$SMB_CRED_FILE" ]]; then
+        echo "✓ Existing SMB credentials found."
+        return
+    fi
 
-        read -rp "SMB Username: " SMB_USER
-        read -rsp "SMB Password: " SMB_PASS
-        echo
+    echo "SMB credential file not found."
+    echo
 
-        sudo tee "$SMB_CRED_FILE" >/dev/null <<EOF
+    read -rp "SMB Username: " SMB_USER
+    read -rsp "SMB Password: " SMB_PASS
+    echo
+
+    sudo tee "$SMB_CRED_FILE" >/dev/null <<EOF
 username=${SMB_USER}
 password=${SMB_PASS}
 EOF
-        sudo chmod 600 "$SMB_CRED_FILE"
 
-        echo
-        echo "✓ SMB credentials saved."
-        echo
-    else
-        echo "✓ Existing SMB credentials found."
-        echo
-    fi
+    sudo chmod 600 "$SMB_CRED_FILE"
+
+    echo
+    echo "✓ SMB credentials saved."
 }
+
+
+# ------------------------------------------------------------------------------
+# Syncthing Identity Bootstrap
+# ------------------------------------------------------------------------------
+#
+# IMPORTANT:
+# This function is intentionally NON-FATAL.
+#
+# Failure to restore Syncthing identity must NEVER stop the full NixOS install.
+# The function returns success even when bootstrap fails.
+# ------------------------------------------------------------------------------
+
+bootstrap_syncthing_identity() {
+    print_header "Syncthing Identity Bootstrap"
+
+    # --------------------------------------------------------------------------
+    # Existing identity
+    # --------------------------------------------------------------------------
+
+    if [[ -f "$SYNCTHING_CERT" && -f "$SYNCTHING_KEY" ]]; then
+        echo "✓ Existing Syncthing identity found."
+        echo "  Skipping NAS restore."
+        return 0
+    fi
+
+    # --------------------------------------------------------------------------
+    # SMB credentials
+    # --------------------------------------------------------------------------
+
+    if [[ ! -f "$SMB_CRED_FILE" ]]; then
+        print_warning \
+            "SMB credentials are unavailable. \
+Syncthing identity will not be restored from NAS."
+
+        return 0
+    fi
+
+    # --------------------------------------------------------------------------
+    # Temporary directory
+    # --------------------------------------------------------------------------
+
+    local TEMP_DIR
+
+    if ! TEMP_DIR="$(mktemp -d)"; then
+        print_warning \
+            "Could not create a temporary directory. \
+Syncthing identity restore skipped."
+
+        return 0
+    fi
+
+    cleanup_syncthing_bootstrap() {
+        rm -rf "$TEMP_DIR"
+    }
+
+    trap cleanup_syncthing_bootstrap RETURN
+
+    # --------------------------------------------------------------------------
+    # Retrieve files from NAS.
+    #
+    # nix shell is completely internal to this function.
+    # The user does NOT need to run nix-shell manually.
+    # --------------------------------------------------------------------------
+
+    echo "Attempting to restore Syncthing identity from NAS..."
+    echo
+    echo "  Share: $SMB_BOOTSTRAP_SHARE"
+    echo "  Path : $SYNCTHING_REMOTE_DIR/"
+    echo
+
+    if ! nix shell nixpkgs#samba4Full --command \
+        smbclient \
+        "$SMB_BOOTSTRAP_SHARE" \
+        -A "$SMB_CRED_FILE" \
+        -c "
+            cd \"$SYNCTHING_REMOTE_DIR\";
+            get cert.pem $TEMP_DIR/cert.pem;
+            get key.pem $TEMP_DIR/key.pem;
+        "
+    then
+        print_warning \
+            "Could not connect to the NAS or retrieve the Syncthing identity.
+Installation will continue normally."
+
+        return 0
+    fi
+
+    # --------------------------------------------------------------------------
+    # Validate downloaded files.
+    # --------------------------------------------------------------------------
+
+    if [[ ! -s "$TEMP_DIR/cert.pem" ]]; then
+        print_warning \
+            "cert.pem was not found on the NAS.
+Installation will continue normally."
+
+        return 0
+    fi
+
+    if [[ ! -s "$TEMP_DIR/key.pem" ]]; then
+        print_warning \
+            "key.pem was not found on the NAS.
+Installation will continue normally."
+
+        return 0
+    fi
+
+    # --------------------------------------------------------------------------
+    # Install identity locally.
+    # --------------------------------------------------------------------------
+
+    if ! mkdir -p "$SYNCTHING_CONFIG_DIR"; then
+        print_warning \
+            "Could not create the local Syncthing configuration directory.
+Installation will continue normally."
+
+        return 0
+    fi
+
+    if ! install \
+        -m 0644 \
+        "$TEMP_DIR/cert.pem" \
+        "$SYNCTHING_CERT"
+    then
+        print_warning \
+            "Could not install cert.pem locally.
+Installation will continue normally."
+
+        return 0
+    fi
+
+    if ! install \
+        -m 0600 \
+        "$TEMP_DIR/key.pem" \
+        "$SYNCTHING_KEY"
+    then
+        print_warning \
+            "Could not install key.pem locally.
+Installation will continue normally."
+
+        # Remove cert if key installation failed so we don't leave a partial
+        # identity behind.
+        rm -f "$SYNCTHING_CERT"
+
+        return 0
+    fi
+
+    if ! chown \
+        "$(id -u):$(id -g)" \
+        "$SYNCTHING_CERT" \
+        "$SYNCTHING_KEY"
+    then
+        print_warning \
+            "Could not set Syncthing identity ownership.
+Installation will continue normally."
+
+        return 0
+    fi
+
+    # --------------------------------------------------------------------------
+    # Final validation.
+    # --------------------------------------------------------------------------
+
+    if [[ ! -r "$SYNCTHING_CERT" || ! -r "$SYNCTHING_KEY" ]]; then
+        print_warning \
+            "Syncthing identity validation failed.
+Installation will continue normally."
+
+        return 0
+    fi
+
+    echo
+    echo "✓ Syncthing identity restored successfully."
+    echo
+    echo "  cert.pem → $SYNCTHING_CERT"
+    echo "  key.pem  → $SYNCTHING_KEY"
+    echo
+    echo "  Expected Rainier device ID:"
+    echo "  $EXPECTED_SYNCTHING_DEVICE_ID"
+    echo
+}
+
+
+# ------------------------------------------------------------------------------
+# LibreOffice Configuration
+# ------------------------------------------------------------------------------
 
 restore_libreoffice() {
     print_header "LibreOffice Configuration"
@@ -134,42 +408,51 @@ restore_libreoffice() {
         cp -f \
             "$CONFIG_DIR/.config/libreoffice/4/user/registrymodifications.xcu" \
             "$HOME/.config/libreoffice/4/user/registrymodifications.xcu"
+
         echo "✓ LibreOffice settings restored."
     else
         echo "• No LibreOffice settings found."
     fi
-
-    echo
 }
+
+
+# ------------------------------------------------------------------------------
+# NixOS Bootstrap
+# ------------------------------------------------------------------------------
 
 bootstrap_system() {
     print_header "Rebuilding Rainier System"
-    echo "Building next generation for boot (using ncps cache for this build)..."
+
+    echo "Building next generation for boot..."
+    echo "Using ncps cache for this build."
     echo
 
-    # --option flags force this specific nix invocation to use the ncps
-    # substituter immediately, without waiting for configuration.nix's
-    # nix.settings to be switched-to first (which only happens post-reboot
-    # with `rebuild boot`). configuration.nix still declares the same
-    # substituters so they persist permanently after this build.
     sudo nixos-rebuild boot \
         -I nixos-config="$TARGET_CONFIG" \
         --option substituters "$NIX_CACHE_SUBSTITUTERS" \
         --option trusted-public-keys "$NIX_CACHE_TRUSTED_KEYS"
 
     echo
-    echo "✓ System rebuilt."
-    echo
+    echo "✓ System rebuilt successfully."
 }
 
-# ------------------------------------------------------------------------------
-# Main Execution Flow
-# ------------------------------------------------------------------------------
-main() {
-    print_header "Switching Rainier to unstable & installing home-manager"
 
-    echo "Please authenticate once for the installation."
+# ------------------------------------------------------------------------------
+# Main
+# ------------------------------------------------------------------------------
+
+main() {
+    print_header "Rainier Initialization"
+
+    echo "Fresh NixOS bootstrap starting..."
     echo
+    echo "The installation will continue even if Syncthing identity"
+    echo "cannot be restored from the NAS."
+    echo
+
+    # --------------------------------------------------------------------------
+    # Authenticate once and keep sudo alive.
+    # --------------------------------------------------------------------------
 
     sudo -v
 
@@ -179,17 +462,31 @@ main() {
         kill -0 "$$" || exit
     done 2>/dev/null &
 
+    # --------------------------------------------------------------------------
+    # Bootstrap sequence.
+    # --------------------------------------------------------------------------
+
     import_hardware_config
+    fix_ownership
     configure_nix_channels
     setup_smb_credentials
+    bootstrap_syncthing_identity
     restore_libreoffice
     bootstrap_system
 
-    print_header "Final Step"
+    # --------------------------------------------------------------------------
+    # Final reboot.
+    # --------------------------------------------------------------------------
+
+    print_header "Installation Complete"
+
+    echo "Rainier has been rebuilt successfully."
+    echo
     echo "Rebooting in 5 seconds..."
     echo
 
     sleep 5
+
     sudo reboot
 }
 
