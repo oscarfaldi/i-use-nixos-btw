@@ -7,7 +7,7 @@
     ./xdg.nix
     ./chromium.nix
     ./thunar.nix
-    ./theme-nordic.nix
+    ./theme-gruvbox.nix
     ./onlyoffice.nix
   ];
 
