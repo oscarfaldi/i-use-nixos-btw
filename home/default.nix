@@ -8,6 +8,7 @@
     ./chromium.nix
     ./thunar.nix
     ./theme-gruvbox.nix
+    ./starship.nix
     ./onlyoffice.nix
   ];
 
