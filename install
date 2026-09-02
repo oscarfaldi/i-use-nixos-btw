@@ -46,7 +46,7 @@ SMB_CRED_FILE="/etc/smb-credentials"
 
 # NAS SMB share used ONLY for direct bootstrap access.
 # No filesystem mount is created.
-SMB_BOOTSTRAP_SHARE="//10.10.20.10/toolkit"
+SMB_BOOTSTRAP_SHARE="//10.10.10.10/toolkit"
 SYNCTHING_REMOTE_DIR="Syncthing"
 
 # Local Syncthing identity.
@@ -64,7 +64,7 @@ HW_CONFIG_DST="./hardware-configuration.nix"
 
 # Bootstrap cache settings.
 # Must match nix.settings in configuration.nix.
-NIX_CACHE_SUBSTITUTERS="http://10.10.10.171:8501 https://cache.nixos.org"
+NIX_CACHE_SUBSTITUTERS="http://10.10.10.132:8501 https://cache.nixos.org"
 
 NIX_CACHE_TRUSTED_KEYS="ncps.local:MIxzb9CCWYX8qk2Ec79fKD/d4nvc0anIoEL+A7YJVDE= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
 
