@@ -66,6 +66,34 @@
       selection-text = "bbc3d4ff";
       selection-match = "5e81acff";
       border = "5e81ac66";
+
+  # ============================================================
+  # Mako
+  # ============================================================
+
+  services.mako.settings = {
+    background-color = "#242933cc";
+    text-color = "#bbc3d4ff";
+    border-color = "#5e81ac99";
+  
+    icon-path = "/run/current-system/sw/share/icons/Papirus";
+  
+    "urgency=normal" = {
+      border-color = "#5e81acff";
+    };
+  
+    "urgency=high" = {
+      border-color = "#bf616aff";
+    };
+  
+    "app-name=lightcord" = {
+      border-color = "#5e81acff";
+    };
+  
+    "summary~=\"log-.*\"" = {
+      border-color = "#5e81acff";
+        };
+      };
     };
   };
 }
