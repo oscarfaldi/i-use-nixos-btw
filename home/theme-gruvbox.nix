@@ -75,7 +75,7 @@
     main.icon-theme = "oomox-gruvbox-dark";
 
     colors = {
-      background = "3c3836f2";
+      background = "3c3836cc";
       text = "fbf1c7ff";
       match = "458588ff";
       selection = "665c54ff";
