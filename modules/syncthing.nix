@@ -14,7 +14,7 @@
     settings = {
       devices = {
         nas = {
-          id = "CW6KEXA-LJKBC6W-KYYKRJZ-BGAEUPZ-OHONXDF-VPIBUEC-RFSZLMY-74EGFQC";
+          id = "RU6UQC6-T7MYCCR-OE4DIP4-WRTINUL-6V4PLNJ-ADWZIRF-QJVYRTD-DSRK5A5";
         };
       };
 
