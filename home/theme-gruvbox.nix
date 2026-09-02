@@ -55,13 +55,17 @@
   # Fuzzel
   # ============================================================
 
-  programs.fuzzel.settings.colors = {
-    background = "3c3836f2";
-    text = "fbf1c7ff";
-    match = "458588ff";
-    selection = "665c54ff";
-    selection-text = "fbf1c7ff";
-    selection-match = "d79921ff";
-    border = "d79921ff";
+  programs.fuzzel.settings = {
+    main.icon-theme = "oomox-gruvbox-dark";
+
+    colors = {
+      background = "3c3836f2";
+      text = "fbf1c7ff";
+      match = "458588ff";
+      selection = "665c54ff";
+      selection-text = "fbf1c7ff";
+      selection-match = "d79921ff";
+      border = "d79921ff";
+    };
   };
 }
