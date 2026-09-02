@@ -35,6 +35,7 @@
     };
   };
 
+
   # ============================================================
   # GNOME Appearance
   # ============================================================
@@ -45,18 +46,19 @@
     };
   };
 
+
   # ============================================================
   # Starship Theme Colors
   # ============================================================
 
   programs.starship.settings = {
     palette = "tokyo_night";
-  
+
     palettes.tokyo_night = {
       color_fg0 = "#e3e5e5";
       color_bg1 = "#1d2230";
       color_bg3 = "#212736";
-  
+
       color_blue = "#212736";
       color_aqua = "#394260";
       color_green = "#769ff0";
@@ -66,6 +68,138 @@
       color_yellow = "#769ff0";
     };
   };
+
+
+  # ============================================================
+  # Waybar
+  # ============================================================
+
+  programs.waybar.style = ''
+    /* ==========================================================
+       Nordic Color Palette
+       ========================================================== */
+
+    @define-color background #242933;
+    @define-color foreground #bbc3d4;
+    @define-color muted #3b4252;
+    @define-color accent #5e81ac;
+    @define-color warning #bf616a;
+
+
+    /* ==========================================================
+       Core Configuration & Typography
+       ========================================================== */
+
+    * {
+        font-family: "JetBrainsMono Nerd Font";
+        font-size: 14px;
+        min-height: 35px;
+        font-weight: bold;
+    }
+
+
+    window#waybar {
+        background: alpha(@background, 0.6);
+        color: @foreground;
+        opacity: 1;
+    }
+
+
+    /* ==========================================================
+       Tooltips
+       ========================================================== */
+
+    tooltip {
+        background: @background;
+        border: 1px solid @accent;
+        border-radius: 0;
+    }
+
+    tooltip label {
+        color: @foreground;
+        font-family: "JetBrainsMono Nerd Font";
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+
+    /* ==========================================================
+       Modules: Left
+       ========================================================== */
+
+    #custom-logo {
+        color: @foreground;
+        padding: 0 6px;
+        font-weight: bold;
+        margin-left: 15px;
+    }
+
+    #workspaces button {
+        color: @muted;
+        padding: 0;
+        border: none;
+        margin-left: 10px;
+        min-width: 15px;
+    }
+
+    #workspaces button.active {
+        color: @accent;
+    }
+
+
+    /* ==========================================================
+       Modules: Center
+       ========================================================== */
+
+    #clock {
+        color: @foreground;
+        font-weight: bold;
+        padding: 0 8px;
+    }
+
+
+    /* ==========================================================
+       Modules: Right
+       ========================================================== */
+
+    #cpu {
+        color: @foreground;
+        padding: 0 8px;
+        font-weight: bold;
+    }
+
+    #memory {
+        color: @foreground;
+        padding: 0 8px;
+        font-weight: bold;
+    }
+
+    #pulseaudio {
+        color: @foreground;
+        padding: 0 8px;
+        font-weight: bold;
+    }
+
+    #tray {
+        color: @foreground;
+        padding: 0 10px;
+        font-weight: bold;
+    }
+
+    #custom-updates {
+        color: @foreground;
+        padding: 0 5px;
+        font-weight: bold;
+    }
+
+    #custom-power {
+        color: @foreground;
+        padding: 0 10px;
+        font-weight: bold;
+        margin-right: 15px;
+    }
+  '';
+
 
   # ============================================================
   # Fuzzel
@@ -84,6 +218,7 @@
       border = "5e81ac66";
     };
   };
+
 
   # ============================================================
   # Mako
@@ -112,6 +247,7 @@
       border-color = "#5e81acff";
     };
   };
+
 
   # ============================================================
   # Ghostty
