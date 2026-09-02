@@ -87,7 +87,7 @@ in
 
     (mkPWA {
       name = "Grafana";
-      url = "http://10.10.10.10:3050/";
+      url = "http://10.10.10.10:3050/d/rYdddlPWk/node-exporter-full";
       icon = "/home/oscarfaldi/.config/assets/icons/pwa/grafana.svg";
     })
 
