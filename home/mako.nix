@@ -35,7 +35,7 @@
       # Layout
       # ========================================================
 
-      output = "DP-2";
+      output = "Lenovo Group Limited R27q-30 U533HP7K";
       layer = "overlay";
       anchor = "top-center";
 
