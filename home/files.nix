@@ -21,7 +21,6 @@
     # --------------------------------------------------------------------------
     ".config/zsh/.zshrc".source             = ../.config/zsh/.zshrc;
     ".config/aliasrc".source                = ../.config/aliasrc;
-    ".config/starship.toml".source          = ../.config/starship.toml;
     ".config/fastfetch".source              = ../.config/fastfetch;
     ".config/ghostty".source                = ../.config/ghostty;
 
@@ -30,7 +29,6 @@
     # --------------------------------------------------------------------------
     ".config/niri".source                   = ../.config/niri;
     ".config/waybar".source                 = ../.config/waybar;
-    ".config/fuzzel".source                 = ../.config/fuzzel;
     ".config/mako".source                   = ../.config/mako;
     ".config/wlogout".source                = ../.config/wlogout;
     ".config/assets".source                 = ../.config/assets;
