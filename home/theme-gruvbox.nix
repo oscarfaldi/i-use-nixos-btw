@@ -66,6 +66,34 @@
       selection-text = "fbf1c7ff";
       selection-match = "d79921ff";
       border = "d79921ff";
+
+  # ============================================================
+  # Mako
+  # ============================================================
+
+  services.mako.settings = {
+    background-color = "#3c3836f2";
+    text-color = "#fbf1c7ff";
+    border-color = "#45858899";
+  
+    icon-path = "/run/current-system/sw/share/icons/oomox-gruvbox-dark";
+  
+    "urgency=normal" = {
+      border-color = "#458588ff";
+    };
+  
+    "urgency=high" = {
+      border-color = "#cc241dff";
+    };
+  
+    "app-name=lightcord" = {
+      border-color = "#458588ff";
+    };
+  
+    "summary~=\"log-.*\"" = {
+      border-color = "#458588ff";
+        };
+      };
     };
   };
 }
