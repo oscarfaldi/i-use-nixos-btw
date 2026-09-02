@@ -11,9 +11,6 @@
 
     openDefaultPorts = true;
 
-    cert = "/mnt/nas/toolkit/Syncthing/cert.pem";
-    key  = "/mnt/nas/toolkit/Syncthing/key.pem";
-
     settings = {
       devices = {
         nas = {
