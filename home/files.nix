@@ -30,7 +30,6 @@
     # System Interface & Wayland Compositor (Niri)
     # --------------------------------------------------------------------------
     ".config/niri".source    = ../.config/niri;
-    ".config/waybar".source  = ../.config/waybar;
     ".config/wlogout".source = ../.config/wlogout;
     ".config/assets".source  = ../.config/assets;
 
