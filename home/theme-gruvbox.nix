@@ -16,7 +16,7 @@
     gtk4.theme = config.gtk.theme;
 
     iconTheme = {
-      package = gruvbox-dark-icons-gtk;
+      package = pkgs.gruvbox-dark-icons-gtk;
       name = "oomox-gruvbox-dark";
     };
 
@@ -35,11 +35,33 @@
     };
   };
 
+  # ============================================================
+  # GNOME Appearance
+  # ============================================================
+
   dconf.settings = {
     "org/gnome/desktop/interface" = {
       color-scheme = "prefer-dark";
     };
   };
 
+  # ============================================================
+  # Starship
+  # ============================================================
+
   programs.starship.settings.palette = "gruvbox_dark";
+
+  # ============================================================
+  # Fuzzel
+  # ============================================================
+
+  programs.fuzzel.settings.colors = {
+    background = "3c3836f2";
+    text = "fbf1c7ff";
+    match = "458588ff";
+    selection = "665c54ff";
+    selection-text = "fbf1c7ff";
+    selection-match = "d79921ff";
+    border = "d79921ff";
+  };
 }
