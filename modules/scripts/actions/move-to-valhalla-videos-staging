@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-DEST="/mnt/nas/valhalla/Video/Staging"
+DEST="/run/user/1000/gvfs/smb-share:server=10.10.20.10,share=valhalla/Video/Staging"
 
 if [ ! -d "$DEST" ]; then
     notify-send \
