@@ -29,7 +29,6 @@
     # --------------------------------------------------------------------------
     ".config/niri".source                   = ../.config/niri;
     ".config/waybar".source                 = ../.config/waybar;
-    ".config/mako".source                   = ../.config/mako;
     ".config/wlogout".source                = ../.config/wlogout;
     ".config/assets".source                 = ../.config/assets;
 
