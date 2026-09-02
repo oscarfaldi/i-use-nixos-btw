@@ -3,10 +3,12 @@
 {
   imports = [
     ./files.nix
+    ./mako.nix
+    ./fuzzel.nix
     ./shell.nix
-    ./ghostty.nix
     ./xdg.nix
     ./chromium.nix
+    ./ghostty.nix
     ./thunar.nix
     ./theme-gruvbox.nix
     ./starship.nix
