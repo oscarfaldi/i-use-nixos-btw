@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 
 {
   # ============================================================
@@ -8,13 +8,22 @@
   gtk = {
     enable = true;
 
-    theme.name = "Nordic";
+    theme = {
+      package = pkgs.nordic;
+      name = "Nordic";
+    };
 
     gtk4.theme = config.gtk.theme;
 
-    iconTheme.name = "Papirus-Dark";
+    iconTheme = {
+      package = papirus-icon-theme;
+      name = "Papirus-Dark";
+    };
 
-    cursorTheme.name = "Bibata-Modern-Ice";
+    cursorTheme = {
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Modern-Ice";
+    };
 
     font = {
       name = "JetBrainsMono Nerd Font";
