@@ -4,6 +4,7 @@
   imports = [
     ./files.nix
     ./mako.nix
+    ./waybar.nix
     ./fuzzel.nix
     ./shell.nix
     ./xdg.nix
