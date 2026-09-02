@@ -68,6 +68,106 @@
   };
 
   # ============================================================
+  # Waybar
+  # ============================================================
+
+  programs.waybar.style = ''
+    @define-color background #3c3836;
+    @define-color foreground #fbf1c7;
+    @define-color muted #665c54;
+    @define-color accent #458588;
+    @define-color warning #cc241d;
+
+    * {
+        font-family: "JetBrainsMono Nerd Font";
+        font-size: 14px;
+        min-height: 35px;
+        font-weight: bold;
+    }
+
+    window#waybar {
+        background: alpha(@background, 0.6);
+        color: @foreground;
+        opacity: 1;
+    }
+
+    tooltip {
+        background: @background;
+        border: 1px solid @accent;
+        border-radius: 0;
+    }
+
+    tooltip label {
+        color: @foreground;
+        font-family: "JetBrainsMono Nerd Font";
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+    #custom-logo {
+        color: @foreground;
+        padding: 0 6px;
+        font-weight: bold;
+        margin-left: 15px;
+    }
+
+    #workspaces button {
+        color: @muted;
+        padding: 0;
+        border: none;
+        margin-left: 10px;
+        min-width: 15px;
+    }
+
+    #workspaces button.active {
+        color: @accent;
+    }
+
+    #clock {
+        color: @foreground;
+        font-weight: bold;
+        padding: 0 8px;
+    }
+
+    #cpu {
+        color: @foreground;
+        padding: 0 8px;
+        font-weight: bold;
+    }
+
+    #memory {
+        color: @foreground;
+        padding: 0 8px;
+        font-weight: bold;
+    }
+
+    #pulseaudio {
+        color: @foreground;
+        padding: 0 8px;
+        font-weight: bold;
+    }
+
+    #tray {
+        color: @foreground;
+        padding: 0 10px;
+        font-weight: bold;
+    }
+
+    #custom-updates {
+        color: @foreground;
+        padding: 0 5px;
+        font-weight: bold;
+    }
+
+    #custom-power {
+        color: @foreground;
+        padding: 0 10px;
+        font-weight: bold;
+        margin-right: 15px;
+    }
+  '';
+
+  # ============================================================
   # Fuzzel
   # ============================================================
 
