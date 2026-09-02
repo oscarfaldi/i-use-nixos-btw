@@ -40,4 +40,6 @@
       color-scheme = "prefer-dark";
     };
   };
+
+  programs.starship.settings.palette = "tokyo_night";
 }
