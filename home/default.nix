@@ -4,6 +4,7 @@
   imports = [
     ./files.nix
     ./shell.nix
+    ./ghostty.nix
     ./xdg.nix
     ./chromium.nix
     ./thunar.nix
