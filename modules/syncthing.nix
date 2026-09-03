@@ -13,8 +13,8 @@
 
     settings = {
       devices = {
-        nas = {
-          id = "RU6UQC6-T7MYCCR-OE4DIP4-WRTINUL-6V4PLNJ-ADWZIRF-QJVYRTD-DSRK5A5";
+        cascade = {
+          id = "CW6KEXA-LJKBC6W-KYYKRJZ-BGAEUPZ-OHONXDF-VPIBUEC-RFSZLMY-74EGFQC";
         };
       };
 
@@ -24,7 +24,7 @@
 
           path = "/home/oscarfaldi/Obsidian Vault";
 
-          devices = [ "Cascade-NAS" ];
+          devices = [ "cascade" ];
 
           type = "sendreceive";
 
