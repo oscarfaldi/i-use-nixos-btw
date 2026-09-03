@@ -54,10 +54,6 @@ SYNCTHING_CONFIG_DIR="$HOME/.config/syncthing"
 SYNCTHING_CERT="$SYNCTHING_CONFIG_DIR/cert.pem"
 SYNCTHING_KEY="$SYNCTHING_CONFIG_DIR/key.pem"
 
-# Rainier's existing Syncthing identity.
-# Informational only at this stage.
-EXPECTED_SYNCTHING_DEVICE_ID="RU6UQC6-T7MYCCR-OE4DIP4-WRTINUL-6V4PLNJ-ADWZIRF-QJVYRTD-DSRK5A5"
-
 # Hardware configuration.
 HW_CONFIG_SRC="/etc/nixos/hardware-configuration.nix"
 HW_CONFIG_DST="./hardware-configuration.nix"
@@ -67,7 +63,6 @@ HW_CONFIG_DST="./hardware-configuration.nix"
 NIX_CACHE_SUBSTITUTERS="http://10.10.10.132:8501 https://cache.nixos.org"
 
 NIX_CACHE_TRUSTED_KEYS="ncps.local:MIxzb9CCWYX8qk2Ec79fKD/d4nvc0anIoEL+A7YJVDE= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-
 
 # ------------------------------------------------------------------------------
 # UI Helpers
@@ -272,7 +267,7 @@ Syncthing identity restore skipped."
     # --------------------------------------------------------------------------
     # Retrieve files from NAS.
     #
-    # nix shell is completely internal to this function.
+    # nix-shell is completely internal to this function.
     # The user does NOT need to run nix-shell manually.
     # --------------------------------------------------------------------------
 
@@ -389,9 +384,6 @@ Installation will continue normally."
     echo
     echo "  cert.pem → $SYNCTHING_CERT"
     echo "  key.pem  → $SYNCTHING_KEY"
-    echo
-    echo "  Expected Rainier device ID:"
-    echo "  $EXPECTED_SYNCTHING_DEVICE_ID"
     echo
 }
 
