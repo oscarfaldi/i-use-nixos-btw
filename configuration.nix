@@ -80,7 +80,7 @@
   # Configure Glacier as the primary Nix binary cache.
   nix.settings = {
     substituters = [
-      "http://10.10.10.171:8501"
+      "http://10.10.10.132:8501"
       "https://cache.nixos.org"
     ];
 
