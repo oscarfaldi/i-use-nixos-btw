@@ -24,7 +24,7 @@
 
           path = "/home/oscarfaldi/Obsidian Vault";
 
-          devices = [ "nas" ];
+          devices = [ "Cascade-NAS" ];
 
           type = "sendreceive";
 
