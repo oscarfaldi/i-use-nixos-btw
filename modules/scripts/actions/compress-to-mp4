@@ -42,7 +42,7 @@ get_output_path() {
 
 is_video_file() {
     case "${1,,}" in
-        *.mkv|*.mp4|*.mov|*.webm|*.m4v|*.ts|*.mts|*.m2ts|*.avi|*.mxf)
+        *.mkv|*.mp4|*.m4v|*.mov|*.avi|*.wmv|*.asf|*.webm|*.mpg|*.mpeg|*.m2ts|*.mts|*.ts|*.mxf|*.flv|*.f4v|*.ogv|*.3gp|*.3g2|*.vob|*.divx)
             return 0
             ;;
         *)
