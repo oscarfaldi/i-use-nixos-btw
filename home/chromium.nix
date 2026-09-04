@@ -10,6 +10,8 @@
       { id = "cpgaheeihidjmolbakklolchdplenjai"; } # Turbo Downloader for Instagram
       { id = "ldgfbffkinooeloadekpmfoklnobpien"; } # Raindrop.io
       { id = "piibekljdlkbkdchicfdjpnaggolndif"; } # Plucker XBD - X (Twitter) Media One-click Downloader
+      { id = "elicpjhcidhpjomhibiffojpinpmmpil"; } # Video Downloader Professional
+      { id = "fclobfmgolhdcfcmpbjahiiifilhamcg"; } # Easy TikTok Video Downloader (Remove Watermark)
     ];
 
     commandLineArgs = [
