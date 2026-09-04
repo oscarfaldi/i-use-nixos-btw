@@ -277,10 +277,29 @@ Syncthing identity restore skipped."
     echo "  Path : $SYNCTHING_REMOTE_DIR/"
     echo
 
+    # /etc/smb-credentials is root-only (0600), but smbclient runs as the
+    # current user. Make a temporary user-readable copy for this one command.
+    local TEMP_CRED=""
+    if ! TEMP_CRED="$(mktemp)"; then
+        print_warning \
+            "Could not create a temporary credentials file. \
+Syncthing identity restore skipped."
+        return 0
+    fi
+
+    if ! sudo cat "$SMB_CRED_FILE" > "$TEMP_CRED"; then
+        rm -f "$TEMP_CRED"
+        print_warning \
+            "Could not read SMB credentials. \
+Syncthing identity restore skipped."
+        return 0
+    fi
+    chmod 600 "$TEMP_CRED"
+
     if ! nix-shell -p samba4Full --run "
         smbclient \
             \"$SMB_BOOTSTRAP_SHARE\" \
-            -A \"$SMB_CRED_FILE\" \
+            -A \"$TEMP_CRED\" \
             -c '
                 cd \"$SYNCTHING_REMOTE_DIR\";
                 get cert.pem $TEMP_DIR/cert.pem;
@@ -288,12 +307,13 @@ Syncthing identity restore skipped."
             '
     "
     then
+        rm -f "$TEMP_CRED"
         print_warning \
             "Could not connect to the NAS or retrieve the Syncthing identity.
 Installation will continue normally."
-
         return 0
     fi
+    rm -f "$TEMP_CRED"
 
     # --------------------------------------------------------------------------
     # Validate downloaded files.
@@ -436,6 +456,11 @@ bootstrap_system() {
 
 main() {
     print_header "Rainier Initialization"
+
+    if [[ "$(id -u)" -eq 0 ]]; then
+        echo "This script must be run as a normal user, not root." >&2
+        exit 1
+    fi
 
     echo "Fresh NixOS bootstrap starting..."
     echo
