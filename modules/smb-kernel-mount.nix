@@ -25,25 +25,18 @@ let
   # Common CIFS mount options shared by all mounts
   commonOptions = [
     "credentials=/etc/smb-credentials"
+
     "vers=3.1.1"
     "noserverino"
-  
+
     "uid=1000"
     "gid=100"
     "file_mode=0664"
     "dir_mode=0775"
-  
-    "cache=loose"
-  
+
     "_netdev"
     "nofail"
-    "noauto"
-    "x-systemd.automount"
-    "x-systemd.idle-timeout=60"
-  
-    "soft"
-  
-    "x-systemd.device-timeout=2s"
+
     "x-systemd.mount-timeout=5s"
   ];
 in
