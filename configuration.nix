@@ -25,6 +25,7 @@
       ./modules/games.nix
       ./modules/content-creation.nix
       ./modules/syncthing.nix
+      ./modules/smb-kernel-mount.nix
 
       # Scripts
       ./modules/scripts/systems-tool.nix
