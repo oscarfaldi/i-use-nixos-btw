@@ -51,24 +51,6 @@
         <property name="misc-volume-management" type="bool" value="false"/>
         <property name="misc-folder-item-count" type="string" value="THUNAR_FOLDER_ITEM_COUNT_ALWAYS"/>
 
-        <!-- Hidden Network Bookmarks -->
-        <property name="hidden-bookmarks" type="array">
-          <value type="string" value="academy on 10.10.20.10"/>
-          <value type="string" value="appdata on 10.10.20.10"/>
-          <value type="string" value="archive on 10.10.20.10"/>
-          <value type="string" value="download on 10.10.20.10"/>
-          <value type="string" value="family on 10.10.20.10"/>
-          <value type="string" value="games on 10.10.20.10"/>
-          <value type="string" value="media-music on 10.10.20.10"/>
-          <value type="string" value="media-video on 10.10.20.10"/>
-          <value type="string" value="mulino on 10.10.20.10"/>
-          <value type="string" value="oscarfaldi on 10.10.20.10"/>
-          <value type="string" value="personalbranding on 10.10.20.10"/>
-          <value type="string" value="snapshot on 10.10.20.10"/>
-          <value type="string" value="toolkit on 10.10.20.10"/>
-          <value type="string" value="valhalla on 10.10.20.10"/>
-        </property>
-
       </channel>
     '';
     force = true;
