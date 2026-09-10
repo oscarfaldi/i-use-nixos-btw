@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+DEST="/mnt/nas/media-music/Staging"
+
+if [ ! -d "$DEST" ]; then
+    notify-send \
+        -i dialog-error \
+        "NAS Music Staging" \
+        "Destination folder not available."
+    exit 1
+fi
+
+COUNT=0
+
+for FOLDER in "$@"; do
+
+    BASENAME="$(basename "$FOLDER")"
+    TARGET="${DEST}/${BASENAME}"
+
+    if [ -e "$TARGET" ]; then
+
+        TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
+
+        TARGET="${DEST}/${BASENAME}_${TIMESTAMP}"
+
+    fi
+
+    mv "$FOLDER" "$TARGET"
+
+    COUNT=$((COUNT + 1))
+
+done
+
+notify-send \
+    -i folder-remote \
+    "NAS Music Staging" \
+    "${COUNT} folder(s) moved successfully."
