@@ -154,12 +154,23 @@
     <image-files/>
     <video-files/>
   </action>
+
+  <action>
+      <icon>folder-remote</icon>
+      <name>Move to NAS Music Staging</name>
+      <submenu>NAS</submenu>
+      <unique-id>1782052090035038-304</unique-id>
+      <command>move-to-music-staging %F</command>
+      <description>Move selected music folders to NAS staging area</description>
+      <range>*</range>
+      <directories/>
+  </action>
   
   <action>
     <icon>package-x-generic</icon>
     <name>Compress to ZIP</name>
     <submenu>Documents</submenu>
-    <unique-id>1781935446753343-304</unique-id>
+    <unique-id>1781935446753343-305</unique-id>
     <command>compress-to-zip %F</command>
     <description>Create ZIP archive from selected files</description>
     <range>*</range>
@@ -176,7 +187,7 @@
     <icon>package-x-generic</icon>
     <name>Extract Archive Here</name>
     <submenu>Documents</submenu>
-    <unique-id>1781935446753343-305</unique-id>
+    <unique-id>1781935446753343-306</unique-id>
     <command>extract-here %f</command>
     <description>Extract archive contents into current folder</description>
     <range>*</range>
