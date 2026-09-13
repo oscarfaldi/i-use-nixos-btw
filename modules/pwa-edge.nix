@@ -9,8 +9,8 @@ let
       # Displayed app name
       desktopName = name;
 
-      # Force native Wayland Chromium PWA mode
-      exec = "chromium --app=${url}";
+      # Open as Edge app window
+      exec = "microsoft-edge --app=${url}";
 
       icon = icon;
 
@@ -19,8 +19,9 @@ let
 
 in
 {
-  # Native Wayland support for Chromium and Electron apps
-  environment.sessionVariables = { NIXOS_OZONE_WL = "1"; 
+  # Native Wayland support for Edge and Electron apps
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
   };
 
   environment.systemPackages = with pkgs; [
