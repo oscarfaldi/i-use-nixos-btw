@@ -8,7 +8,7 @@
     ./fuzzel.nix
     ./shell.nix
     ./xdg.nix
-    ./chromium.nix
+    ./microsoft-edge.nix
     ./ghostty.nix
     ./thunar.nix
     ./theme-gruvbox.nix
