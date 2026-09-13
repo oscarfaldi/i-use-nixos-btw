@@ -47,10 +47,11 @@ if [[ ! -d "$DIRECTORY" ]]; then
 fi
 
 # ============================================================
-# Cleanup
+# Temporary Files / Cleanup
 # ============================================================
 
 tmp=""
+ffmpeg_log=""
 
 cleanup() {
     echo
@@ -58,6 +59,7 @@ cleanup() {
     echo "Interrupted."
 
     [[ -n "$tmp" && -f "$tmp" ]] && rm -f "$tmp"
+    [[ -n "$ffmpeg_log" && -f "$ffmpeg_log" ]] && rm -f "$ffmpeg_log"
 
     exit 130
 }
@@ -130,6 +132,8 @@ echo "============================================================"
 if [[ "$total" -eq 0 ]]; then
     echo
     echo "No video files found."
+    echo
+    read -r -p "Press Enter to close..."
     exit 0
 fi
 
@@ -152,11 +156,18 @@ for input in "${files[@]}"; do
     fi
 
     tmp="${output}.nvenc-tmp.mkv"
+    ffmpeg_log="${tmp}.log"
+
+    rm -f "$tmp" "$ffmpeg_log"
 
     echo
     echo "============================================================"
     echo "[$current/$total] $filename"
     echo "============================================================"
+
+    echo "Source : $input"
+    echo "Output : $output"
+    echo
 
     duration=$(ffprobe \
         -v error \
@@ -165,8 +176,15 @@ for input in "${files[@]}"; do
         "$input")
 
     if [[ -z "$duration" ]]; then
-        echo "[FAILED] Could not determine duration."
+        echo "[FAILED] Could not determine video duration."
+        echo "Source file preserved."
+
         failed=$((failed + 1))
+        rm -f "$tmp" "$ffmpeg_log"
+
+        tmp=""
+        ffmpeg_log=""
+
         continue
     fi
 
@@ -199,14 +217,16 @@ for input in "${files[@]}"; do
         -y \
         -progress pipe:1 \
         -nostats \
-        "$tmp" 2>&1 |
+        "$tmp" \
+        2>"$ffmpeg_log" |
     while IFS= read -r line; do
 
         if [[ "$line" == out_time_us=* ]]; then
 
             current_us="${line#*=}"
 
-            current_seconds=$(awk "BEGIN {print $current_us / 1000000}")
+            current_seconds=$(awk \
+                "BEGIN {print $current_us / 1000000}")
 
             percent=$(awk \
                 -v current="$current_seconds" \
@@ -258,6 +278,10 @@ for input in "${files[@]}"; do
 
     echo
 
+    # ========================================================
+    # Success
+    # ========================================================
+
     if [[ "$ffmpeg_exit_code" -eq 0 && -s "$tmp" ]]; then
 
         touch -r "$input" "$tmp"
@@ -267,17 +291,24 @@ for input in "${files[@]}"; do
         total_original=$((total_original + original_size))
         total_final=$((total_final + final_size))
 
-        saved=$((original_size - final_size))
+        size_difference=$((final_size - original_size))
 
-        percent_saved=$(awk \
-            -v original="$original_size" \
-            -v final="$final_size" \
-            'BEGIN {
-                if (original > 0)
-                    printf "%.1f", (1-final/original)*100
-                else
-                    print "0.0"
-            }')
+        if [[ "$original_size" -gt 0 ]]; then
+            percent_difference=$(awk \
+                -v original="$original_size" \
+                -v final="$final_size" \
+                'BEGIN {
+                    printf "%.1f", (final/original - 1) * 100
+                }')
+        else
+            percent_difference="0.0"
+        fi
+
+        encode_elapsed=$(($(date +%s) - encode_start))
+
+        encode_h=$((encode_elapsed / 3600))
+        encode_m=$(((encode_elapsed % 3600) / 60))
+        encode_s=$((encode_elapsed % 60))
 
         if [[ "$extension_lower" == "mkv" ]]; then
             mv -f "$tmp" "$input"
@@ -287,10 +318,45 @@ for input in "${files[@]}"; do
         fi
 
         echo
-        echo "[OK] $filename"
+        echo "[OK] Re-encode and compression complete!"
+        echo
         echo "Source : $(numfmt --to=iec "$original_size")"
         echo "Output : $(numfmt --to=iec "$final_size")"
-        echo "Saved  : $(numfmt --to=iec "$saved") ($percent_saved%)"
+
+        if [[ "$size_difference" -lt 0 ]]; then
+
+            saved=$((-size_difference))
+            saved_percent=$(awk \
+                -v original="$original_size" \
+                -v final="$final_size" \
+                'BEGIN {
+                    printf "%.1f", (1-final/original)*100
+                }')
+
+            echo "Saved  : $(numfmt --to=iec "$saved") (-$saved_percent%)"
+
+        elif [[ "$size_difference" -gt 0 ]]; then
+
+            increase=$size_difference
+            increase_percent=$(awk \
+                -v original="$original_size" \
+                -v final="$final_size" \
+                'BEGIN {
+                    printf "%.1f", (final/original-1)*100
+                }')
+
+            echo "Size increase: +$(numfmt --to=iec "$increase") (+$increase_percent%)"
+
+        else
+
+            echo "Size change: 0 B (0.0%)"
+
+        fi
+
+        printf "Elapsed: %02d:%02d:%02d\n" \
+            "$encode_h" \
+            "$encode_m" \
+            "$encode_s"
 
         if [[ "$extension_lower" != "mkv" ]]; then
             echo "New file: $(basename "$output")"
@@ -298,16 +364,40 @@ for input in "${files[@]}"; do
 
         success=$((success + 1))
 
+    # ========================================================
+    # Failure
+    # ========================================================
+
     else
 
         echo
-        echo "[FAILED] $filename"
-        echo "Original source preserved."
+        echo "[FAILED] Re-encode and compression failed."
+        echo
+        echo "Source file preserved."
+        echo "Temporary output removed."
+
+        if [[ -s "$ffmpeg_log" ]]; then
+            echo
+            echo "FFmpeg output:"
+            echo "------------------------------------------------------------"
+
+            sed 's/^/  /' "$ffmpeg_log"
+
+            echo "------------------------------------------------------------"
+        else
+            echo
+            echo "FFmpeg did not provide additional error output."
+            echo "Exit code: $ffmpeg_exit_code"
+        fi
 
         rm -f "$tmp"
-
         failed=$((failed + 1))
     fi
+
+    rm -f "$ffmpeg_log"
+
+    tmp=""
+    ffmpeg_log=""
 
 done
 
@@ -333,16 +423,44 @@ echo "Final size    : $(numfmt --to=iec "$total_final")"
 
 if [[ "$total_original" -gt 0 ]]; then
 
-    total_saved=$((total_original - total_final))
+    total_difference=$((total_final - total_original))
 
-    total_percent=$(awk \
-        -v original="$total_original" \
-        -v final="$total_final" \
-        'BEGIN {
-            printf "%.1f", (1-final/original)*100
-        }')
+    if [[ "$total_difference" -lt 0 ]]; then
 
-    echo "Space saved   : $(numfmt --to=iec "$total_saved") ($total_percent%)"
+        total_saved=$((-total_difference))
+
+        total_saved_percent=$(awk \
+            -v original="$total_original" \
+            -v final="$total_final" \
+            'BEGIN {
+                printf "%.1f", (1-final/original)*100
+            }')
+
+        echo "Space saved   : $(numfmt --to=iec "$total_saved") (-$total_saved_percent%)"
+
+    elif [[ "$total_difference" -gt 0 ]]; then
+
+        total_increase=$total_difference
+
+        total_increase_percent=$(awk \
+            -v original="$total_original" \
+            -v final="$total_final" \
+            'BEGIN {
+                printf "%.1f", (final/original-1)*100
+            }')
+
+        echo "Size increase : +$(numfmt --to=iec "$total_increase") (+$total_increase_percent%)"
+
+    else
+
+        echo "Size change   : 0 B (0.0%)"
+
+    fi
+
+else
+
+    echo "Space change  : N/A"
+
 fi
 
 elapsed_h=$((elapsed / 3600))
@@ -355,4 +473,8 @@ printf "Elapsed       : %02d:%02d:%02d\n" \
     "$elapsed_m" \
     "$elapsed_s"
 
+echo
 echo "============================================================"
+echo
+
+read -r -p "Press Enter to close..."
