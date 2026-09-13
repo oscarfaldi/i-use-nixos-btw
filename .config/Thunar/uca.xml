@@ -301,11 +301,11 @@
 
   <action>
     <icon>applications-multimedia</icon>
-    <name>Compress Video to MKV</name>
+    <name>Re-encode and Compress to HEVC MKV</name>
     <submenu>Media</submenu>
     <unique-id>1781935446753343-504</unique-id>
-    <command>compress-to-mkv %F</command>
-    <description>Compress selected videos to HEVC Main10 in MKV for long-term storage</description>
+    <command>reencode-and-compress-to-hevc-mkv %F/command>
+    <description>Re-encode and compress selected videos to HEVC MKV for long-term storage</description>
     <range>*</range>
     <patterns>
         *.mp4;*.MP4;*.mov;*.MOV;
@@ -325,11 +325,11 @@
 
   <action>
     <icon>applications-multimedia</icon>
-    <name>Compress Video to MP4</name>
+    <name>Re-encode and Compress to HEVC MP4</name>
     <submenu>Media</submenu>
     <unique-id>1781935446753343-505</unique-id>
-    <command>compress-to-mp4 %F</command>
-    <description>Compress selected videos to HEVC Main10 in MP4 for maximum compatibility</description>
+    <command>reencode-and-compress-to-hevc-mp4 %F/command>
+    <description>Re-encode and compress selected videos to HEVC MP4 for maximum compatibility</description>
     <range>*</range>
     <patterns>
         *.mp4;*.MP4;*.mov;*.MOV;
@@ -349,13 +349,61 @@
 
   <action>
     <icon>folder-videos</icon>
-    <name>Batch Compress Videos to MKV</name>
+    <name>Batch Re-encode and Compress to HEVC MKV</name>
     <submenu>Media</submenu>
     <unique-id>1781935446753343-506</unique-id>
-    <command>ghostty -e batch-compress-to-mkv %f</command>
-    <description>Compress every video in the selected folder to HEVC Main10 MKV (non-recursive)</description>
+    <command>batch-reencode-and-compress-to-hevc-mkv %f</command>
+    <description>Re-encode and compress every video in the selected folder to HEVC MKV (non-recursive)</description>
     <range>*</range>
     <directories/>
+  </action>
+
+  <action>
+    <icon>folder-videos</icon>
+    <name>Remux to MKV</name>
+    <submenu>Media</submenu>
+    <unique-id>1781935446753343-507</unique-id>
+    <command>remux-to-mkv %F</command>
+    <description>Remux selected videos to MKV without re-encoding</description>
+    <range>*</range>
+    <patterns>
+        *.mp4;*.MP4;*.mov;*.MOV;
+        *.mkv;*.MKV;*.webm;*.WEBM;
+        *.m4v;*.M4V;*.avi;*.AVI;
+        *.ts;*.TS;*.mts;*.MTS;
+        *.m2ts;*.M2TS;*.mxf;*.MXF;
+        *.wmv;*.WMV;*.asf;*.ASF;
+        *.mpg;*.MPG;*.mpeg;*.MPEG;
+        *.flv;*.FLV;*.f4v;*.F4V;
+        *.ogv;*.OGV;*.3gp;*.3GP;
+        *.3g2;*.3G2;*.vob;*.VOB;
+        *.divx;*.DIVX
+    </patterns>
+    <video-files/>
+  </action>
+
+  <action>
+    <icon>folder-videos</icon>
+    <name>Remux to MP4</name>
+    <submenu>Media</submenu>
+    <unique-id>1781935446753343-508</unique-id>
+    <command>remux-to-mp4 %F</command>
+    <description>Remux selected videos to MP4 without re-encoding</description>
+    <range>*</range>
+    <patterns>
+        *.mp4;*.MP4;*.mov;*.MOV;
+        *.mkv;*.MKV;*.webm;*.WEBM;
+        *.m4v;*.M4V;*.avi;*.AVI;
+        *.ts;*.TS;*.mts;*.MTS;
+        *.m2ts;*.M2TS;*.mxf;*.MXF;
+        *.wmv;*.WMV;*.asf;*.ASF;
+        *.mpg;*.MPG;*.mpeg;*.MPEG;
+        *.flv;*.FLV;*.f4v;*.F4V;
+        *.ogv;*.OGV;*.3gp;*.3GP;
+        *.3g2;*.3G2;*.vob;*.VOB;
+        *.divx;*.DIVX
+    </patterns>
+    <video-files/>
   </action>
 
   <!-- ========================================== -->
