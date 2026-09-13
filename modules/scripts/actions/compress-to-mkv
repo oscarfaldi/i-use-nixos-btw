@@ -3,9 +3,10 @@
 set -euo pipefail
 
 # ============================================================
-# MKV Compress
+# Re-encode and Compress to HEVC MKV
 #
-# Compress videos for long-term NAS storage using NVIDIA NVENC.
+# Re-encode videos to HEVC for long-term NAS storage using
+# NVIDIA NVENC, with the goal of reducing file size.
 #
 # Video:
 #   Codec        : HEVC (H.265)
@@ -18,6 +19,9 @@ set -euo pipefail
 #
 # Audio:
 #   Copy original stream
+#
+# Container:
+#   MKV
 #
 # Output:
 #   <filename>-encoded.mkv
@@ -65,13 +69,13 @@ run_ffmpeg() {
     set +e
 
     ghostty \
-        --title="MKV Compress" \
+        --title="Re-encode and Compress to HEVC MKV" \
         -e bash -c "
             DURATION=$duration
 
             echo
             echo '============================================================'
-            echo ' MKV Compress'
+            echo ' Re-encode and Compress to HEVC MKV'
             echo '============================================================'
             echo
             echo 'Input : $input'
@@ -81,6 +85,7 @@ run_ffmpeg() {
             echo 'Preset : P5'
             echo 'QP     : 24'
             echo 'Audio  : Copy'
+            echo 'Format : MKV'
             echo
             echo '============================================================'
             echo
@@ -129,7 +134,7 @@ run_ffmpeg() {
 
             if [ \$STATUS -ne 0 ]; then
                 echo
-                echo -e '\e[1;31m[ERROR] Compression failed!\e[0m'
+                echo -e '\e[1;31m[ERROR] Re-encode and compression failed!\e[0m'
                 echo
                 echo 'Output file will be removed.'
                 rm -f \"$output\"
@@ -138,7 +143,7 @@ run_ffmpeg() {
                 sleep 5
             else
                 echo
-                echo -e '\e[1;32m[OK] Compression complete!\e[0m'
+                echo -e '\e[1;32m[OK] Re-encode and compression complete!\e[0m'
                 echo
                 echo 'Output:'
                 echo \"$output\"
@@ -163,7 +168,7 @@ process_file() {
 
     if ! is_video_file "$input"; then
         notify \
-            "MKV Compress" \
+            "Re-encode and Compress to HEVC MKV" \
             "$(basename "$input") is not a supported video file."
 
         return 0
@@ -172,15 +177,15 @@ process_file() {
     output="$(get_output_path "$input")"
 
     notify \
-        "MKV Compress" \
-        "Compressing $(basename "$input")"
+        "Re-encode and Compress to HEVC MKV" \
+        "Processing $(basename "$input")"
 
     if run_ffmpeg "$input" "$output"; then
 
         touch -r "$input" "$output"
 
         notify \
-            "MKV Compress" \
+            "Re-encode and Compress to HEVC MKV" \
             "$(basename "$output") completed."
 
     else
@@ -188,7 +193,7 @@ process_file() {
         rm -f "$output"
 
         notify \
-            "MKV Compress" \
+            "Re-encode and Compress to HEVC MKV" \
             "$(basename "$input") failed."
 
         return 1
@@ -211,7 +216,7 @@ process_folder() {
 
     if [[ "$found" -eq 0 ]]; then
         notify \
-            "MKV Compress" \
+            "Re-encode and Compress to HEVC MKV" \
             "No supported videos found in $(basename "$folder")."
     fi
 }
@@ -222,7 +227,7 @@ process_folder() {
 
 if [[ "$#" -eq 0 ]]; then
     notify \
-        "MKV Compress" \
+        "Re-encode and Compress to HEVC MKV" \
         "No input file or folder specified."
 
     exit 1
@@ -238,7 +243,7 @@ for input in "$@"; do
 
     else
         notify \
-            "MKV Compress" \
+            "Re-encode and Compress to HEVC MKV" \
             "Invalid path: $(basename "$input")"
     fi
 
