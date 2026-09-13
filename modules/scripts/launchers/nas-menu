@@ -10,7 +10,7 @@ case "$choice" in
         ghostty -e archive-home-folders-to-nas
         ;;
     "NAS Recover")
-        ghostty -e nas-recover all
+        ghostty -e nas-recover
         ;;
     "NAS Debug")
         ghostty -e nas-debug
