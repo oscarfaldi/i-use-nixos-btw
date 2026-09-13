@@ -3,9 +3,10 @@
 set -euo pipefail
 
 # ============================================================
-# Batch Compress to MKV
+# Batch Re-encode and Compress to HEVC MKV
 #
-# Compress every video inside a selected folder using NVIDIA NVENC.
+# Re-encode every video inside a selected folder to HEVC using
+# NVIDIA NVENC, with the goal of reducing file size.
 #
 # Video:
 #   Codec        : HEVC (H.265)
@@ -34,7 +35,7 @@ set -euo pipefail
 # ============================================================
 
 if [[ "$#" -ne 1 ]]; then
-    echo "Usage: batch-compress-to-mkv <folder>"
+    echo "Usage: batch-reencode-and-compress-to-hevc-mkv <folder>"
     exit 1
 fi
 
@@ -115,7 +116,7 @@ batch_start=$(date +%s)
 
 echo
 echo "============================================================"
-echo " BATCH COMPRESS TO MKV"
+echo " BATCH RE-ENCODE AND COMPRESS TO HEVC MKV"
 echo "============================================================"
 echo "Directory : $DIRECTORY"
 echo "Found     : $total video files"
@@ -123,6 +124,7 @@ echo "Codec     : HEVC"
 echo "Preset    : P5"
 echo "QP        : 24"
 echo "Audio     : Copy"
+echo "Container : MKV"
 echo "============================================================"
 
 if [[ "$total" -eq 0 ]]; then
@@ -319,7 +321,7 @@ elapsed=$((batch_end - batch_start))
 echo
 echo
 echo "============================================================"
-echo " BATCH COMPLETE"
+echo " BATCH RE-ENCODE AND COMPRESS COMPLETE"
 echo "============================================================"
 echo "Processed     : $current/$total"
 echo "Successful    : $success"
