@@ -5,9 +5,9 @@ set -euo pipefail
 # ============================================================
 # Re-encode and Compress to HEVC MP4
 #
-# Re-encode videos to HEVC for long-term storage using
-# NVIDIA NVENC, with the goal of reducing file size while
-# maintaining broad playback compatibility.
+# Re-encode selected videos to HEVC using NVIDIA NVENC, with
+# the goal of reducing file size while maintaining broad
+# playback compatibility.
 #
 # Video:
 #   Codec        : HEVC (H.265)
@@ -56,55 +56,180 @@ is_video_file() {
     esac
 }
 
-run_ffmpeg() {
-    local input="$1"
-    local output="$2"
-    local duration
-    local status
+# ============================================================
+# Collect Files
+# ============================================================
 
-    duration=$(ffprobe \
-        -v error \
-        -show_entries format=duration \
-        -of default=noprint_wrappers=1:nokey=1 \
-        "$input")
+files=()
 
-    set +e
+if [[ "$#" -eq 0 ]]; then
+    notify \
+        "Re-encode and Compress to HEVC MP4" \
+        "No input file or folder specified."
 
-    ghostty \
-        --title="Re-encode and Compress to HEVC MP4" \
-        -e bash -c "
-            DURATION=$duration
+    exit 1
+fi
+
+for input in "$@"; do
+
+    if [[ -d "$input" ]]; then
+
+        while IFS= read -r -d '' file; do
+
+            if is_video_file "$file"; then
+                files+=("$file")
+            fi
+
+        done < <(
+            find "$input" \
+                -maxdepth 1 \
+                -type f \
+                -print0
+        )
+
+    elif [[ -f "$input" ]]; then
+
+        if is_video_file "$input"; then
+            files+=("$input")
+        else
+            notify \
+                "Re-encode and Compress to HEVC MP4" \
+                "$(basename "$input") is not a supported video file."
+        fi
+
+    else
+
+        notify \
+            "Re-encode and Compress to HEVC MP4" \
+            "Invalid path: $(basename "$input")"
+
+    fi
+
+done
+
+total=${#files[@]}
+
+if [[ "$total" -eq 0 ]]; then
+    notify \
+        "Re-encode and Compress to HEVC MP4" \
+        "No supported videos found."
+
+    exit 0
+fi
+
+# ============================================================
+# Launch Processing Session
+# ============================================================
+
+set +e
+
+ghostty \
+    --title="Re-encode and Compress to HEVC MP4" \
+    -e bash -c '
+        set -u
+
+        files=( "$@" )
+
+        total=${#files[@]}
+        current=0
+        success=0
+        failed=0
+
+        total_original=0
+        total_final=0
+
+        session_start=$(date +%s)
+
+        tmp=""
+        ffmpeg_log=""
+
+        cleanup() {
+            echo
+            echo
+            echo "Interrupted."
+
+            [[ -n "$tmp" && -f "$tmp" ]] && rm -f "$tmp"
+            [[ -n "$ffmpeg_log" && -f "$ffmpeg_log" ]] && rm -f "$ffmpeg_log"
 
             echo
-            echo '============================================================'
-            echo ' Re-encode and Compress to HEVC MP4'
-            echo '============================================================'
+            echo "Source files were not intentionally deleted."
             echo
-            echo 'Input : $input'
-            echo 'Output: $output'
+            read -r -p "Press Enter to close..."
+
+            exit 130
+        }
+
+        trap cleanup INT TERM
+
+        echo
+        echo "============================================================"
+        echo " RE-ENCODE AND COMPRESS TO HEVC MP4"
+        echo "============================================================"
+        echo "Files       : $total"
+        echo "Codec       : HEVC"
+        echo "Preset      : P5"
+        echo "QP          : 24"
+        echo "Audio       : Copy"
+        echo "Container   : MP4"
+        echo "Tag         : hvc1"
+        echo "Faststart   : Enabled"
+        echo "============================================================"
+
+        for input in "${files[@]}"; do
+
+            current=$((current + 1))
+
+            filename="$(basename "$input")"
+            output="${input%.*}-encoded.mp4"
+
+            tmp="${output}.nvenc-tmp.mp4"
+            ffmpeg_log="${tmp}.log"
+
+            rm -f "$tmp" "$ffmpeg_log"
+
             echo
-            echo 'Codec  : HEVC'
-            echo 'Preset : P5'
-            echo 'QP     : 24'
-            echo 'Audio  : Copy'
-            echo 'Format : MP4'
-            echo 'Tag    : hvc1'
+            echo "============================================================"
+            echo "[$current/$total] $filename"
+            echo "============================================================"
+            echo "Source : $input"
+            echo "Output : $output"
             echo
-            echo '============================================================'
-            echo
+
+            duration=$(ffprobe \
+                -v error \
+                -show_entries format=duration \
+                -of default=noprint_wrappers=1:nokey=1 \
+                "$input")
+
+            if [[ -z "$duration" ]]; then
+
+                echo "[FAILED] Could not determine video duration."
+                echo "Source file preserved."
+
+                failed=$((failed + 1))
+
+                rm -f "$tmp" "$ffmpeg_log"
+
+                tmp=""
+                ffmpeg_log=""
+
+                continue
+            fi
+
+            original_size=$(stat -c%s "$input")
+            encode_start=$(date +%s)
 
             ffmpeg \
                 -hide_banner \
-                -nostats \
-                -progress pipe:1 \
+                -loglevel warning \
                 -hwaccel_device 0 \
                 -hwaccel cuda \
                 -init_hw_device cuda=hw \
                 -filter_hw_device hw \
                 -hwaccel_output_format cuda \
-                -i \"$input\" \
+                -i "$input" \
                 -map 0:v:0 \
-                -map '0:a?' \
+                -map "0:a?" \
                 -sn \
                 -dn \
                 -c:v hevc_nvenc \
@@ -119,137 +244,279 @@ run_ffmpeg() {
                 -aq-strength 4 \
                 -c:a copy \
                 -movflags +faststart \
-                -y \"$output\" |
-            while IFS='=' read -r key value; do
-                if [[ \"\$key\" == 'out_time_ms' ]]; then
-                    PERCENT=\$(awk -v t=\"\$value\" -v d=\"\$DURATION\" 'BEGIN {
-                        p=(t/1000000)/d*100
-                        if (p>100) p=100
-                        printf \"%.1f\", p
-                    }')
-                    printf '\rProgress: %5s%%' \"\$PERCENT\"
-                elif [[ \"\$key\" == 'progress' && \"\$value\" == 'end' ]]; then
-                    printf '\rProgress: 100.0%%\n'
+                -y \
+                -progress pipe:1 \
+                -nostats \
+                "$tmp" \
+                2>"$ffmpeg_log" |
+            while IFS="=" read -r key value; do
+
+                if [[ "$key" == "out_time_us" ]]; then
+
+                    current_us="$value"
+
+                    current_seconds=$(awk \
+                        "BEGIN {print $current_us / 1000000}")
+
+                    percent=$(awk \
+                        -v current="$current_seconds" \
+                        -v total="$duration" \
+                        "BEGIN {
+                            if (total > 0)
+                                printf \"%.1f\", (current / total) * 100
+                            else
+                                print \"0.0\"
+                        }")
+
+                    elapsed=$(($(date +%s) - encode_start))
+
+                    speed=$(awk \
+                        -v current="$current_seconds" \
+                        -v elapsed="$elapsed" \
+                        "BEGIN {
+                            if (elapsed > 0)
+                                printf \"%.2f\", current / elapsed
+                            else
+                                print \"0.00\"
+                        }")
+
+                    eta=$(awk \
+                        -v current="$current_seconds" \
+                        -v total="$duration" \
+                        -v elapsed="$elapsed" \
+                        "BEGIN {
+                            if (current > 0)
+                                printf \"%.0f\", (total-current)*elapsed/current
+                            else
+                                print 0
+                        }")
+
+                    eta_h=$((eta / 3600))
+                    eta_m=$(((eta % 3600) / 60))
+                    eta_s=$((eta % 60))
+
+                    printf "\rProgress: %6s%% | Speed: %5sx | ETA: %02d:%02d:%02d" \
+                        "$percent" \
+                        "$speed" \
+                        "$eta_h" \
+                        "$eta_m" \
+                        "$eta_s"
+
                 fi
+
             done
 
-            STATUS=\${PIPESTATUS[0]}
+            ffmpeg_exit_code=${PIPESTATUS[0]}
 
             echo
 
-            if [ \$STATUS -ne 0 ]; then
+            # ==================================================
+            # Success
+            # ==================================================
+
+            if [[ "$ffmpeg_exit_code" -eq 0 && -s "$tmp" ]]; then
+
+                touch -r "$input" "$tmp"
+
+                final_size=$(stat -c%s "$tmp")
+
+                total_original=$((total_original + original_size))
+                total_final=$((total_final + final_size))
+
+                encode_elapsed=$(($(date +%s) - encode_start))
+
+                encode_h=$((encode_elapsed / 3600))
+                encode_m=$(((encode_elapsed % 3600) / 60))
+                encode_s=$((encode_elapsed % 60))
+
+                size_difference=$((final_size - original_size))
+
+                if [[ "$original_size" -gt 0 ]]; then
+                    percent_difference=$(awk \
+                        -v original="$original_size" \
+                        -v final="$final_size" \
+                        "BEGIN {
+                            printf \"%.1f\", (final/original-1)*100
+                        }")
+                else
+                    percent_difference="0.0"
+                fi
+
+                mv -f "$tmp" "$output"
+                rm -f "$input"
+
                 echo
-                echo -e '\e[1;31m[ERROR] Re-encode and compression failed!\e[0m'
+                echo "[OK] Re-encode and compression complete!"
                 echo
-                echo 'Output file will be removed.'
-                rm -f \"$output\"
-                echo
-                echo 'Closing window in 5 seconds...'
-                sleep 5
+                echo "Source : $(numfmt --to=iec "$original_size")"
+                echo "Output : $(numfmt --to=iec "$final_size")"
+
+                if [[ "$size_difference" -lt 0 ]]; then
+
+                    saved=$((-size_difference))
+
+                    saved_percent=$(awk \
+                        -v original="$original_size" \
+                        -v final="$final_size" \
+                        "BEGIN {
+                            printf \"%.1f\", (1-final/original)*100
+                        }")
+
+                    echo "Saved  : $(numfmt --to=iec "$saved") (-$saved_percent%)"
+
+                elif [[ "$size_difference" -gt 0 ]]; then
+
+                    increase="$size_difference"
+
+                    increase_percent=$(awk \
+                        -v original="$original_size" \
+                        -v final="$final_size" \
+                        "BEGIN {
+                            printf \"%.1f\", (final/original-1)*100
+                        }")
+
+                    echo "Saved  : +$(numfmt --to=iec "$increase") (+$increase_percent%)"
+
+                else
+
+                    echo "Saved  : 0 B (0.0%)"
+
+                fi
+
+                printf "Elapsed: %02d:%02d:%02d\n" \
+                    "$encode_h" \
+                    "$encode_m" \
+                    "$encode_s"
+
+                echo "Output : $(basename "$output")"
+
+                success=$((success + 1))
+
+            # ==================================================
+            # Failure
+            # ==================================================
+
             else
+
                 echo
-                echo -e '\e[1;32m[OK] Re-encode and compression complete!\e[0m'
+                echo "[FAILED] Re-encode and compression failed."
                 echo
-                echo 'Output:'
-                echo \"$output\"
-                echo
-                echo 'Closing window in 5 seconds...'
-                sleep 5
+                echo "Source file preserved."
+                echo "Temporary output removed."
+
+                if [[ -s "$ffmpeg_log" ]]; then
+
+                    echo
+                    echo "FFmpeg output:"
+                    echo "------------------------------------------------------------"
+
+                    sed "s/^/  /" "$ffmpeg_log"
+
+                    echo "------------------------------------------------------------"
+
+                else
+
+                    echo
+                    echo "FFmpeg did not provide additional error output."
+                    echo "Exit code: $ffmpeg_exit_code"
+
+                fi
+
+                rm -f "$tmp"
+
+                failed=$((failed + 1))
+
             fi
 
-            exit \$STATUS
-        "
+            rm -f "$ffmpeg_log"
 
-    status=$?
+            tmp=""
+            ffmpeg_log=""
 
-    set -e
+        done
 
-    return "$status"
-}
+        # ====================================================
+        # Summary
+        # ====================================================
 
-process_file() {
-    local input="$1"
-    local output
+        session_end=$(date +%s)
+        session_elapsed=$((session_end - session_start))
 
-    if ! is_video_file "$input"; then
-        notify \
-            "Re-encode and Compress to HEVC MP4" \
-            "$(basename "$input") is not a supported video file."
+        echo
+        echo
+        echo "============================================================"
+        echo " RE-ENCODE AND COMPRESS COMPLETE"
+        echo "============================================================"
+        echo "Processed     : $current/$total"
+        echo "Successful    : $success"
+        echo "Failed        : $failed"
+        echo
 
-        return 0
-    fi
+        echo "Original size : $(numfmt --to=iec "$total_original")"
+        echo "Final size    : $(numfmt --to=iec "$total_final")"
 
-    output="$(get_output_path "$input")"
+        if [[ "$total_original" -gt 0 ]]; then
 
-    notify \
-        "Re-encode and Compress to HEVC MP4" \
-        "Processing $(basename "$input")"
+            total_difference=$((total_final - total_original))
 
-    if run_ffmpeg "$input" "$output"; then
+            if [[ "$total_difference" -lt 0 ]]; then
 
-        touch -r "$input" "$output"
+                total_saved=$((-total_difference))
 
-        notify \
-            "Re-encode and Compress to HEVC MP4" \
-            "$(basename "$output") completed."
+                total_saved_percent=$(awk \
+                    -v original="$total_original" \
+                    -v final="$total_final" \
+                    "BEGIN {
+                        printf \"%.1f\", (1-final/original)*100
+                    }")
 
-    else
+                echo "Space saved   : $(numfmt --to=iec "$total_saved") (-$total_saved_percent%)"
 
-        rm -f "$output"
+            elif [[ "$total_difference" -gt 0 ]]; then
 
-        notify \
-            "Re-encode and Compress to HEVC MP4" \
-            "$(basename "$input") failed."
+                total_increase="$total_difference"
 
-        return 1
-    fi
-}
+                total_increase_percent=$(awk \
+                    -v original="$total_original" \
+                    -v final="$total_final" \
+                    "BEGIN {
+                        printf \"%.1f\", (final/original-1)*100
+                    }")
 
-process_folder() {
-    local folder="$1"
-    local found=0
+                echo "Saved         : +$(numfmt --to=iec "$total_increase") (+$total_increase_percent%)"
 
-    while IFS= read -r -d '' file; do
-        found=1
-        process_file "$file"
-    done < <(
-        find "$folder" \
-            -maxdepth 1 \
-            -type f \
-            -print0
-    )
+            else
 
-    if [[ "$found" -eq 0 ]]; then
-        notify \
-            "Re-encode and Compress to HEVC MP4" \
-            "No supported videos found in $(basename "$folder")."
-    fi
-}
+                echo "Saved         : 0 B (0.0%)"
 
-# ============================================================
-# Main
-# ============================================================
+            fi
 
-if [[ "$#" -eq 0 ]]; then
-    notify \
-        "Re-encode and Compress to HEVC MP4" \
-        "No input file or folder specified."
+        else
 
-    exit 1
-fi
+            echo "Space change  : N/A"
 
-for input in "$@"; do
+        fi
 
-    if [[ -d "$input" ]]; then
-        process_folder "$input"
+        session_h=$((session_elapsed / 3600))
+        session_m=$(((session_elapsed % 3600) / 60))
+        session_s=$((session_elapsed % 60))
 
-    elif [[ -f "$input" ]]; then
-        process_file "$input"
+        echo
+        printf "Elapsed       : %02d:%02d:%02d\n" \
+            "$session_h" \
+            "$session_m" \
+            "$session_s"
 
-    else
-        notify \
-            "Re-encode and Compress to HEVC MP4" \
-            "Invalid path: $(basename "$input")"
-    fi
+        echo
+        echo "============================================================"
+        echo
 
-done
+        read -r -p "Press Enter to close..."
+
+    ' _ "${files[@]}"
+
+status=$?
+
+set -e
+
+exit "$status"
