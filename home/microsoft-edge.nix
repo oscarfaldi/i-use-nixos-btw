@@ -1,17 +1,22 @@
 { config, pkgs, ... }:
 
 {
-  programs.chromium = {
+  programs.microsoft-edge = {
     enable = true;
 
     extensions = [
-      { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
-      { id = "ddkjiahejlhfcafbddmgiahcphecmpfh"; } # uBlock Origin Lite
+      { id = "inomeogfingihgjfjlpeplalcfajhgai"; } # Chrome Remote Desktop
+      { id = "pdffkfellgipmhklpdmokmckkkfcopbh"; } # AdGuard AdBlocker
+      { id = "jlhgedjpndhblehblebhncfmkkpngiep"; } # Reddit Enhancement Suite
       { id = "cpgaheeihidjmolbakklolchdplenjai"; } # Turbo Downloader for Instagram
-      { id = "ldgfbffkinooeloadekpmfoklnobpien"; } # Raindrop.io
       { id = "piibekljdlkbkdchicfdjpnaggolndif"; } # Plucker XBD - X (Twitter) Media One-click Downloader
       { id = "elicpjhcidhpjomhibiffojpinpmmpil"; } # Video Downloader Professional
       { id = "fclobfmgolhdcfcmpbjahiiifilhamcg"; } # Easy TikTok Video Downloader (Remove Watermark)
+
+      # Legacy Chromium
+      # { id = "ldgfbffkinooeloadekpmfoklnobpien"; } # Raindrop.io
+      # { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
+      # { id = "ddkjiahejlhfcafbddmgiahcphecmpfh"; } # uBlock Origin Lite
     ];
 
     commandLineArgs = [
