@@ -24,9 +24,11 @@ in
     (mkShellScript "convert-to-png")
     (mkShellScript "convert-to-jpeg")
     (mkShellScript "convert-to-pdf")
-    (mkShellScript "compress-to-mkv")
-    (mkShellScript "compress-to-mp4")
-    (mkShellScript "batch-compress-to-mkv")
+    (mkShellScript "reencode-and-compress-to-hevc-mkv")
+    (mkShellScript "reencode-and-compress-to-hevc-mp4")
+    (mkShellScript "batch-reencode-and-compress-hevc-mkv")
+    (mkShellScript "remux-to-mkv")
+    (mkShellScript "remux-to-mp4")
 
     (mkShellScript "copy-filename")
     (mkShellScript "copy-filename-no-extension")
@@ -42,6 +44,7 @@ in
     (mkShellScript "compress-to-zip")
     (mkShellScript "extract-here")
 
+    (mkShellScript "move-to-media-music-staging")
     (mkShellScript "move-to-valhalla-pictures-staging")
     (mkShellScript "move-to-valhalla-videos-staging")
 
