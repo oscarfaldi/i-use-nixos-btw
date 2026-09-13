@@ -3,9 +3,11 @@
 set -euo pipefail
 
 # ============================================================
-# MP4 Compress
+# Re-encode and Compress to HEVC MP4
 #
-# Compress videos for maximum compatibility using NVIDIA NVENC.
+# Re-encode videos to HEVC for long-term storage using
+# NVIDIA NVENC, with the goal of reducing file size while
+# maintaining broad playback compatibility.
 #
 # Video:
 #   Codec        : HEVC (H.265)
@@ -19,6 +21,9 @@ set -euo pipefail
 #
 # Audio:
 #   Copy original stream
+#
+# Container:
+#   MP4
 #
 # Output:
 #   <filename>-encoded.mp4
@@ -66,13 +71,13 @@ run_ffmpeg() {
     set +e
 
     ghostty \
-        --title="MP4 Compress" \
+        --title="Re-encode and Compress to HEVC MP4" \
         -e bash -c "
             DURATION=$duration
 
             echo
             echo '============================================================'
-            echo ' MP4 Compress'
+            echo ' Re-encode and Compress to HEVC MP4'
             echo '============================================================'
             echo
             echo 'Input : $input'
@@ -82,6 +87,8 @@ run_ffmpeg() {
             echo 'Preset : P5'
             echo 'QP     : 24'
             echo 'Audio  : Copy'
+            echo 'Format : MP4'
+            echo 'Tag    : hvc1'
             echo
             echo '============================================================'
             echo
@@ -132,7 +139,7 @@ run_ffmpeg() {
 
             if [ \$STATUS -ne 0 ]; then
                 echo
-                echo -e '\e[1;31m[ERROR] Compression failed!\e[0m'
+                echo -e '\e[1;31m[ERROR] Re-encode and compression failed!\e[0m'
                 echo
                 echo 'Output file will be removed.'
                 rm -f \"$output\"
@@ -141,7 +148,7 @@ run_ffmpeg() {
                 sleep 5
             else
                 echo
-                echo -e '\e[1;32m[OK] Compression complete!\e[0m'
+                echo -e '\e[1;32m[OK] Re-encode and compression complete!\e[0m'
                 echo
                 echo 'Output:'
                 echo \"$output\"
@@ -166,7 +173,7 @@ process_file() {
 
     if ! is_video_file "$input"; then
         notify \
-            "MP4 Compress" \
+            "Re-encode and Compress to HEVC MP4" \
             "$(basename "$input") is not a supported video file."
 
         return 0
@@ -175,15 +182,15 @@ process_file() {
     output="$(get_output_path "$input")"
 
     notify \
-        "MP4 Compress" \
-        "Compressing $(basename "$input")"
+        "Re-encode and Compress to HEVC MP4" \
+        "Processing $(basename "$input")"
 
     if run_ffmpeg "$input" "$output"; then
 
         touch -r "$input" "$output"
 
         notify \
-            "MP4 Compress" \
+            "Re-encode and Compress to HEVC MP4" \
             "$(basename "$output") completed."
 
     else
@@ -191,7 +198,7 @@ process_file() {
         rm -f "$output"
 
         notify \
-            "MP4 Compress" \
+            "Re-encode and Compress to HEVC MP4" \
             "$(basename "$input") failed."
 
         return 1
@@ -214,7 +221,7 @@ process_folder() {
 
     if [[ "$found" -eq 0 ]]; then
         notify \
-            "MP4 Compress" \
+            "Re-encode and Compress to HEVC MP4" \
             "No supported videos found in $(basename "$folder")."
     fi
 }
@@ -225,7 +232,7 @@ process_folder() {
 
 if [[ "$#" -eq 0 ]]; then
     notify \
-        "MP4 Compress" \
+        "Re-encode and Compress to HEVC MP4" \
         "No input file or folder specified."
 
     exit 1
@@ -241,7 +248,7 @@ for input in "$@"; do
 
     else
         notify \
-            "MP4 Compress" \
+            "Re-encode and Compress to HEVC MP4" \
             "Invalid path: $(basename "$input")"
     fi
 
