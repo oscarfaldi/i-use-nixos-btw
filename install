@@ -354,7 +354,7 @@ Installation will continue normally."
 
     # Match the systemd service identity (User=oscarfaldi, Group=syncthing).
     if ! sudo chown \
-        oscarfaldi:syncthing \
+        "$(id -u):$(id -g)" \
         "$SYNCTHING_CERT" \
         "$SYNCTHING_KEY"
     then
