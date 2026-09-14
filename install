@@ -53,7 +53,6 @@ SYNCTHING_REMOTE_DIR="Syncthing"
 SYNCTHING_CONFIG_DIR="/home/oscarfaldi/.config/syncthing"
 SYNCTHING_CERT="$SYNCTHING_CONFIG_DIR/cert.pem"
 SYNCTHING_KEY="$SYNCTHING_CONFIG_DIR/key.pem"
-SYNCTHING_BACKUP="/mnt/nas/toolkit/Syncthing"
 
 # Hardware configuration.
 HW_CONFIG_SRC="/etc/nixos/hardware-configuration.nix"
@@ -215,18 +214,15 @@ EOF
 #
 # IMPORTANT:
 # This function is intentionally NON-FATAL.
-#
 # Failure to restore Syncthing identity must NEVER stop the full NixOS install.
 # The function returns success even when bootstrap fails.
 # ------------------------------------------------------------------------------
-
 bootstrap_syncthing_identity() {
     print_header "Syncthing Identity Bootstrap"
 
     # --------------------------------------------------------------------------
     # Existing identity
     # --------------------------------------------------------------------------
-
     if [[ -f "$SYNCTHING_CERT" && -f "$SYNCTHING_KEY" ]]; then
         echo "✓ Existing Syncthing identity found."
         echo "  Skipping NAS restore."
@@ -236,33 +232,26 @@ bootstrap_syncthing_identity() {
     # --------------------------------------------------------------------------
     # SMB credentials
     # --------------------------------------------------------------------------
-
     if [[ ! -f "$SMB_CRED_FILE" ]]; then
         print_warning \
             "SMB credentials are unavailable. \
 Syncthing identity will not be restored from NAS."
-
         return 0
     fi
 
     # --------------------------------------------------------------------------
     # Temporary directory
     # --------------------------------------------------------------------------
-
     local TEMP_DIR
-
     if ! TEMP_DIR="$(mktemp -d)"; then
         print_warning \
             "Could not create a temporary directory. \
 Syncthing identity restore skipped."
-
         return 0
     fi
-
     cleanup_syncthing_bootstrap() {
         rm -rf "$TEMP_DIR"
     }
-
     trap cleanup_syncthing_bootstrap RETURN
 
     # --------------------------------------------------------------------------
@@ -271,7 +260,6 @@ Syncthing identity restore skipped."
     # nix-shell is completely internal to this function.
     # The user does NOT need to run nix-shell manually.
     # --------------------------------------------------------------------------
-
     echo "Attempting to restore Syncthing identity from NAS..."
     echo
     echo "  Share: $SMB_BOOTSTRAP_SHARE"
@@ -287,7 +275,6 @@ Syncthing identity restore skipped."
 Syncthing identity restore skipped."
         return 0
     fi
-
     if ! sudo cat "$SMB_CRED_FILE" > "$TEMP_CRED"; then
         rm -f "$TEMP_CRED"
         print_warning \
@@ -297,7 +284,7 @@ Syncthing identity restore skipped."
     fi
     chmod 600 "$TEMP_CRED"
 
-    if ! nix-shell -p samba4Full --run "
+    if ! nix-shell -p samba --run "
         smbclient \
             \"$SMB_BOOTSTRAP_SHARE\" \
             -A \"$TEMP_CRED\" \
@@ -319,35 +306,28 @@ Installation will continue normally."
     # --------------------------------------------------------------------------
     # Validate downloaded files.
     # --------------------------------------------------------------------------
-
     if [[ ! -s "$TEMP_DIR/cert.pem" ]]; then
         print_warning \
             "cert.pem was not found on the NAS.
 Installation will continue normally."
-
         return 0
     fi
-
     if [[ ! -s "$TEMP_DIR/key.pem" ]]; then
         print_warning \
             "key.pem was not found on the NAS.
 Installation will continue normally."
-
         return 0
     fi
 
     # --------------------------------------------------------------------------
     # Install identity locally.
     # --------------------------------------------------------------------------
-
     if ! mkdir -p "$SYNCTHING_CONFIG_DIR"; then
         print_warning \
             "Could not create the local Syncthing configuration directory.
 Installation will continue normally."
-
         return 0
     fi
-
     if ! install \
         -m 0644 \
         "$TEMP_DIR/cert.pem" \
@@ -356,10 +336,8 @@ Installation will continue normally."
         print_warning \
             "Could not install cert.pem locally.
 Installation will continue normally."
-
         return 0
     fi
-
     if ! install \
         -m 0600 \
         "$TEMP_DIR/key.pem" \
@@ -368,35 +346,31 @@ Installation will continue normally."
         print_warning \
             "Could not install key.pem locally.
 Installation will continue normally."
-
         # Remove cert if key installation failed so we don't leave a partial
         # identity behind.
         rm -f "$SYNCTHING_CERT"
-
         return 0
     fi
 
-    if ! chown \
-        "$(id -u):$(id -g)" \
+    # Match the systemd service identity (User=oscarfaldi, Group=syncthing).
+    if ! sudo chown \
+        oscarfaldi:syncthing \
         "$SYNCTHING_CERT" \
         "$SYNCTHING_KEY"
     then
         print_warning \
             "Could not set Syncthing identity ownership.
 Installation will continue normally."
-
         return 0
     fi
 
     # --------------------------------------------------------------------------
     # Final validation.
     # --------------------------------------------------------------------------
-
     if [[ ! -r "$SYNCTHING_CERT" || ! -r "$SYNCTHING_KEY" ]]; then
         print_warning \
             "Syncthing identity validation failed.
 Installation will continue normally."
-
         return 0
     fi
 
