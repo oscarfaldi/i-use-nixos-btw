@@ -20,7 +20,7 @@ set -euo pipefail
 #   MKV
 #
 # Output:
-#   <filename>.mkv
+#   `<filename>.mkv`
 #
 # Supports:
 #   - Single file
@@ -189,7 +189,7 @@ for input in "${files[@]}"; do
     extension_lower="${input##*.}"
     extension_lower="${extension_lower,,}"
 
-    # MKV input is already in the requested container.
+    # Already in the requested container.
     if [[ "$extension_lower" == "mkv" ]]; then
         skipped=$((skipped + 1))
 
@@ -198,7 +198,7 @@ for input in "${files[@]}"; do
         echo "[$current/$total] $filename"
         echo "============================================================"
         echo
-        echo "[SKIP] Already an MKV file."
+        echo "[SKIP] Already a MKV file."
         continue
     fi
 
@@ -219,14 +219,13 @@ for input in "${files[@]}"; do
     original_size=$(stat -c%s "$input")
     remux_start=$(date +%s)
 
-    # ffmpeg produces machine-readable progress on stdout while all
-    # diagnostic output is kept in a separate temporary log.
     ffmpeg \
         -hide_banner \
         -loglevel warning \
         -i "$input" \
         -map 0 \
         -c copy \
+\
         -y \
         -progress pipe:1 \
         -nostats \
@@ -278,17 +277,6 @@ for input in "${files[@]}"; do
         remux_elapsed=$(( $(date +%s) - remux_start ))
 
         size_difference=$((final_size - original_size))
-
-        if [[ "$original_size" -gt 0 ]]; then
-            percent_difference=$(awk \
-                -v original="$original_size" \
-                -v final="$final_size" \
-                'BEGIN {
-                    printf "%.1f", (final/original-1)*100
-                }')
-        else
-            percent_difference="0.0"
-        fi
 
         mv -f "$tmp" "$output"
         rm -f "$input"
