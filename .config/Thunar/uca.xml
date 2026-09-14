@@ -304,7 +304,7 @@
     <name>Re-encode and Compress to HEVC MKV</name>
     <submenu>Media</submenu>
     <unique-id>1781935446753343-504</unique-id>
-    <command>reencode-and-compress-to-hevc-mkv %F/command>
+    <command>reencode-and-compress-to-hevc-mkv %F</command>
     <description>Re-encode and compress selected videos to HEVC MKV for long-term storage</description>
     <range>*</range>
     <patterns>
@@ -328,7 +328,7 @@
     <name>Re-encode and Compress to HEVC MP4</name>
     <submenu>Media</submenu>
     <unique-id>1781935446753343-505</unique-id>
-    <command>reencode-and-compress-to-hevc-mp4 %F/command>
+    <command>reencode-and-compress-to-hevc-mp4 %F</command>
     <description>Re-encode and compress selected videos to HEVC MP4 for maximum compatibility</description>
     <range>*</range>
     <patterns>
