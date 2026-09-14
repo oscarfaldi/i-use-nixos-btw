@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import os
 from pathlib import Path
 import subprocess
 import sys
@@ -30,8 +29,6 @@ VIDEO_EXTENSIONS = {
     ".ts",
     ".m4v",
 }
-
-GHOSTTY_ENV = "TRANSCRIBE_VIDEO_GHOSTTY"
 
 
 # ============================================================
@@ -124,33 +121,10 @@ def print_separator() -> None:
 
 
 def wait_before_close() -> None:
-    """Keep Ghostty open until the user presses Enter."""
+    """Keep the terminal open until the user presses Enter."""
     print()
     print()
     input("Press Enter to close...")
-
-
-# ============================================================
-# Ghostty Session
-# ============================================================
-
-
-def launch_in_ghostty(video_path: Path) -> int:
-    """Open one Ghostty window and run the real transcription inside it."""
-    env = os.environ.copy()
-    env[GHOSTTY_ENV] = "1"
-
-    return subprocess.call(
-        [
-            "ghostty",
-            "--title=Subtitle Generation",
-            "-e",
-            sys.executable,
-            str(Path(__file__).resolve()),
-            str(video_path),
-        ],
-        env=env,
-    )
 
 
 # ============================================================
@@ -391,11 +365,6 @@ def main() -> int:
 
     if video_path is None:
         return 1
-
-    # UCA/normal invocation: create exactly one Ghostty window.
-    # Child invocation: already inside Ghostty, so perform the work here.
-    if os.environ.get(GHOSTTY_ENV) != "1":
-        return launch_in_ghostty(video_path)
 
     return run_transcription(video_path)
 
