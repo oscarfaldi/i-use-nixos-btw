@@ -50,9 +50,10 @@ SMB_BOOTSTRAP_SHARE="//10.10.10.10/toolkit"
 SYNCTHING_REMOTE_DIR="Syncthing"
 
 # Local Syncthing identity.
-SYNCTHING_CONFIG_DIR="$HOME/.config/syncthing"
+SYNCTHING_CONFIG_DIR="/home/oscarfaldi/.config/syncthing"
 SYNCTHING_CERT="$SYNCTHING_CONFIG_DIR/cert.pem"
 SYNCTHING_KEY="$SYNCTHING_CONFIG_DIR/key.pem"
+SYNCTHING_BACKUP="/mnt/nas/toolkit/Syncthing"
 
 # Hardware configuration.
 HW_CONFIG_SRC="/etc/nixos/hardware-configuration.nix"
