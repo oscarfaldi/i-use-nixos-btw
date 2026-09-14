@@ -26,7 +26,7 @@ in
     (mkShellScript "convert-to-pdf")
     (mkShellScript "reencode-and-compress-to-hevc-mkv")
     (mkShellScript "reencode-and-compress-to-hevc-mp4")
-    (mkShellScript "batch-reencode-and-compress-hevc-mkv")
+    (mkShellScript "batch-reencode-and-compress-to-hevc-mkv")
     (mkShellScript "remux-to-mkv")
     (mkShellScript "remux-to-mp4")
 
