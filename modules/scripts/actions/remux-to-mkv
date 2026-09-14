@@ -3,44 +3,34 @@
 set -euo pipefail
 
 # ============================================================
-# Re-encode and Compress to HEVC MKV
+# Remux to MKV
 #
-# Re-encode selected videos to HEVC using NVIDIA NVENC, with
-# the goal of reducing file size.
+# Remux selected videos to MKV without re-encoding.
 #
 # Video:
-#   Codec        : HEVC (H.265)
-#   Profile      : Main
-#   Preset       : P5
-#   Rate Control : Constant QP (24)
-#   Lookahead    : 20
-#   Spatial AQ   : ON
-#   AQ Strength  : 4
+#   Codec        : Copy
 #
 # Audio:
-#   Copy original stream
+#   Codec        : Copy
+#
+# Streams:
+#   All streams are copied unchanged.
 #
 # Container:
 #   MKV
 #
 # Output:
-#   <filename>-encoded.mkv
+#   <filename>.mkv
 #
 # Supports:
 #   - Single file
 #   - Multiple selected files
-#   - Folder selection (non-recursive)
 #
 # Intended for Thunar Custom Actions using %F.
 # ============================================================
 
 notify() {
     notify-send "$1" "$2"
-}
-
-get_output_path() {
-    local input="$1"
-    echo "${input%.*}-encoded.mkv"
 }
 
 is_video_file() {
@@ -54,48 +44,57 @@ is_video_file() {
     esac
 }
 
+format_elapsed() {
+    local seconds="$1"
+
+    local hours=$((seconds / 3600))
+    local minutes=$(((seconds % 3600) / 60))
+    local secs=$((seconds % 60))
+
+    printf "%02d:%02d:%02d" "$hours" "$minutes" "$secs"
+}
+
 # ============================================================
-# Collect Files
+# Validate / Collect Files
 # ============================================================
 
 files=()
 
 if [[ "$#" -eq 0 ]]; then
     notify \
-        "Re-encode and Compress to HEVC MKV" \
-        "No input file or folder specified."
+        "Remux to MKV" \
+        "No input file specified."
 
+    echo
+    echo "No input file specified."
+    echo
+    read -r -p "Press Enter to close..."
     exit 1
 fi
 
 for input in "$@"; do
 
-    if [[ -d "$input" ]]; then
-
-        while IFS= read -r -d '' file; do
-            files+=("$file")
-        done < <(
-            find "$input" \
-                -maxdepth 1 \
-                -type f \
-                -print0
-        )
-
-    elif [[ -f "$input" ]]; then
+    if [[ -f "$input" ]]; then
 
         if is_video_file "$input"; then
             files+=("$input")
         else
             notify \
-                "Re-encode and Compress to HEVC MKV" \
+                "Remux to MKV" \
                 "$(basename "$input") is not a supported video file."
+
+            echo
+            echo "[SKIP] $(basename "$input") is not a supported video file."
         fi
 
     else
 
         notify \
-            "Re-encode and Compress to HEVC MKV" \
+            "Remux to MKV" \
             "Invalid path: $(basename "$input")"
+
+        echo
+        echo "[SKIP] Invalid path: $input"
 
     fi
 
@@ -104,411 +103,356 @@ done
 total=${#files[@]}
 
 if [[ "$total" -eq 0 ]]; then
+    echo
+    echo "No supported videos found."
+    echo
     notify \
-        "Re-encode and Compress to HEVC MKV" \
+        "Remux to MKV" \
         "No supported videos found."
 
+    read -r -p "Press Enter to close..."
     exit 0
 fi
 
 # ============================================================
-# Launch Processing Session
+# Session State
 # ============================================================
 
-set +e
+current=0
+success=0
+failed=0
+skipped=0
 
-ghostty \
-    --title="Re-encode and Compress to HEVC MKV" \
-    -e bash -c '
-        set -u
+total_original=0
+total_final=0
 
-        files=( "$@" )
+session_start=$(date +%s)
 
-        total=${#files[@]}
-        current=0
-        success=0
-        failed=0
+tmp=""
+ffmpeg_log=""
 
-        total_original=0
-        total_final=0
+cleanup() {
+    echo
+    echo
+    echo "============================================================"
+    echo " CANCELLED"
+    echo "============================================================"
+    echo
 
-        session_start=$(date +%s)
+    if [[ -n "$tmp" && -f "$tmp" ]]; then
+        rm -f "$tmp"
+    fi
 
-        tmp=""
-        ffmpeg_log=""
+    if [[ -n "$ffmpeg_log" && -f "$ffmpeg_log" ]]; then
+        rm -f "$ffmpeg_log"
+    fi
 
-        cleanup() {
-            echo
-            echo
-            echo "Interrupted."
+    echo "Temporary output removed."
+    echo "Source files were not intentionally deleted."
+    echo
 
-            [[ -n "$tmp" && -f "$tmp" ]] && rm -f "$tmp"
-            [[ -n "$ffmpeg_log" && -f "$ffmpeg_log" ]] && rm -f "$ffmpeg_log"
+    notify \
+        "Remux Cancelled" \
+        "The remux operation was interrupted."
 
-            echo
-            echo "Source files were not intentionally deleted."
+    read -r -p "Press Enter to close..."
+    exit 130
+}
 
-            echo
-            read -r -p "Press Enter to close..."
-            exit 130
-        }
+trap cleanup INT TERM
 
-        trap cleanup INT TERM
+# ============================================================
+# Header
+# ============================================================
+
+echo
+echo "============================================================"
+echo " REMUX TO MKV"
+echo "============================================================"
+echo "Files       : $total"
+echo "Video       : Copy"
+echo "Audio       : Copy"
+echo "Streams     : All"
+echo "Container   : MKV"
+echo "Re-encode   : No"
+echo "============================================================"
+
+# ============================================================
+# Process Files
+# ============================================================
+
+for input in "${files[@]}"; do
+
+    current=$((current + 1))
+
+    filename="$(basename "$input")"
+    extension_lower="${input##*.}"
+    extension_lower="${extension_lower,,}"
+
+    # MKV input is already in the requested container.
+    if [[ "$extension_lower" == "mkv" ]]; then
+        skipped=$((skipped + 1))
 
         echo
         echo "============================================================"
-        echo " RE-ENCODE AND COMPRESS TO HEVC MKV"
+        echo "[$current/$total] $filename"
         echo "============================================================"
-        echo "Files       : $total"
-        echo "Codec       : HEVC"
-        echo "Preset      : P5"
-        echo "QP          : 24"
-        echo "Audio       : Copy"
-        echo "Container   : MKV"
-        echo "============================================================"
+        echo
+        echo "[SKIP] Already an MKV file."
+        continue
+    fi
 
-        for input in "${files[@]}"; do
+    output="${input%.*}.mkv"
+    tmp="${output}.remux-tmp.mkv"
+    ffmpeg_log="${tmp}.log"
 
-            current=$((current + 1))
+    rm -f "$tmp" "$ffmpeg_log"
 
-            filename="$(basename "$input")"
-            output="${input%.*}-encoded.mkv"
+    echo
+    echo "============================================================"
+    echo "[$current/$total] $filename"
+    echo "============================================================"
+    echo "Source : $input"
+    echo "Output : $output"
+    echo
 
-            tmp="${output}.nvenc-tmp.mkv"
-            ffmpeg_log="${tmp}.log"
+    original_size=$(stat -c%s "$input")
+    remux_start=$(date +%s)
 
-            rm -f "$tmp" "$ffmpeg_log"
+    # ffmpeg produces machine-readable progress on stdout while all
+    # diagnostic output is kept in a separate temporary log.
+    ffmpeg \
+        -hide_banner \
+        -loglevel warning \
+        -i "$input" \
+        -map 0 \
+        -c copy \
+        -y \
+        -progress pipe:1 \
+        -nostats \
+        "$tmp" \
+        2>"$ffmpeg_log" |
+    while IFS="=" read -r key value; do
 
-            echo
-            echo "============================================================"
-            echo "[$current/$total] $filename"
-            echo "============================================================"
-            echo "Source : $input"
-            echo "Output : $output"
-            echo
+        if [[ "$key" == "out_time_us" ]]; then
+            current_us="$value"
 
-            duration=$(ffprobe \
-                -v error \
-                -show_entries format=duration \
-                -of default=noprint_wrappers=1:nokey=1 \
-                "$input")
+            current_seconds=$((current_us / 1000000))
+            elapsed=$(( $(date +%s) - remux_start ))
 
-            if [[ -z "$duration" ]]; then
-
-                echo "[FAILED] Could not determine video duration."
-                echo "Source file preserved."
-
-                failed=$((failed + 1))
-
-                rm -f "$tmp" "$ffmpeg_log"
-                tmp=""
-                ffmpeg_log=""
-
-                continue
-            fi
-
-            original_size=$(stat -c%s "$input")
-            encode_start=$(date +%s)
-
-            ffmpeg \
-                -hide_banner \
-                -loglevel warning \
-                -hwaccel_device 0 \
-                -hwaccel cuda \
-                -init_hw_device cuda=hw \
-                -filter_hw_device hw \
-                -hwaccel_output_format cuda \
-                -i "$input" \
-                -map 0:v:0 \
-                -map "0:a?" \
-                -sn \
-                -dn \
-                -c:v hevc_nvenc \
-                -gpu 0 \
-                -preset p5 \
-                -profile:v main \
-                -rc constqp \
-                -qp 24 \
-                -rc-lookahead 20 \
-                -spatial-aq 1 \
-                -aq-strength 4 \
-                -c:a copy \
-                -y \
-                -progress pipe:1 \
-                -nostats \
-                "$tmp" \
-                2>"$ffmpeg_log" |
-            while IFS="=" read -r key value; do
-
-                if [[ "$key" == "out_time_us" ]]; then
-
-                    current_us="$value"
-
-                    current_seconds=$(awk \
-                        "BEGIN {print $current_us / 1000000}")
-
-                    percent=$(awk \
-                        -v current="$current_seconds" \
-                        -v total="$duration" \
-                        "BEGIN {
-                            if (total > 0)
-                                printf \"%.1f\", (current / total) * 100
-                            else
-                                print \"0.0\"
-                        }")
-
-                    elapsed=$(($(date +%s) - encode_start))
-
-                    speed=$(awk \
-                        -v current="$current_seconds" \
-                        -v elapsed="$elapsed" \
-                        "BEGIN {
-                            if (elapsed > 0)
-                                printf \"%.2f\", current / elapsed
-                            else
-                                print \"0.00\"
-                        }")
-
-                    eta=$(awk \
-                        -v current="$current_seconds" \
-                        -v total="$duration" \
-                        -v elapsed="$elapsed" \
-                        "BEGIN {
-                            if (current > 0)
-                                printf \"%.0f\", (total-current)*elapsed/current
-                            else
-                                print 0
-                        }")
-
-                    eta_h=$((eta / 3600))
-                    eta_m=$(((eta % 3600) / 60))
-                    eta_s=$((eta % 60))
-
-                    printf "\rProgress: %6s%% | Speed: %5sx | ETA: %02d:%02d:%02d" \
-                        "$percent" \
-                        "$speed" \
-                        "$eta_h" \
-                        "$eta_m" \
-                        "$eta_s"
-                fi
-
-            done
-
-            ffmpeg_exit_code=${PIPESTATUS[0]}
-
-            echo
-
-            # ==================================================
-            # Success
-            # ==================================================
-
-            if [[ "$ffmpeg_exit_code" -eq 0 && -s "$tmp" ]]; then
-
-                touch -r "$input" "$tmp"
-
-                final_size=$(stat -c%s "$tmp")
-
-                total_original=$((total_original + original_size))
-                total_final=$((total_final + final_size))
-
-                encode_elapsed=$(($(date +%s) - encode_start))
-
-                encode_h=$((encode_elapsed / 3600))
-                encode_m=$(((encode_elapsed % 3600) / 60))
-                encode_s=$((encode_elapsed % 60))
-
-                size_difference=$((final_size - original_size))
-
-                if [[ "$original_size" -gt 0 ]]; then
-
-                    percent_difference=$(awk \
-                        -v original="$original_size" \
-                        -v final="$final_size" \
-                        "BEGIN {
-                            printf \"%.1f\", (final/original-1)*100
-                        }")
-
-                else
-
-                    percent_difference="0.0"
-
-                fi
-
-                mv -f "$tmp" "$output"
-                rm -f "$input"
-
-                echo
-                echo "[OK] Re-encode and compression complete!"
-                echo
-                echo "Source : $(numfmt --to=iec "$original_size")"
-                echo "Output : $(numfmt --to=iec "$final_size")"
-
-                if [[ "$size_difference" -lt 0 ]]; then
-
-                    saved=$((-size_difference))
-
-                    saved_percent=$(awk \
-                        -v original="$original_size" \
-                        -v final="$final_size" \
-                        "BEGIN {
-                            printf \"%.1f\", (1-final/original)*100
-                        }")
-
-                    echo "Saved  : $(numfmt --to=iec "$saved") (-$saved_percent%)"
-
-                elif [[ "$size_difference" -gt 0 ]]; then
-
-                    increase="$size_difference"
-
-                    increase_percent=$(awk \
-                        -v original="$original_size" \
-                        -v final="$final_size" \
-                        "BEGIN {
-                            printf \"%.1f\", (final/original-1)*100
-                        }")
-
-                    echo "Saved  : +$(numfmt --to=iec "$increase") (+$increase_percent%)"
-
-                else
-
-                    echo "Saved  : 0 B (0.0%)"
-
-                fi
-
-                printf "Elapsed: %02d:%02d:%02d\n" \
-                    "$encode_h" \
-                    "$encode_m" \
-                    "$encode_s"
-
-                echo "Output : $(basename "$output")"
-
-                success=$((success + 1))
-
-            # ==================================================
-            # Failure
-            # ==================================================
-
+            if (( elapsed > 0 )); then
+                speed=$(awk \
+                    -v current="$current_seconds" \
+                    -v elapsed="$elapsed" \
+                    'BEGIN {
+                        printf "%.2f", current/elapsed
+                    }')
             else
-
-                echo
-                echo "[FAILED] Re-encode and compression failed."
-                echo
-                echo "Source file preserved."
-                echo "Temporary output removed."
-
-                if [[ -s "$ffmpeg_log" ]]; then
-
-                    echo
-                    echo "FFmpeg output:"
-                    echo "------------------------------------------------------------"
-
-                    sed "s/^/  /" "$ffmpeg_log"
-
-                    echo "------------------------------------------------------------"
-
-                else
-
-                    echo
-                    echo "FFmpeg did not provide additional error output."
-                    echo "Exit code: $ffmpeg_exit_code"
-
-                fi
-
-                rm -f "$tmp"
-
-                failed=$((failed + 1))
-
+                speed="0.00"
             fi
 
-            rm -f "$ffmpeg_log"
+            printf "\rProcessed: %s | Speed: %sx" \
+                "$(format_elapsed "$current_seconds")" \
+                "$speed"
+        fi
 
-            tmp=""
-            ffmpeg_log=""
+    done
 
-        done
+    ffmpeg_exit_code=${PIPESTATUS[0]}
 
-        # ====================================================
-        # Summary
-        # ====================================================
+    echo
 
-        session_end=$(date +%s)
-        session_elapsed=$((session_end - session_start))
+    # ========================================================
+    # Success
+    # ========================================================
+
+    if [[ "$ffmpeg_exit_code" -eq 0 && -s "$tmp" ]]; then
+
+        touch -r "$input" "$tmp"
+
+        final_size=$(stat -c%s "$tmp")
+
+        total_original=$((total_original + original_size))
+        total_final=$((total_final + final_size))
+
+        remux_elapsed=$(( $(date +%s) - remux_start ))
+
+        size_difference=$((final_size - original_size))
+
+        if [[ "$original_size" -gt 0 ]]; then
+            percent_difference=$(awk \
+                -v original="$original_size" \
+                -v final="$final_size" \
+                'BEGIN {
+                    printf "%.1f", (final/original-1)*100
+                }')
+        else
+            percent_difference="0.0"
+        fi
+
+        mv -f "$tmp" "$output"
+        rm -f "$input"
 
         echo
+        echo "[OK] Remux complete!"
         echo
-        echo "============================================================"
-        echo " RE-ENCODE AND COMPRESS COMPLETE"
-        echo "============================================================"
-        echo "Processed     : $current/$total"
-        echo "Successful    : $success"
-        echo "Failed        : $failed"
-        echo
+        echo "Source : $(numfmt --to=iec "$original_size")"
+        echo "Output : $(numfmt --to=iec "$final_size")"
 
-        echo "Original size : $(numfmt --to=iec "$total_original")"
-        echo "Final size    : $(numfmt --to=iec "$total_final")"
+        if [[ "$size_difference" -lt 0 ]]; then
 
-        if [[ "$total_original" -gt 0 ]]; then
+            saved=$((-size_difference))
 
-            total_difference=$((total_final - total_original))
+            saved_percent=$(awk \
+                -v original="$original_size" \
+                -v final="$final_size" \
+                'BEGIN {
+                    printf "%.1f", (1-final/original)*100
+                }')
 
-            if [[ "$total_difference" -lt 0 ]]; then
+            echo "Saved  : $(numfmt --to=iec "$saved") (-$saved_percent%)"
 
-                total_saved=$((-total_difference))
+        elif [[ "$size_difference" -gt 0 ]]; then
 
-                total_saved_percent=$(awk \
-                    -v original="$total_original" \
-                    -v final="$total_final" \
-                    "BEGIN {
-                        printf \"%.1f\", (1-final/original)*100
-                    }")
+            increase="$size_difference"
 
-                echo "Space saved   : $(numfmt --to=iec "$total_saved") (-$total_saved_percent%)"
+            increase_percent=$(awk \
+                -v original="$original_size" \
+                -v final="$final_size" \
+                'BEGIN {
+                    printf "%.1f", (final/original-1)*100
+                }')
 
-            elif [[ "$total_difference" -gt 0 ]]; then
-
-                total_increase="$total_difference"
-
-                total_increase_percent=$(awk \
-                    -v original="$total_original" \
-                    -v final="$total_final" \
-                    "BEGIN {
-                        printf \"%.1f\", (final/original-1)*100
-                    }")
-
-                echo "Saved         : +$(numfmt --to=iec "$total_increase") (+$total_increase_percent%)"
-
-            else
-
-                echo "Saved         : 0 B (0.0%)"
-
-            fi
+            echo "Saved  : +$(numfmt --to=iec "$increase") (+$increase_percent%)"
 
         else
 
-            echo "Space change  : N/A"
+            echo "Saved  : 0 B (0.0%)"
 
         fi
 
-        session_h=$((session_elapsed / 3600))
-        session_m=$(((session_elapsed % 3600) / 60))
-        session_s=$((session_elapsed % 60))
+        printf "Elapsed: %s\n" "$(format_elapsed "$remux_elapsed")"
+        echo "Output : $(basename "$output")"
+
+        success=$((success + 1))
+
+    # ========================================================
+    # Failure
+    # ========================================================
+
+    else
 
         echo
-        printf "Elapsed       : %02d:%02d:%02d\n" \
-            "$session_h" \
-            "$session_m" \
-            "$session_s"
-
+        echo "[FAILED] Remux failed."
         echo
-        echo "============================================================"
-        echo
+        echo "Source file preserved."
+        echo "Temporary output removed."
 
-        read -r -p "Press Enter to close..."
+        if [[ -s "$ffmpeg_log" ]]; then
+            echo
+            echo "FFmpeg output:"
+            echo "------------------------------------------------------------"
 
-    ' _ "${files[@]}"
+            sed 's/^/  /' "$ffmpeg_log"
 
-status=$?
+            echo "------------------------------------------------------------"
+        else
+            echo
+            echo "FFmpeg did not provide additional error output."
+            echo "Exit code: $ffmpeg_exit_code"
+        fi
 
-set -e
+        rm -f "$tmp"
 
-exit "$status"
+        failed=$((failed + 1))
+
+    fi
+
+    rm -f "$ffmpeg_log"
+
+    tmp=""
+    ffmpeg_log=""
+
+done
+
+# ============================================================
+# Summary
+# ============================================================
+
+session_end=$(date +%s)
+session_elapsed=$((session_end - session_start))
+
+echo
+echo
+echo "============================================================"
+echo " REMUX TO MKV COMPLETE"
+echo "============================================================"
+echo "Processed     : $current/$total"
+echo "Successful    : $success"
+echo "Skipped       : $skipped"
+echo "Failed        : $failed"
+echo
+
+echo "Original size : $(numfmt --to=iec "$total_original")"
+echo "Final size    : $(numfmt --to=iec "$total_final")"
+
+if [[ "$total_original" -gt 0 ]]; then
+
+    total_difference=$((total_final - total_original))
+
+    if [[ "$total_difference" -lt 0 ]]; then
+
+        total_saved=$((-total_difference))
+
+        total_saved_percent=$(awk \
+            -v original="$total_original" \
+            -v final="$total_final" \
+            'BEGIN {
+                printf "%.1f", (1-final/original)*100
+            }')
+
+        echo "Space saved   : $(numfmt --to=iec "$total_saved") (-$total_saved_percent%)"
+
+    elif [[ "$total_difference" -gt 0 ]]; then
+
+        total_increase="$total_difference"
+
+        total_increase_percent=$(awk \
+            -v original="$total_original" \
+            -v final="$total_final" \
+            'BEGIN {
+                printf "%.1f", (final/original-1)*100
+            }')
+
+        echo "Saved         : +$(numfmt --to=iec "$total_increase") (+$total_increase_percent%)"
+
+    else
+
+        echo "Saved         : 0 B (0.0%)"
+
+    fi
+
+else
+
+    echo "Space change  : N/A"
+
+fi
+
+echo
+echo "Elapsed       : $(format_elapsed "$session_elapsed")"
+
+echo
+echo "============================================================"
+echo
+
+if (( failed > 0 )); then
+    notify \
+        "Remux to MKV Finished" \
+        "$success successful, $failed failed, $skipped skipped."
+else
+    notify \
+        "Remux to MKV Complete" \
+        "$success successful, $skipped skipped."
+fi
+
+read -r -p "Press Enter to close..."
