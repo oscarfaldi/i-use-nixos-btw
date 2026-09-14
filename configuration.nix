@@ -89,6 +89,12 @@
       "glacier:UzkmMZRtnjiYaNB/X8Guih4cdla1RDkkNRhJVgeGKCk="
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
     ];
+
+    trusted-substituters = [
+      "http://10.10.10.132:8501"
+    ];
+
+    narinfo-cache-negative-ttl = 0;
   };
 
   # ZRAM: compressed RAM swap, 50% ceiling (~16GB, safety net for heavy browsing)
