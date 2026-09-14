@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
+
+import os
 from pathlib import Path
 import subprocess
 import sys
 import time
+import traceback
+from typing import Optional
+
 from faster_whisper import WhisperModel
+
 
 # ============================================================
 # Configuration
@@ -20,8 +26,13 @@ VIDEO_EXTENSIONS = {
     ".avi",
     ".webm",
     ".mts",
+    ".m2ts",
+    ".ts",
     ".m4v",
 }
+
+GHOSTTY_ENV = "TRANSCRIBE_VIDEO_GHOSTTY"
+
 
 # ============================================================
 # Notifications
@@ -29,7 +40,7 @@ VIDEO_EXTENSIONS = {
 
 
 def notify(title: str, message: str) -> None:
-    """Sends a system notification via notify-send."""
+    """Send a desktop notification without affecting the process."""
     try:
         subprocess.run(
             ["notify-send", title, message],
@@ -45,8 +56,8 @@ def notify(title: str, message: str) -> None:
 
 
 def format_timestamp(seconds: float) -> str:
-    """Formats seconds into standard HH:MM:SS format."""
-    seconds = int(seconds)
+    """Format seconds as HH:MM:SS."""
+    seconds = max(0, int(seconds))
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     secs = seconds % 60
@@ -54,133 +65,340 @@ def format_timestamp(seconds: float) -> str:
 
 
 def format_srt_timestamp(seconds: float) -> str:
-    """Formats seconds into SRT-compliant HH:MM:SS,mmm format."""
-    milliseconds = int(round(seconds * 1000))
-    hours = milliseconds // 3600000
-    milliseconds %= 3600000
+    """Format seconds as SRT HH:MM:SS,mmm."""
+    milliseconds = max(0, int(round(seconds * 1000)))
 
-    minutes = milliseconds // 60000
-    milliseconds %= 60000
+    hours = milliseconds // 3_600_000
+    milliseconds %= 3_600_000
 
-    secs = milliseconds // 1000
-    milliseconds %= 1000
+    minutes = milliseconds // 60_000
+    milliseconds %= 60_000
+
+    secs = milliseconds // 1_000
+    milliseconds %= 1_000
 
     return f"{hours:02}:{minutes:02}:{secs:02},{milliseconds:03}"
 
 
+def format_speed(processed_seconds: float, elapsed_seconds: float) -> str:
+    if processed_seconds <= 0 or elapsed_seconds <= 0:
+        return "0.00x"
+    return f"{processed_seconds / elapsed_seconds:.2f}x"
+
+
+def format_eta(
+    processed_seconds: float,
+    total_seconds: float,
+    elapsed_seconds: float,
+) -> str:
+    if processed_seconds <= 0 or elapsed_seconds <= 0 or total_seconds <= 0:
+        return "--:--:--"
+
+    speed = processed_seconds / elapsed_seconds
+    if speed <= 0:
+        return "--:--:--"
+
+    remaining = max(0.0, total_seconds - processed_seconds)
+    return format_timestamp(remaining / speed)
+
+
 def next_available_srt(video_path: Path) -> Path:
-    """Finds the next non-conflicting SRT file path."""
+    """Find the next non-conflicting SRT output path."""
     first = video_path.with_suffix(".srt")
+
     if not first.exists():
         return first
 
     counter = 1
     while True:
         candidate = video_path.parent / f"{video_path.stem} ({counter}).srt"
+
         if not candidate.exists():
             return candidate
+
         counter += 1
+
+
+def print_separator() -> None:
+    print("=" * 72)
+
+
+def wait_before_close() -> None:
+    """Keep Ghostty open until the user presses Enter."""
+    print()
+    print()
+    input("Press Enter to close...")
+
+
+# ============================================================
+# Ghostty Session
+# ============================================================
+
+
+def launch_in_ghostty(video_path: Path) -> int:
+    """Open one Ghostty window and run the real transcription inside it."""
+    env = os.environ.copy()
+    env[GHOSTTY_ENV] = "1"
+
+    return subprocess.call(
+        [
+            "ghostty",
+            "--title=Subtitle Generation",
+            "-e",
+            sys.executable,
+            str(Path(__file__).resolve()),
+            str(video_path),
+        ],
+        env=env,
+    )
 
 
 # ============================================================
 # Validation
 # ============================================================
 
-if len(sys.argv) != 2:
-    notify(
-        "Subtitle Generation Failed",
-        "No input file specified",
+
+def validate_input(argv: list[str]) -> Optional[Path]:
+    if len(argv) != 2:
+        notify(
+            "Subtitle Generation Failed",
+            "Select exactly one video file",
+        )
+        return None
+
+    video_path = Path(argv[1]).expanduser()
+
+    if not video_path.exists():
+        notify(
+            "Subtitle Generation Failed",
+            f"File not found: {video_path.name}",
+        )
+        return None
+
+    if not video_path.is_file():
+        notify(
+            "Subtitle Generation Failed",
+            f"Not a file: {video_path.name}",
+        )
+        return None
+
+    if video_path.suffix.lower() not in VIDEO_EXTENSIONS:
+        notify(
+            "Subtitle Generation Failed",
+            f"Unsupported extension: {video_path.suffix}",
+        )
+        return None
+
+    return video_path
+
+
+# ============================================================
+# Progress
+# ============================================================
+
+
+def print_progress(
+    processed_seconds: float,
+    total_seconds: float,
+    elapsed_seconds: float,
+) -> None:
+    if total_seconds > 0:
+        percent = min(100.0, max(0.0, (processed_seconds / total_seconds) * 100.0))
+    else:
+        percent = 0.0
+
+    speed = format_speed(processed_seconds, elapsed_seconds)
+    eta = format_eta(processed_seconds, total_seconds, elapsed_seconds)
+
+    print(
+        "\r"
+        f"Progress: {percent:5.1f}% | "
+        f"Processed: {format_timestamp(processed_seconds)} / "
+        f"{format_timestamp(total_seconds)} | "
+        f"Speed: {speed} | "
+        f"ETA: {eta}",
+        end="",
+        flush=True,
     )
-    sys.exit(1)
 
-video_path = Path(sys.argv[1]).expanduser()
 
-if not video_path.exists():
-    notify("Subtitle Generation Failed", f"File not found: {video_path.name}")
-    sys.exit(1)
+# ============================================================
+# Transcription
+# ============================================================
 
-if video_path.suffix.lower() not in VIDEO_EXTENSIONS:
-    notify(
-        "Subtitle Generation Failed",
-        f"Unsupported extension: {video_path.suffix}",
-    )
-    sys.exit(1)
+
+def run_transcription(video_path: Path) -> int:
+    srt_path = next_available_srt(video_path)
+    start_time = time.time()
+
+    notify("Generating Subtitle", video_path.name)
+
+    print()
+    print_separator()
+    print(" TRANSCRIBE VIDEO TO SRT")
+    print_separator()
+    print()
+    print(f"Input    : {video_path.name}")
+    print(f"Output   : {srt_path.name}")
+    print(f"Model    : {MODEL}")
+    print(f"Language : {LANGUAGE}")
+    print(f"Device   : {DEVICE}")
+    print()
+    print_separator()
+    print()
+
+    try:
+        print("Loading model...")
+        print()
+
+        model = WhisperModel(MODEL, device=DEVICE)
+
+        print("Model loaded.")
+        print()
+        print("Starting transcription...")
+        print()
+
+        segments, info = model.transcribe(
+            str(video_path),
+            language=LANGUAGE,
+        )
+
+        total_duration = float(info.duration)
+
+        print(f"Duration : {format_timestamp(total_duration)}")
+        print()
+
+        segment_count = 0
+        last_processed = 0.0
+        last_reported_second = -1
+
+        with open(srt_path, "w", encoding="utf-8") as srt:
+            for segment_count, segment in enumerate(segments, start=1):
+                processed = min(float(segment.end), total_duration)
+                elapsed = time.time() - start_time
+
+                # Avoid flooding the terminal while keeping progress live.
+                processed_second = int(processed)
+                if processed_second != last_reported_second:
+                    print_progress(processed, total_duration, elapsed)
+                    last_reported_second = processed_second
+
+                last_processed = processed
+
+                srt.write(f"{segment_count}\n")
+                srt.write(
+                    f"{format_srt_timestamp(segment.start)} --> "
+                    f"{format_srt_timestamp(segment.end)}\n"
+                )
+                srt.write(f"{segment.text.strip()}\n\n")
+                srt.flush()
+
+        elapsed = time.time() - start_time
+
+        # Force the final progress state to exactly 100%.
+        print_progress(total_duration, total_duration, elapsed)
+
+        print()
+        print()
+        print_separator()
+        print(" COMPLETE")
+        print_separator()
+        print()
+        print(f"Input     : {video_path.name}")
+        print(f"Output    : {srt_path.name}")
+        print(f"Segments  : {segment_count}")
+        print(f"Duration  : {format_timestamp(total_duration)}")
+        print(f"Elapsed   : {format_timestamp(elapsed)}")
+        print(
+            f"Speed     : "
+            f"{format_speed(total_duration or last_processed, elapsed)}"
+        )
+        print()
+        print_separator()
+
+        notify("Subtitle Ready", srt_path.name)
+        wait_before_close()
+        return 0
+
+    except KeyboardInterrupt:
+        elapsed = time.time() - start_time
+
+        print()
+        print()
+        print_separator()
+        print(" CANCELLED")
+        print_separator()
+        print()
+        print(f"Input     : {video_path.name}")
+        print(f"Elapsed   : {format_timestamp(elapsed)}")
+
+        if srt_path.exists():
+            print(f"Partial SRT: {srt_path.name}")
+            print("The partial subtitle file was preserved.")
+
+        print()
+        print_separator()
+
+        notify("Subtitle Generation Cancelled", video_path.name)
+        wait_before_close()
+        return 130
+
+    except Exception as exc:
+        elapsed = time.time() - start_time
+
+        print()
+        print()
+        print_separator()
+        print(" FAILED")
+        print_separator()
+        print()
+        print(f"Input     : {video_path.name}")
+        print(f"Elapsed   : {format_timestamp(elapsed)}")
+        print()
+        print("Error:")
+        print(f"{type(exc).__name__}: {exc}")
+        print()
+
+        if srt_path.exists():
+            print(f"Partial output: {srt_path}")
+            print("The partial subtitle file was preserved.")
+            print()
+
+        print("Traceback:")
+        print("----------------------------------------------------------------" )
+        traceback.print_exc()
+        print("----------------------------------------------------------------")
+
+        print()
+        print_separator()
+
+        notify(
+            "Subtitle Generation Failed",
+            f"{video_path.name}: {type(exc).__name__}",
+        )
+
+        wait_before_close()
+        return 1
+
 
 # ============================================================
 # Main
 # ============================================================
 
-notify("Generating Subtitle", video_path.name)
-srt_path = next_available_srt(video_path)
-start_time = time.time()
 
-print()
-print("=" * 60)
-print("FASTER WHISPER")
-print("=" * 60)
-print()
-print(f"Input : {video_path.name}")
-print(f"Output: {srt_path.name}")
-print()
+def main() -> int:
+    video_path = validate_input(sys.argv)
 
-try:
-    print("Loading model...")
-    print()
+    if video_path is None:
+        return 1
 
-    model = WhisperModel(MODEL, device=DEVICE)
+    # UCA/normal invocation: create exactly one Ghostty window.
+    # Child invocation: already inside Ghostty, so perform the work here.
+    if os.environ.get(GHOSTTY_ENV) != "1":
+        return launch_in_ghostty(video_path)
 
-    print("Model loaded.")
-    print()
+    return run_transcription(video_path)
 
-    segments, info = model.transcribe(str(video_path), language=LANGUAGE)
-    total_duration = info.duration
 
-    print(f"Duration: {format_timestamp(total_duration)}")
-    print()
-
-    last_percent = -1
-
-    with open(srt_path, "w", encoding="utf-8") as srt:
-        for index, segment in enumerate(segments, start=1):
-            percent = int((segment.end / total_duration) * 100)
-
-            if percent > 100:
-                percent = 100
-
-            if percent != last_percent:
-                print(
-                    f"[{percent:3d}%] "
-                    f"{format_timestamp(segment.end)} / "
-                    f"{format_timestamp(total_duration)}"
-                )
-                last_percent = percent
-
-            srt.write(f"{index}\n")
-            srt.write(
-                f"{format_srt_timestamp(segment.start)} --> "
-                f"{format_srt_timestamp(segment.end)}\n"
-            )
-            srt.write(f"{segment.text.strip()}\n\n")
-
-except Exception:
-    notify(
-        "Subtitle Generation Failed",
-        video_path.name
-    )
-    raise
-
-# ============================================================
-# Completion
-# ============================================================
-
-elapsed = round(time.time() - start_time)
-
-print()
-print("=" * 60)
-print("COMPLETE")
-print("=" * 60)
-print()
-print(f"SRT : {srt_path}")
-print(f"Time: {elapsed} seconds")
-
-notify("Subtitle Ready", srt_path.name)
+if __name__ == "__main__":
+    sys.exit(main())
