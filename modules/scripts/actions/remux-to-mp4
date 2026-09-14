@@ -5,42 +5,33 @@ set -euo pipefail
 # ============================================================
 # Remux to MP4
 #
-# Remux selected videos into MP4 without re-encoding.
+# Remux selected videos to MP4 without re-encoding.
 #
 # Video:
-#   Stream copy
+#   Codec        : Copy
 #
 # Audio:
-#   Stream copy
+#   Codec        : Copy
 #
-# Re-encode:
-#   No
+# Streams:
+#   First video stream and all audio streams are copied.
+#   Subtitle and data streams are not forced into MP4.
 #
 # Container:
 #   MP4
 #
-# Notes:
-#   - Only MP4-compatible video/audio streams are copied.
-#   - Subtitle and data streams are not forced into the output.
-#
 # Output:
-#   <filename>-remuxed.mp4
+#   `<filename>-remuxed.mp4`
 #
 # Supports:
 #   - Single file
 #   - Multiple selected files
-#   - Folder selection (non-recursive)
 #
 # Intended for Thunar Custom Actions using %F.
 # ============================================================
 
 notify() {
     notify-send "$1" "$2"
-}
-
-get_output_path() {
-    local input="$1"
-    echo "${input%.*}-remuxed.mp4"
 }
 
 is_video_file() {
@@ -54,40 +45,37 @@ is_video_file() {
     esac
 }
 
+format_elapsed() {
+    local seconds="$1"
+
+    local hours=$((seconds / 3600))
+    local minutes=$(((seconds % 3600) / 60))
+    local secs=$((seconds % 60))
+
+    printf "%02d:%02d:%02d" "$hours" "$minutes" "$secs"
+}
+
 # ============================================================
-# Collect Files
+# Validate / Collect Files
 # ============================================================
 
 files=()
 
 if [[ "$#" -eq 0 ]]; then
-
     notify \
         "Remux to MP4" \
-        "No input file or folder specified."
+        "No input file specified."
 
+    echo
+    echo "No input file specified."
+    echo
+    read -r -p "Press Enter to close..."
     exit 1
-
 fi
 
 for input in "$@"; do
 
-    if [[ -d "$input" ]]; then
-
-        while IFS= read -r -d '' file; do
-
-            if is_video_file "$file"; then
-                files+=("$file")
-            fi
-
-        done < <(
-            find "$input" \
-                -maxdepth 1 \
-                -type f \
-                -print0
-        )
-
-    elif [[ -f "$input" ]]; then
+    if [[ -f "$input" ]]; then
 
         if is_video_file "$input"; then
             files+=("$input")
@@ -95,6 +83,9 @@ for input in "$@"; do
             notify \
                 "Remux to MP4" \
                 "$(basename "$input") is not a supported video file."
+
+            echo
+            echo "[SKIP] $(basename "$input") is not a supported video file."
         fi
 
     else
@@ -103,6 +94,9 @@ for input in "$@"; do
             "Remux to MP4" \
             "Invalid path: $(basename "$input")"
 
+        echo
+        echo "[SKIP] Invalid path: $input"
+
     fi
 
 done
@@ -110,404 +104,348 @@ done
 total=${#files[@]}
 
 if [[ "$total" -eq 0 ]]; then
-
+    echo
+    echo "No supported videos found."
+    echo
     notify \
         "Remux to MP4" \
         "No supported videos found."
 
+    read -r -p "Press Enter to close..."
     exit 0
-
 fi
 
 # ============================================================
-# Launch Processing Session
+# Session State
 # ============================================================
 
-set +e
+current=0
+success=0
+failed=0
+skipped=0
 
-ghostty \
-    --title="Remux to MP4" \
-    -e bash -c '
-        set -u
+total_original=0
+total_final=0
 
-        files=( "$@" )
+session_start=$(date +%s)
 
-        total=${#files[@]}
-        current=0
-        success=0
-        failed=0
-        skipped=0
+tmp=""
+ffmpeg_log=""
 
-        total_original=0
-        total_final=0
+cleanup() {
+    echo
+    echo
+    echo "============================================================"
+    echo " CANCELLED"
+    echo "============================================================"
+    echo
 
-        session_start=$(date +%s)
+    if [[ -n "$tmp" && -f "$tmp" ]]; then
+        rm -f "$tmp"
+    fi
 
-        tmp=""
-        ffmpeg_log=""
+    if [[ -n "$ffmpeg_log" && -f "$ffmpeg_log" ]]; then
+        rm -f "$ffmpeg_log"
+    fi
 
-        cleanup() {
-            echo
-            echo
-            echo "Interrupted."
+    echo "Temporary output removed."
+    echo "Source files were not intentionally deleted."
+    echo
 
-            [[ -n "$tmp" && -f "$tmp" ]] && rm -f "$tmp"
-            [[ -n "$ffmpeg_log" && -f "$ffmpeg_log" ]] && rm -f "$ffmpeg_log"
+    notify \
+        "Remux Cancelled" \
+        "The remux operation was interrupted."
 
-            echo
-            echo "Source files were not intentionally deleted."
-            echo
-            read -r -p "Press Enter to close..."
+    read -r -p "Press Enter to close..."
+    exit 130
+}
 
-            exit 130
-        }
+trap cleanup INT TERM
 
-        trap cleanup INT TERM
+# ============================================================
+# Header
+# ============================================================
+
+echo
+echo "============================================================"
+echo " REMUX TO MP4"
+echo "============================================================"
+echo "Files       : $total"
+echo "Video       : Copy"
+echo "Audio       : Copy"
+echo "Streams     : Video + Audio"
+echo "Container   : MP4"
+echo "Re-encode   : No"
+echo "Faststart   : Enabled"
+echo "============================================================"
+
+# ============================================================
+# Process Files
+# ============================================================
+
+for input in "${files[@]}"; do
+
+    current=$((current + 1))
+
+    filename="$(basename "$input")"
+    extension_lower="${input##*.}"
+    extension_lower="${extension_lower,,}"
+
+    # Already in the requested container.
+    if [[ "$extension_lower" == "mp4" ]]; then
+        skipped=$((skipped + 1))
 
         echo
         echo "============================================================"
-        echo " REMUX TO MP4"
+        echo "[$current/$total] $filename"
         echo "============================================================"
-        echo "Files       : $total"
-        echo "Mode        : Stream copy"
-        echo "Re-encode   : No"
-        echo "Container   : MP4"
-        echo "Faststart   : Enabled"
-        echo "============================================================"
+        echo
+        echo "[SKIP] Already a MP4 file."
+        continue
+    fi
 
-        for input in "${files[@]}"; do
+    output="${input%.*}-remuxed.mp4"
+    tmp="${output}.remux-tmp.mp4"
+    ffmpeg_log="${tmp}.log"
 
-            current=$((current + 1))
+    rm -f "$tmp" "$ffmpeg_log"
 
-            filename="$(basename "$input")"
+    echo
+    echo "============================================================"
+    echo "[$current/$total] $filename"
+    echo "============================================================"
+    echo "Source : $input"
+    echo "Output : $output"
+    echo
 
-            # Already MP4: skip because there is nothing to remux.
-            if [[ "${input,,}" == *.mp4 ]]; then
+    original_size=$(stat -c%s "$input")
+    remux_start=$(date +%s)
 
-                echo
-                echo "============================================================"
-                echo "[$current/$total] $filename"
-                echo "============================================================"
-                echo
-                echo "[SKIPPED] File is already an MP4."
-                echo
+    ffmpeg \
+        -hide_banner \
+        -loglevel warning \
+        -i "$input" \
+        -map 0:v:0 \
+        -map 0:a? \
+        -c:v copy \
+        -c:a copy \
+        -movflags +faststart \
+\
+        -y \
+        -progress pipe:1 \
+        -nostats \
+        "$tmp" \
+        2>"$ffmpeg_log" |
+    while IFS="=" read -r key value; do
 
-                skipped=$((skipped + 1))
+        if [[ "$key" == "out_time_us" ]]; then
+            current_us="$value"
 
-                continue
-            fi
+            current_seconds=$((current_us / 1000000))
+            elapsed=$(( $(date +%s) - remux_start ))
 
-            output="${input%.*}-remuxed.mp4"
-
-            tmp="${output}.remux-tmp.mp4"
-            ffmpeg_log="${tmp}.log"
-
-            rm -f "$tmp" "$ffmpeg_log"
-
-            echo
-            echo "============================================================"
-            echo "[$current/$total] $filename"
-            echo "============================================================"
-            echo "Source : $input"
-            echo "Output : $output"
-            echo
-
-            duration=$(ffprobe \
-                -v error \
-                -show_entries format=duration \
-                -of default=noprint_wrappers=1:nokey=1 \
-                "$input")
-
-            if [[ -z "$duration" ]]; then
-
-                echo "[FAILED] Could not determine video duration."
-                echo "Source file preserved."
-
-                failed=$((failed + 1))
-
-                rm -f "$tmp" "$ffmpeg_log"
-
-                tmp=""
-                ffmpeg_log=""
-
-                continue
-            fi
-
-            original_size=$(stat -c%s "$input")
-            remux_start=$(date +%s)
-
-            ffmpeg \
-                -hide_banner \
-                -loglevel warning \
-                -i "$input" \
-                -map 0:v:0 \
-                -map 0:a? \
-                -c:v copy \
-                -c:a copy \
-                -movflags +faststart \
-                -y \
-                -progress pipe:1 \
-                -nostats \
-                "$tmp" \
-                2>"$ffmpeg_log" |
-            while IFS="=" read -r key value; do
-
-                if [[ "$key" == "out_time_us" ]]; then
-
-                    current_us="$value"
-
-                    current_seconds=$(awk \
-                        "BEGIN {print $current_us / 1000000}")
-
-                    percent=$(awk \
-                        -v current="$current_seconds" \
-                        -v total="$duration" \
-                        "BEGIN {
-                            if (total > 0)
-                                printf \"%.1f\", (current / total) * 100
-                            else
-                                print \"0.0\"
-                        }")
-
-                    elapsed=$(($(date +%s) - remux_start))
-
-                    speed=$(awk \
-                        -v current="$current_seconds" \
-                        -v elapsed="$elapsed" \
-                        "BEGIN {
-                            if (elapsed > 0)
-                                printf \"%.2f\", current / elapsed
-                            else
-                                print \"0.00\"
-                        }")
-
-                    eta=$(awk \
-                        -v current="$current_seconds" \
-                        -v total="$duration" \
-                        -v elapsed="$elapsed" \
-                        "BEGIN {
-                            if (current > 0)
-                                printf \"%.0f\", (total-current)*elapsed/current
-                            else
-                                print 0
-                        }")
-
-                    eta_h=$((eta / 3600))
-                    eta_m=$(((eta % 3600) / 60))
-                    eta_s=$((eta % 60))
-
-                    printf "\rProgress: %6s%% | Speed: %5sx | ETA: %02d:%02d:%02d" \
-                        "$percent" \
-                        "$speed" \
-                        "$eta_h" \
-                        "$eta_m" \
-                        "$eta_s"
-
-                fi
-
-            done
-
-            ffmpeg_exit_code=${PIPESTATUS[0]}
-
-            echo
-
-            # ==================================================
-            # Success
-            # ==================================================
-
-            if [[ "$ffmpeg_exit_code" -eq 0 && -s "$tmp" ]]; then
-
-                touch -r "$input" "$tmp"
-
-                final_size=$(stat -c%s "$tmp")
-
-                total_original=$((total_original + original_size))
-                total_final=$((total_final + final_size))
-
-                remux_elapsed=$(($(date +%s) - remux_start))
-
-                remux_h=$((remux_elapsed / 3600))
-                remux_m=$(((remux_elapsed % 3600) / 60))
-                remux_s=$((remux_elapsed % 60))
-
-                size_difference=$((final_size - original_size))
-
-                mv -f "$tmp" "$output"
-                rm -f "$input"
-
-                echo
-                echo "[OK] Remux complete!"
-                echo
-                echo "Source : $(numfmt --to=iec "$original_size")"
-                echo "Output : $(numfmt --to=iec "$final_size")"
-
-                if [[ "$size_difference" -lt 0 ]]; then
-
-                    saved=$((-size_difference))
-
-                    saved_percent=$(awk \
-                        -v original="$original_size" \
-                        -v final="$final_size" \
-                        "BEGIN {
-                            printf \"%.1f\", (1-final/original)*100
-                        }")
-
-                    echo "Saved  : $(numfmt --to=iec "$saved") (-$saved_percent%)"
-
-                elif [[ "$size_difference" -gt 0 ]]; then
-
-                    increase="$size_difference"
-
-                    increase_percent=$(awk \
-                        -v original="$original_size" \
-                        -v final="$final_size" \
-                        "BEGIN {
-                            printf \"%.1f\", (final/original-1)*100
-                        }")
-
-                    echo "Saved  : +$(numfmt --to=iec "$increase") (+$increase_percent%)"
-
-                else
-
-                    echo "Saved  : 0 B (0.0%)"
-
-                fi
-
-                printf "Elapsed: %02d:%02d:%02d\n" \
-                    "$remux_h" \
-                    "$remux_m" \
-                    "$remux_s"
-
-                echo "Output : $(basename "$output")"
-
-                success=$((success + 1))
-
-            # ==================================================
-            # Failure
-            # ==================================================
-
+            if (( elapsed > 0 )); then
+                speed=$(awk \
+                    -v current="$current_seconds" \
+                    -v elapsed="$elapsed" \
+                    'BEGIN {
+                        printf "%.2f", current/elapsed
+                    }')
             else
-
-                echo
-                echo "[FAILED] Remux failed."
-                echo
-                echo "Source file preserved."
-                echo "Temporary output removed."
-
-                if [[ -s "$ffmpeg_log" ]]; then
-
-                    echo
-                    echo "FFmpeg output:"
-                    echo "------------------------------------------------------------"
-
-                    sed "s/^/  /" "$ffmpeg_log"
-
-                    echo "------------------------------------------------------------"
-
-                else
-
-                    echo
-                    echo "FFmpeg did not provide additional error output."
-                    echo "Exit code: $ffmpeg_exit_code"
-
-                fi
-
-                rm -f "$tmp"
-
-                failed=$((failed + 1))
-
+                speed="0.00"
             fi
 
-            rm -f "$ffmpeg_log"
+            printf "\rProcessed: %s | Speed: %sx" \
+                "$(format_elapsed "$current_seconds")" \
+                "$speed"
+        fi
 
-            tmp=""
-            ffmpeg_log=""
+    done
 
-        done
+    ffmpeg_exit_code=${PIPESTATUS[0]}
 
-        # ====================================================
-        # Summary
-        # ====================================================
+    echo
 
-        session_end=$(date +%s)
-        session_elapsed=$((session_end - session_start))
+    # ========================================================
+    # Success
+    # ========================================================
+
+    if [[ "$ffmpeg_exit_code" -eq 0 && -s "$tmp" ]]; then
+
+        touch -r "$input" "$tmp"
+
+        final_size=$(stat -c%s "$tmp")
+
+        total_original=$((total_original + original_size))
+        total_final=$((total_final + final_size))
+
+        remux_elapsed=$(( $(date +%s) - remux_start ))
+
+        size_difference=$((final_size - original_size))
+
+        mv -f "$tmp" "$output"
+        rm -f "$input"
 
         echo
+        echo "[OK] Remux complete!"
         echo
-        echo "============================================================"
-        echo " REMUX COMPLETE"
-        echo "============================================================"
-        echo "Processed     : $current/$total"
-        echo "Successful    : $success"
-        echo "Skipped       : $skipped"
-        echo "Failed        : $failed"
-        echo
+        echo "Source : $(numfmt --to=iec "$original_size")"
+        echo "Output : $(numfmt --to=iec "$final_size")"
 
-        echo "Original size : $(numfmt --to=iec "$total_original")"
-        echo "Final size    : $(numfmt --to=iec "$total_final")"
+        if [[ "$size_difference" -lt 0 ]]; then
 
-        if [[ "$total_original" -gt 0 ]]; then
+            saved=$((-size_difference))
 
-            total_difference=$((total_final - total_original))
+            saved_percent=$(awk \
+                -v original="$original_size" \
+                -v final="$final_size" \
+                'BEGIN {
+                    printf "%.1f", (1-final/original)*100
+                }')
 
-            if [[ "$total_difference" -lt 0 ]]; then
+            echo "Saved  : $(numfmt --to=iec "$saved") (-$saved_percent%)"
 
-                total_saved=$((-total_difference))
+        elif [[ "$size_difference" -gt 0 ]]; then
 
-                total_saved_percent=$(awk \
-                    -v original="$total_original" \
-                    -v final="$total_final" \
-                    "BEGIN {
-                        printf \"%.1f\", (1-final/original)*100
-                    }")
+            increase="$size_difference"
 
-                echo "Space saved   : $(numfmt --to=iec "$total_saved") (-$total_saved_percent%)"
+            increase_percent=$(awk \
+                -v original="$original_size" \
+                -v final="$final_size" \
+                'BEGIN {
+                    printf "%.1f", (final/original-1)*100
+                }')
 
-            elif [[ "$total_difference" -gt 0 ]]; then
-
-                total_increase="$total_difference"
-
-                total_increase_percent=$(awk \
-                    -v original="$total_original" \
-                    -v final="$total_final" \
-                    "BEGIN {
-                        printf \"%.1f\", (final/original-1)*100
-                    }")
-
-                echo "Saved         : +$(numfmt --to=iec "$total_increase") (+$total_increase_percent%)"
-
-            else
-
-                echo "Saved         : 0 B (0.0%)"
-
-            fi
+            echo "Saved  : +$(numfmt --to=iec "$increase") (+$increase_percent%)"
 
         else
 
-            echo "Space change  : N/A"
+            echo "Saved  : 0 B (0.0%)"
 
         fi
 
-        session_h=$((session_elapsed / 3600))
-        session_m=$(((session_elapsed % 3600) / 60))
-        session_s=$((session_elapsed % 60))
+        printf "Elapsed: %s\n" "$(format_elapsed "$remux_elapsed")"
+        echo "Output : $(basename "$output")"
+
+        success=$((success + 1))
+
+    # ========================================================
+    # Failure
+    # ========================================================
+
+    else
 
         echo
-        printf "Elapsed       : %02d:%02d:%02d\n" \
-            "$session_h" \
-            "$session_m" \
-            "$session_s"
-
+        echo "[FAILED] Remux failed."
         echo
-        echo "============================================================"
-        echo
+        echo "Source file preserved."
+        echo "Temporary output removed."
 
-        read -r -p "Press Enter to close..."
+        if [[ -s "$ffmpeg_log" ]]; then
+            echo
+            echo "FFmpeg output:"
+            echo "------------------------------------------------------------"
 
-    ' _ "${files[@]}"
+            sed 's/^/  /' "$ffmpeg_log"
 
-status=$?
+            echo "------------------------------------------------------------"
+        else
+            echo
+            echo "FFmpeg did not provide additional error output."
+            echo "Exit code: $ffmpeg_exit_code"
+        fi
 
-set -e
+        rm -f "$tmp"
 
-exit "$status"
+        failed=$((failed + 1))
+
+    fi
+
+    rm -f "$ffmpeg_log"
+
+    tmp=""
+    ffmpeg_log=""
+
+done
+
+# ============================================================
+# Summary
+# ============================================================
+
+session_end=$(date +%s)
+session_elapsed=$((session_end - session_start))
+
+echo
+echo
+echo "============================================================"
+echo " REMUX TO MP4 COMPLETE"
+echo "============================================================"
+echo "Processed     : $current/$total"
+echo "Successful    : $success"
+echo "Skipped       : $skipped"
+echo "Failed        : $failed"
+echo
+
+echo "Original size : $(numfmt --to=iec "$total_original")"
+echo "Final size    : $(numfmt --to=iec "$total_final")"
+
+if [[ "$total_original" -gt 0 ]]; then
+
+    total_difference=$((total_final - total_original))
+
+    if [[ "$total_difference" -lt 0 ]]; then
+
+        total_saved=$((-total_difference))
+
+        total_saved_percent=$(awk \
+            -v original="$total_original" \
+            -v final="$total_final" \
+            'BEGIN {
+                printf "%.1f", (1-final/original)*100
+            }')
+
+        echo "Space saved   : $(numfmt --to=iec "$total_saved") (-$total_saved_percent%)"
+
+    elif [[ "$total_difference" -gt 0 ]]; then
+
+        total_increase="$total_difference"
+
+        total_increase_percent=$(awk \
+            -v original="$total_original" \
+            -v final="$total_final" \
+            'BEGIN {
+                printf "%.1f", (final/original-1)*100
+            }')
+
+        echo "Saved         : +$(numfmt --to=iec "$total_increase") (+$total_increase_percent%)"
+
+    else
+
+        echo "Saved         : 0 B (0.0%)"
+
+    fi
+
+else
+
+    echo "Space change  : N/A"
+
+fi
+
+echo
+echo "Elapsed       : $(format_elapsed "$session_elapsed")"
+
+echo
+echo "============================================================"
+echo
+
+if (( failed > 0 )); then
+    notify \
+        "Remux to MP4 Finished" \
+        "$success successful, $failed failed, $skipped skipped."
+else
+    notify \
+        "Remux to MP4 Complete" \
+        "$success successful, $skipped skipped."
+fi
+
+read -r -p "Press Enter to close..."
