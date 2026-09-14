@@ -407,7 +407,6 @@ Installation will continue normally."
     echo
 }
 
-
 # ------------------------------------------------------------------------------
 # LibreOffice Configuration
 # ------------------------------------------------------------------------------
@@ -428,7 +427,6 @@ restore_libreoffice() {
     fi
 }
 
-
 # ------------------------------------------------------------------------------
 # NixOS Bootstrap
 # ------------------------------------------------------------------------------
@@ -443,12 +441,14 @@ bootstrap_system() {
     sudo nixos-rebuild boot \
         -I nixos-config="$TARGET_CONFIG" \
         --option substituters "$NIX_CACHE_SUBSTITUTERS" \
-        --option trusted-public-keys "$NIX_CACHE_TRUSTED_KEYS"
+        --option trusted-public-keys "$NIX_CACHE_TRUSTED_KEYS" \
+        --option trusted-substituters "http://10.10.10.132:8501" \
+        --option narinfo-cache-negative-ttl 0 \
+        --option connect-timeout 5
 
     echo
     echo "✓ System rebuilt successfully."
 }
-
 
 # ------------------------------------------------------------------------------
 # Main
