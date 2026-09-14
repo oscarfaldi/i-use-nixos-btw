@@ -415,20 +415,8 @@
     <name>Transcribe Video to SRT</name>
     <submenu>Content Creation</submenu>
     <unique-id>1781935446753343-601</unique-id>
-    <command>transcribe-video %F</command>
+    <command>transcribe-video %f</command>
     <description>Generate Indonesian SRT subtitles using Faster-Whisper</description>
-    <range>*</range>
-    <patterns>*.mp4;*.MP4;*.mov;*.MOV;*.mkv;*.MKV;*.webm;*.mts;*.m2ts;*.ts;*.avi;*.mxf;*.m4v</patterns>
-    <video-files/>
-  </action>
-
-  <action>
-    <icon>applications-multimedia</icon>
-    <name>Transcribe Video to SRT (Monitor)</name>
-    <submenu>Content Creation</submenu>
-    <unique-id>1781935446753343-602</unique-id>
-    <command>ghostty --title="Subtitle Generation" -e transcribe-video %F</command>
-    <description>Generate Indonesian SRT subtitles using Faster-Whisper with live monitoring</description>
     <range>*</range>
     <patterns>*.mp4;*.MP4;*.mov;*.MOV;*.mkv;*.MKV;*.webm;*.mts;*.m2ts;*.ts;*.avi;*.mxf;*.m4v</patterns>
     <video-files/>
