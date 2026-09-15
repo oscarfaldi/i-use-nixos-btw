@@ -77,7 +77,7 @@ input {
 	    mode "2560x1440@99.946" // Set resolution and refresh rate
 	    scale 1 // No scaling (use 2 for HiDPI)
 	    transform "90"
-	    position x=0 y=-250
+	    position x=0 y=-35
 	}
 
 // ============================================================
