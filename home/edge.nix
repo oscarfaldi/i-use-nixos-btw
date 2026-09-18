@@ -6,17 +6,17 @@
 
     extensions = [
       { id = "inomeogfingihgjfjlpeplalcfajhgai"; } # Chrome Remote Desktop
-      { id = "pdffkfellgipmhklpdmokmckkkfcopbh"; } # AdGuard AdBlocker
+      { id = "cimighlppcgcoapaliogpjjdehbnofhn"; } # uBlock Origin Lite
       { id = "jlhgedjpndhblehblebhncfmkkpngiep"; } # Reddit Enhancement Suite
       { id = "cpgaheeihidjmolbakklolchdplenjai"; } # Turbo Downloader for Instagram
       { id = "piibekljdlkbkdchicfdjpnaggolndif"; } # Plucker XBD - X (Twitter) Media One-click Downloader
       { id = "elicpjhcidhpjomhibiffojpinpmmpil"; } # Video Downloader Professional
       { id = "fclobfmgolhdcfcmpbjahiiifilhamcg"; } # Easy TikTok Video Downloader (Remove Watermark)
+      { id = "cclelndahbckbenkjhflpdbgdldlbecc"; } # Get cookies.txt Locally
 
       # Legacy Chromium
       # { id = "ldgfbffkinooeloadekpmfoklnobpien"; } # Raindrop.io
       # { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
-      # { id = "ddkjiahejlhfcafbddmgiahcphecmpfh"; } # uBlock Origin Lite
     ];
 
     commandLineArgs = [
