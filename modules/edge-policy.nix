@@ -19,7 +19,28 @@
       "DefaultSearchProviderName": "DuckDuckGo",
       "DefaultSearchProviderKeyword": "ddg",
       "DefaultSearchProviderSearchURL": "https://duckduckgo.com/?q={searchTerms}",
-      "DefaultSearchProviderSuggestURL": "https://duckduckgo.com/ac/?q={searchTerms}&type=list"
+      "DefaultSearchProviderSuggestURL": "https://duckduckgo.com/ac/?q={searchTerms}&type=list",
+
+      "QuickSearchShowMiniMenu": false,
+
+      "NetworkPredictionOptions": 0,
+
+      "PerformanceDetectorEnabled": false,
+      "ExtensionsPerformanceDetectorEnabled": false,
+
+      "EfficiencyModeEnabled": false,
+
+      "SleepingTabsEnabled": false,
+      "AutoDiscardSleepingTabsEnabled": false,
+
+      "IntensiveWakeUpThrottlingEnabled": false,
+
+      "RAMResourceControlsEnabled": false,
+
+      "ShowDownloadsToolbarButton": true,
+
+      "ShowMicrosoftRewards": false,
+      "ShowRecommendationsEnabled": false
     }
   '';
 }
