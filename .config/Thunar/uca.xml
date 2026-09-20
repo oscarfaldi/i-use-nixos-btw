@@ -160,7 +160,7 @@
       <name>Move to NAS Music Staging</name>
       <submenu>NAS</submenu>
       <unique-id>1782052090035038-304</unique-id>
-      <command>move-to-media-music %F</command>
+      <command>move-to-media-music-staging %F</command>
       <description>Move selected music folders to NAS staging area</description>
       <range>*</range>
       <directories/>
