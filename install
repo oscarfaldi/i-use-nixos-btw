@@ -11,6 +11,7 @@
 #   - Switches Nix channels to unstable
 #   - Configures SMB credentials
 #   - Optionally restores Syncthing identity from NAS
+#   - Optionally restores SSH identity from NAS
 #   - Restores LibreOffice settings
 #   - Performs the first NixOS rebuild using the ncps cache
 #   - Reboots into the completed system
@@ -48,6 +49,12 @@ SMB_CRED_FILE="/etc/smb-credentials"
 # No filesystem mount is created.
 SMB_BOOTSTRAP_SHARE="//10.10.10.10/toolkit"
 SYNCTHING_REMOTE_DIR="Syncthing"
+SSH_REMOTE_DIR="SSH"
+
+# Local SSH identity.
+SSH_CONFIG_DIR="$HOME/.ssh"
+SSH_PRIVATE_KEY="$SSH_CONFIG_DIR/id_ed25519_cascade"
+SSH_PUBLIC_KEY="$SSH_CONFIG_DIR/id_ed25519_cascade.pub"
 
 # Local Syncthing identity.
 SYNCTHING_CONFIG_DIR="/home/oscarfaldi/.config/syncthing"
@@ -207,6 +214,182 @@ EOF
     echo "✓ SMB credentials saved."
 }
 
+# ------------------------------------------------------------------------------
+# SSH Identity Bootstrap
+# ------------------------------------------------------------------------------
+#
+# IMPORTANT:
+# This function is intentionally NON-FATAL.
+# Failure to restore the SSH identity must NEVER stop the full NixOS install.
+# The function returns success even when bootstrap fails.
+# ------------------------------------------------------------------------------
+bootstrap_ssh_identity() {
+    print_header "SSH Identity Bootstrap"
+
+    # --------------------------------------------------------------------------
+    # Existing identity
+    # --------------------------------------------------------------------------
+    if [[ -f "$SSH_PRIVATE_KEY" && -f "$SSH_PUBLIC_KEY" ]]; then
+        echo "✓ Existing SSH identity found."
+        echo "  Skipping NAS restore."
+        return 0
+    fi
+
+    # --------------------------------------------------------------------------
+    # SMB credentials
+    # --------------------------------------------------------------------------
+    if [[ ! -f "$SMB_CRED_FILE" ]]; then
+        print_warning \
+            "SMB credentials are unavailable. \
+SSH identity will not be restored from NAS."
+        return 0
+    fi
+
+    # --------------------------------------------------------------------------
+    # Temporary directory
+    # --------------------------------------------------------------------------
+    local TEMP_DIR
+    if ! TEMP_DIR="$(mktemp -d)"; then
+        print_warning \
+            "Could not create a temporary directory. \
+SSH identity restore skipped."
+        return 0
+    fi
+
+    cleanup_ssh_bootstrap() {
+        rm -rf "$TEMP_DIR"
+    }
+    trap cleanup_ssh_bootstrap RETURN
+
+    # --------------------------------------------------------------------------
+    # Retrieve files from NAS.
+    #
+    # nix-shell is completely internal to this function.
+    # The user does NOT need to run nix-shell manually.
+    # --------------------------------------------------------------------------
+    echo "Attempting to restore SSH identity from NAS..."
+    echo
+    echo "  Share: $SMB_BOOTSTRAP_SHARE"
+    echo "  Path : $SSH_REMOTE_DIR/"
+    echo
+
+    # /etc/smb-credentials is root-only (0600), but smbclient runs as the
+    # current user. Make a temporary user-readable copy for this one command.
+    local TEMP_CRED=""
+    if ! TEMP_CRED="$(mktemp)"; then
+        print_warning \
+            "Could not create a temporary credentials file. \
+SSH identity restore skipped."
+        return 0
+    fi
+
+    if ! sudo cat "$SMB_CRED_FILE" > "$TEMP_CRED"; then
+        rm -f "$TEMP_CRED"
+        print_warning \
+            "Could not read SMB credentials. \
+SSH identity restore skipped."
+        return 0
+    fi
+
+    chmod 600 "$TEMP_CRED"
+
+    if ! nix-shell -p samba --run "
+        smbclient \
+            \"$SMB_BOOTSTRAP_SHARE\" \
+            -A \"$TEMP_CRED\" \
+            -c '
+                cd \"$SSH_REMOTE_DIR\";
+                get id_ed25519_cascade $TEMP_DIR/id_ed25519_cascade;
+                get id_ed25519_cascade.pub $TEMP_DIR/id_ed25519_cascade.pub;
+            '
+    "
+    then
+        rm -f "$TEMP_CRED"
+        print_warning \
+            "Could not connect to the NAS or retrieve the SSH identity.
+Installation will continue normally."
+        return 0
+    fi
+
+    rm -f "$TEMP_CRED"
+
+    # --------------------------------------------------------------------------
+    # Validate downloaded files.
+    # --------------------------------------------------------------------------
+    if [[ ! -s "$TEMP_DIR/id_ed25519_cascade" ]]; then
+        print_warning \
+            "id_ed25519_cascade was not found on the NAS.
+Installation will continue normally."
+        return 0
+    fi
+
+    if [[ ! -s "$TEMP_DIR/id_ed25519_cascade.pub" ]]; then
+        print_warning \
+            "id_ed25519_cascade.pub was not found on the NAS.
+Installation will continue normally."
+        return 0
+    fi
+
+    # --------------------------------------------------------------------------
+    # Install identity locally.
+    # --------------------------------------------------------------------------
+    if ! mkdir -p "$SSH_CONFIG_DIR"; then
+        print_warning \
+            "Could not create the local SSH configuration directory.
+Installation will continue normally."
+        return 0
+    fi
+
+    chmod 700 "$SSH_CONFIG_DIR"
+
+    if ! install \
+        -m 0600 \
+        "$TEMP_DIR/id_ed25519_cascade" \
+        "$SSH_PRIVATE_KEY"
+    then
+        print_warning \
+            "Could not install the SSH private key locally.
+Installation will continue normally."
+        return 0
+    fi
+
+    if ! install \
+        -m 0644 \
+        "$TEMP_DIR/id_ed25519_cascade.pub" \
+        "$SSH_PUBLIC_KEY"
+    then
+        print_warning \
+            "Could not install the SSH public key locally.
+Installation will continue normally."
+
+        # Remove the private key if the public key installation fails so we
+        # don't leave a partial SSH identity behind.
+        rm -f "$SSH_PRIVATE_KEY"
+
+        return 0
+    fi
+
+    # --------------------------------------------------------------------------
+    # Final validation.
+    # --------------------------------------------------------------------------
+    if [[ ! -r "$SSH_PRIVATE_KEY" || ! -r "$SSH_PUBLIC_KEY" ]]; then
+        print_warning \
+            "SSH identity validation failed.
+Installation will continue normally."
+        return 0
+    fi
+
+    # Make sure the private key is not accidentally accessible by others.
+    chmod 600 "$SSH_PRIVATE_KEY"
+    chmod 644 "$SSH_PUBLIC_KEY"
+
+    echo
+    echo "✓ SSH identity restored successfully."
+    echo
+    echo "  Private key → $SSH_PRIVATE_KEY"
+    echo "  Public key  → $SSH_PUBLIC_KEY"
+    echo
+}
 
 # ------------------------------------------------------------------------------
 # Syncthing Identity Bootstrap
@@ -439,7 +622,7 @@ main() {
 
     echo "Fresh NixOS bootstrap starting..."
     echo
-    echo "The installation will continue even if Syncthing identity"
+    echo "The installation will continue even if SSH or Syncthing identity"
     echo "cannot be restored from the NAS."
     echo
 
@@ -463,6 +646,7 @@ main() {
     fix_ownership
     configure_nix_channels
     setup_smb_credentials
+    bootstrap_ssh_identity
     bootstrap_syncthing_identity
     restore_libreoffice
     bootstrap_system
