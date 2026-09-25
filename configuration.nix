@@ -82,6 +82,7 @@
   nix.settings = {
     substituters = [
       "http://10.10.10.132:8501"
+      "https://cache.nixos.org/"
     ];
 
     trusted-public-keys = [
