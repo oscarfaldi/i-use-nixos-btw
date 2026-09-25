@@ -6,7 +6,7 @@
 
     extensions = [
       { id = "inomeogfingihgjfjlpeplalcfajhgai"; } # Chrome Remote Desktop
-      { id = "cimighlppcgcoapaliogpjjdehbnofhn"; } # uBlock Origin Lite
+      { id = "bgnkhhnnamicmpeenaelnjfhikgbkllg"; } # AdGuard AdBlocker
       { id = "jlhgedjpndhblehblebhncfmkkpngiep"; } # Reddit Enhancement Suite
       { id = "cpgaheeihidjmolbakklolchdplenjai"; } # Turbo Downloader for Instagram
       { id = "piibekljdlkbkdchicfdjpnaggolndif"; } # Plucker XBD - X (Twitter) Media One-click Downloader
