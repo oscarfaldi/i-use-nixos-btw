@@ -37,19 +37,28 @@ let
     "_netdev"
     "nofail"
 
+    # Mount on access instead of connecting to the NAS during boot.
+    "x-systemd.automount"
+
+    # Keep the share mounted once connected.
+    "x-systemd.idle-timeout=0"
+
+    # Detect an unresponsive SMB connection faster.
+    "echo_interval=5"
+
     "x-systemd.mount-timeout=5s"
   ];
 in
 {
-  # Ensures NixOS has the necessary utilities to mount CIFS/Samba shares
-  environment.systemPackages = [ pkgs.cifs-utils ];
-
   # Dynamically map the share list into the fileSystems attribute set
-  fileSystems = lib.genAttrs (map (s: "/mnt/nas/${s}") nasShares) (mountPoint: 
-    let share = lib.removePrefix "/mnt/nas/" mountPoint;
-    in {
+  fileSystems = lib.genAttrs (map (s: "/mnt/nas/${s}") nasShares) (mountPoint:
+    let
+      share = lib.removePrefix "/mnt/nas/" mountPoint;
+    in
+    {
       device = "//${nasIp}/${share}";
       fsType = "cifs";
       options = commonOptions;
-  });
+    }
+  );
 }
