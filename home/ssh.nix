@@ -1,13 +1,14 @@
-{ config, pkgs, ... }:
+{ ... }:
 
 {
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
 
-    matchBlocks.cascade = {
-      hostname = "10.10.10.10";
-      user = "root";
-      identityFile = "~/.ssh/id_ed25519_cascade";
+    settings.cascade = {
+      HostName = "10.10.10.10";
+      User = "root";
+      IdentityFile = "~/.ssh/id_ed25519_cascade";
     };
   };
 }
