@@ -24,15 +24,18 @@ for FILE in "$@"; do
     TARGET="${DEST}/${BASENAME}"
 
     if [ -e "$TARGET" ]; then
-
         TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
-
         TARGET="${DEST}/${NAME}_${TIMESTAMP}.${EXT}"
 
+        # Keep renaming until a unique filename is found.
+        COUNTER=1
+        while [ -e "$TARGET" ]; do
+            TARGET="${DEST}/${NAME}_${TIMESTAMP}_${COUNTER}.${EXT}"
+            COUNTER=$((COUNTER + 1))
+        done
     fi
 
-    mv "$FILE" "$TARGET"
-
+    mv -- "$FILE" "$TARGET"
     COUNT=$((COUNT + 1))
 
 done
