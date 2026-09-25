@@ -13,7 +13,6 @@
     ./thunar.nix
     ./theme-gruvbox.nix
     ./starship.nix
-    ./onlyoffice.nix
     ./ssh.nix
   ];
 
