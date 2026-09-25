@@ -237,7 +237,6 @@ input {
 	    match app-id="xarchiver"
 	    match app-id="mousepad"
 	    match app-id="pwvucontrol"
-	    match app-id="soffice"
 	    match app-id="gnome-disks"
 	    match app-id="xdg-desktop-portal-gtk"
 	    match app-id="zenity"
