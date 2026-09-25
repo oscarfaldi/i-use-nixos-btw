@@ -19,15 +19,13 @@ for FOLDER in "$@"; do
     BASENAME="$(basename "$FOLDER")"
     TARGET="${DEST}/${BASENAME}"
 
-    if [ -e "$TARGET" ]; then
+    COUNTER=1
+    while [ -e "$TARGET" ]; do
+        TARGET="${DEST}/${BASENAME}_${COUNTER}"
+        COUNTER=$((COUNTER + 1))
+    done
 
-        TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
-
-        TARGET="${DEST}/${BASENAME}_${TIMESTAMP}"
-
-    fi
-
-    mv "$FOLDER" "$TARGET"
+    mv -- "$FOLDER" "$TARGET"
 
     COUNT=$((COUNT + 1))
 
