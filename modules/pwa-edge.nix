@@ -93,9 +93,21 @@ in
     })
 
     (mkPWA {
+      name = "qBittorrent";
+      url = "http://10.10.10.10:8080/";
+      icon = "/home/oscarfaldi/.config/assets/icons/pwa/qbittorrent.svg";
+    })
+
+    (mkPWA {
       name = "Gmail";
       url = "https://mail.google.com";
       icon = "/home/oscarfaldi/.config/assets/icons/pwa/gmail.svg";
+    })
+
+    (mkPWA {
+      name = "Google Sheets";
+      url = "https://docs.google.com/spreadsheets/";
+      icon = "/home/oscarfaldi/.config/assets/icons/pwa/sheets.svg";
     })
   ];
 }
