@@ -10,7 +10,7 @@
       { id = "jlhgedjpndhblehblebhncfmkkpngiep"; } # Reddit Enhancement Suite
       { id = "cpgaheeihidjmolbakklolchdplenjai"; } # Turbo Downloader for Instagram
       { id = "piibekljdlkbkdchicfdjpnaggolndif"; } # Plucker XBD - X (Twitter) Media One-click Downloader
-      { id = "elicpjhcidhpjomhibiffojpinpmmpil"; } # Video Downloader Professional
+      { id = "dbepbhhcmhodojepbagfppgpieeplpik"; } # FetchV - Video Downloader for M3U8 & HLS
       { id = "fclobfmgolhdcfcmpbjahiiifilhamcg"; } # Easy TikTok Video Downloader (Remove Watermark)
       { id = "cclelndahbckbenkjhflpdbgdldlbecc"; } # Get cookies.txt Locally
 
