@@ -596,7 +596,7 @@ bootstrap_system() {
     echo "Using ncps cache for this build."
     echo
 
-    sudo nixos-rebuild boot \
+    sudo env NIXOS_SWITCH_USE_DIRTY_ENV=1 nixos-rebuild boot \
         -I nixos-config="$TARGET_CONFIG" \
         --option substituters "$NIX_CACHE_SUBSTITUTERS" \
         --option trusted-public-keys "$NIX_CACHE_TRUSTED_KEYS" \
