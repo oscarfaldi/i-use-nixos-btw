@@ -125,13 +125,13 @@ application/vnd.oasis.opendocument.presentation=libreoffice-impress.desktop
 # =========================
 # Archives
 # =========================
-application/zip=xarchiver.desktop
-application/x-7z-compressed=xarchiver.desktop
-application/x-rar=xarchiver.desktop
-application/vnd.rar=xarchiver.desktop
-application/x-tar=xarchiver.desktop
-application/gzip=xarchiver.desktop
-application/x-bzip2=xarchiver.desktop
-application/x-xz=xarchiver.desktop
-application/zstd=xarchiver.desktop
-application/x-iso9660-image=xarchiver.desktop
+application/zip=engrampa.desktop
+application/x-7z-compressed=engrampa.desktop
+application/x-rar=engrampa.desktop
+application/vnd.rar=engrampa.desktop
+application/x-tar=engrampa.desktop
+application/gzip=engrampa.desktop
+application/x-bzip2=engrampa.desktop
+application/x-xz=engrampa.desktop
+application/zstd=engrampa.desktop
+application/x-iso9660-image=engrampa.desktop
