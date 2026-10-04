@@ -132,7 +132,7 @@
 
     yazi
 
-    xarchiver
+    engrampa
 
     zip
     unzip
