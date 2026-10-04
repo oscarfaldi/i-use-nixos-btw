@@ -40,7 +40,6 @@
     ".config/mpv".source                    = ../.config/mpv;
     ".config/qimgv".source                  = ../.config/qimgv;
     ".config/pdfarranger".source            = ../.config/pdfarranger;
-    ".config/xarchiver".source              = ../.config/xarchiver;
     ".config/obsidian/obsidian.json".source = ../.config/obsidian/obsidian.json;
 
     # --------------------------------------------------------------------------
