@@ -29,18 +29,27 @@
 #   chmod +x install
 #   ./install
 #
-# The only expected interactive input is the SMB username/password if the
-# credential file does not already exist.
+# The expected interactive input is the sudo password and, if the SMB
+# credential file does not already exist, the SMB username/password.
 # ==============================================================================
 
 set -euo pipefail
+
+export NIX_CONFIG="${NIX_CONFIG:-}
+experimental-features = nix-command flakes"
 
 # ------------------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------------------
 
 CONFIG_DIR="$HOME/System"
-TARGET_CONFIG="./configuration.nix"
+
+if [[ ! -d "$CONFIG_DIR" ]]; then
+    echo "✗ Repository not found: $CONFIG_DIR" >&2
+    exit 1
+fi
+
+cd "$CONFIG_DIR"
 
 SMB_CRED_FILE="/etc/smb-credentials"
 
@@ -56,13 +65,13 @@ SSH_PRIVATE_KEY="$SSH_CONFIG_DIR/id_ed25519_cascade"
 SSH_PUBLIC_KEY="$SSH_CONFIG_DIR/id_ed25519_cascade.pub"
 
 # Local Syncthing identity.
-SYNCTHING_CONFIG_DIR="/home/oscarfaldi/.config/syncthing"
+SYNCTHING_CONFIG_DIR="$HOME/.config/syncthing"
 SYNCTHING_CERT="$SYNCTHING_CONFIG_DIR/cert.pem"
 SYNCTHING_KEY="$SYNCTHING_CONFIG_DIR/key.pem"
 
 # Hardware configuration.
 HW_CONFIG_SRC="/etc/nixos/hardware-configuration.nix"
-HW_CONFIG_DST="./hardware-configuration.nix"
+HW_CONFIG_DST="$CONFIG_DIR/hardware-configuration.nix"
 
 # Bootstrap cache settings.
 # Must match nix.settings in configuration.nix.
@@ -94,6 +103,21 @@ print_warning() {
     echo
 }
 
+# ------------------------------------------------------------------------------
+# Flake Inputs
+# ------------------------------------------------------------------------------
+
+update_flake_inputs() {
+    print_header "Flake Inputs"
+
+    echo "Updating NixOS and Home Manager inputs..."
+    echo
+
+    nix flake update
+
+    echo
+    echo "✓ Flake inputs updated."
+}
 
 # ------------------------------------------------------------------------------
 # Hardware Configuration
@@ -123,15 +147,7 @@ import_hardware_config() {
 
         exit 1
     fi
-
-    echo
-    echo "Cleaning /etc/nixos ..."
-
-    sudo find /etc/nixos -mindepth 1 -delete
-
-    echo "✓ /etc/nixos cleaned."
 }
-
 
 # ------------------------------------------------------------------------------
 # Repository Ownership
@@ -564,14 +580,29 @@ bootstrap_system() {
     echo "Using ncps cache for this build."
     echo
 
-    sudo nixos-rebuild boot \
-        -I nixos-config="$TARGET_CONFIG" \
+    sudo env NIX_CONFIG="$NIX_CONFIG" nixos-rebuild build \
+        --flake "path:$CONFIG_DIR#rainier" \
         --option substituters "$NIX_CACHE_SUBSTITUTERS" \
         --option trusted-public-keys "$NIX_CACHE_TRUSTED_KEYS" \
         --option trusted-substituters "http://10.10.10.132:8501" \
         --option narinfo-cache-negative-ttl 0 \
         --option connect-timeout 5
 
+    echo
+    echo "Build completed successfully."
+    echo "Setting new generation as default for next boot..."
+    echo
+
+    sudo ./result/bin/switch-to-configuration boot
+
+    echo
+    echo "System boot configuration applied successfully."
+    echo
+    echo "Cleaning /etc/nixos ..."
+
+    sudo find /etc/nixos -mindepth 1 -delete
+
+    echo "✓ /etc/nixos cleaned."
     echo
     echo "✓ System rebuilt successfully."
 }
@@ -616,6 +647,7 @@ main() {
     bootstrap_ssh_identity
     bootstrap_syncthing_identity
     restore_libreoffice
+    update_flake_inputs
     bootstrap_system
 
     # --------------------------------------------------------------------------
