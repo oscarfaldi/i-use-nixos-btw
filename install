@@ -150,6 +150,31 @@ import_hardware_config() {
 }
 
 # ------------------------------------------------------------------------------
+# Flake Hardware Configuration
+# ------------------------------------------------------------------------------
+
+prepare_hardware_for_flake() {
+    print_header "Prepare Flake Hardware Configuration"
+
+    echo "Making hardware-configuration.nix visible to the Git-backed flake..."
+    echo
+
+    if command -v git >/dev/null 2>&1; then
+        git -C "$CONFIG_DIR" add -N -- hardware-configuration.nix
+    else
+        echo "Git is not installed in the current system."
+        echo "Temporarily providing Git through nix-shell..."
+        echo
+
+        nix-shell -p git --run \
+            "git -C \"$CONFIG_DIR\" add -N -- hardware-configuration.nix"
+    fi
+
+    echo
+    echo "✓ hardware-configuration.nix is visible to the flake."
+}
+
+# ------------------------------------------------------------------------------
 # Repository Ownership
 # ------------------------------------------------------------------------------
 
@@ -643,6 +668,7 @@ main() {
 
     import_hardware_config
     fix_ownership
+    prepare_hardware_for_flake
     setup_smb_credentials
     bootstrap_ssh_identity
     bootstrap_syncthing_identity
