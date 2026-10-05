@@ -153,37 +153,6 @@ fix_ownership() {
     fi
 }
 
-
-# ------------------------------------------------------------------------------
-# Nix Channels
-# ------------------------------------------------------------------------------
-
-configure_nix_channels() {
-    print_header "Channels Configuration"
-
-    echo "Switching Nix channels to unstable..."
-    echo
-
-    sudo nix-channel --remove nixos 2>/dev/null || true
-    sudo nix-channel --remove home-manager 2>/dev/null || true
-
-    sudo nix-channel \
-        --add \
-        https://channels.nixos.org/nixos-unstable \
-        nixos
-
-    sudo nix-channel \
-        --add \
-        https://github.com/nix-community/home-manager/archive/master.tar.gz \
-        home-manager
-
-    sudo nix-channel --update
-
-    echo
-    echo "✓ Unstable channel and home-manager enabled."
-}
-
-
 # ------------------------------------------------------------------------------
 # SMB Credentials
 # ------------------------------------------------------------------------------
@@ -644,7 +613,6 @@ main() {
 
     import_hardware_config
     fix_ownership
-    configure_nix_channels
     setup_smb_credentials
     bootstrap_ssh_identity
     bootstrap_syncthing_identity
