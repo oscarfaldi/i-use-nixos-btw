@@ -38,7 +38,7 @@ main() {
     # Execute NixOS rebuild with explicit configuration path
     # CRITICAL FIX: Combined the multiline command properly using '\'
     sudo nixos-rebuild switch \
-        -I nixos-config="$CONFIG"
+        --flake "$SYSTEM_DIR#rainier"
 
     echo
     print_header "Rebuild Complete"
