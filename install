@@ -8,7 +8,6 @@
 #
 # Responsibilities:
 #   - Imports hardware-configuration.nix
-#   - Switches Nix channels to unstable
 #   - Configures SMB credentials
 #   - Optionally restores Syncthing identity from NAS
 #   - Optionally restores SSH identity from NAS
