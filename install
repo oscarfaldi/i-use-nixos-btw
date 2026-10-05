@@ -601,12 +601,12 @@ restore_libreoffice() {
 bootstrap_system() {
     print_header "Rebuilding Rainier System"
 
-    echo "Building next generation for boot..."
+    echo "Building Rainier and setting it as the default for next boot..."
     echo "Using ncps cache for this build."
     echo
 
-    sudo env NIX_CONFIG="$NIX_CONFIG" nixos-rebuild build \
-        --flake "path:$CONFIG_DIR#rainier" \
+    sudo env NIX_CONFIG="$NIX_CONFIG" nixos-rebuild boot \
+        --flake "$CONFIG_DIR#rainier" \
         --option substituters "$NIX_CACHE_SUBSTITUTERS" \
         --option trusted-public-keys "$NIX_CACHE_TRUSTED_KEYS" \
         --option trusted-substituters "http://10.10.10.132:8501" \
@@ -614,14 +614,8 @@ bootstrap_system() {
         --option connect-timeout 5
 
     echo
-    echo "Build completed successfully."
-    echo "Setting new generation as default for next boot..."
-    echo
-
-    sudo ./result/bin/switch-to-configuration boot
-
-    echo
-    echo "System boot configuration applied successfully."
+    echo "✓ Rainier system generation built successfully."
+    echo "✓ New generation set as default for next boot."
     echo
     echo "Cleaning /etc/nixos ..."
 
