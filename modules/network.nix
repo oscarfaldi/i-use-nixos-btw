@@ -18,7 +18,7 @@
         connection = {
           id = "Internet & NAS";
           type = "ethernet";
-          interface-name = "enp7s0";
+          interface-name = "enp6s0";
           autoconnect = "true";
         };
 
