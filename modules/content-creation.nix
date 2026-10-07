@@ -6,6 +6,7 @@
     # Video Editing
     # ============================================================
     pkgs.kdePackages.kdenlive
+    pkgs.auto-editor
 
     # ============================================================
     # AI Subtitle Generation
