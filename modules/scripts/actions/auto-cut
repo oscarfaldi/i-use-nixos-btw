@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+
+# ============================================================
+# Auto-Editor Rough Cut
+#
+# Detects inactive audio sections and exports a Kdenlive
+# project without modifying the original video.
+# ============================================================
+
+set -u
+
+# ------------------------------------------------------------
+# Settings
+# ------------------------------------------------------------
+
+AUDIO_THRESHOLD="6%"
+
+MARGIN_BEFORE="0.10s"
+MARGIN_AFTER="0.18s"
+
+SMOOTH_MINCUT="0.15s"
+SMOOTH_MINCLIP="0.10s"
+
+FRAME_RATE="ntsc"
+
+OUTPUT_SUFFIX="_autoedit"
+
+LOG_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/auto-editor-rough-cut"
+
+
+# ------------------------------------------------------------
+# Functions
+# ------------------------------------------------------------
+
+notify() {
+    if command -v notify-send >/dev/null 2>&1; then
+        notify-send "$1" "$2"
+    fi
+}
+
+die() {
+    notify "Auto-Cut Failed" "$1"
+    exit 1
+}
+
+unique_output_path() {
+    local directory="$1"
+    local stem="$2"
+
+    local candidate="${directory}/${stem}.kdenlive"
+    local counter=2
+
+    while [[ -e "$candidate" ]]; do
+        candidate="${directory}/${stem}-${counter}.kdenlive"
+        ((counter++))
+    done
+
+    printf '%s\n' "$candidate"
+}
+
+
+# ------------------------------------------------------------
+# Dependency check
+# ------------------------------------------------------------
+
+if ! command -v auto-editor >/dev/null 2>&1; then
+    die "auto-editor was not found in PATH."
+fi
+
+if ! command -v realpath >/dev/null 2>&1; then
+    die "realpath was not found."
+fi
+
+mkdir -p "$LOG_DIR"
+
+
+# ------------------------------------------------------------
+# Input check
+# ------------------------------------------------------------
+
+if [[ "$#" -eq 0 ]]; then
+    die "No files were selected."
+fi
+
+
+# ------------------------------------------------------------
+# Counters
+# ------------------------------------------------------------
+
+success_count=0
+failure_count=0
+
+
+# ------------------------------------------------------------
+# Process selected files
+# ------------------------------------------------------------
+
+for input in "$@"; do
+
+    if [[ ! -f "$input" ]]; then
+        ((failure_count++))
+        continue
+    fi
+
+    input="$(realpath "$input")"
+
+    directory="$(dirname "$input")"
+    filename="$(basename "$input")"
+    stem="${filename%.*}"
+
+    output_stem="${stem}${OUTPUT_SUFFIX}"
+    output="$(unique_output_path "$directory" "$output_stem")"
+
+    logfile="${LOG_DIR}/${stem}.log"
+
+    if auto-editor "$input" \
+        --edit "audio:threshold=${AUDIO_THRESHOLD}" \
+        --margin "${MARGIN_BEFORE},${MARGIN_AFTER}" \
+        --smooth "${SMOOTH_MINCUT},${SMOOTH_MINCLIP}" \
+        -r "$FRAME_RATE" \
+        --export kdenlive \
+        -o "$output" \
+        >"$logfile" 2>&1
+    then
+        ((success_count++))
+    else
+        ((failure_count++))
+        rm -f -- "$output"
+    fi
+
+done
+
+
+# ------------------------------------------------------------
+# Notifications
+# ------------------------------------------------------------
+
+if [[ "$failure_count" -eq 0 ]]; then
+
+    if [[ "$success_count" -eq 1 ]]; then
+        notify \
+            "Auto-Cut Complete" \
+            "Kdenlive rough cut is ready in the source folder."
+    else
+        notify \
+            "Auto-Cut Complete" \
+            "${success_count} videos processed successfully."
+    fi
+
+else
+
+    if [[ "$success_count" -eq 0 ]]; then
+        notify \
+            "Auto-Cut Failed" \
+            "All selected files failed. Check logs in ${LOG_DIR}."
+    else
+        notify \
+            "Auto-Cut Finished with Errors" \
+            "${success_count} succeeded, ${failure_count} failed."
+    fi
+
+fi
+
+exit 0
