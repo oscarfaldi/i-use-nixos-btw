@@ -41,6 +41,8 @@ in
     (mkShellScript "rotate-video-left")
     (mkShellScript "rotate-video-right")
 
+    (mkShellScript "auto-cut")
+
     (mkShellScript "compress-to-zip")
     (mkShellScript "extract-here")
 
