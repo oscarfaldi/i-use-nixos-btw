@@ -21,7 +21,7 @@ AUDIO_THRESHOLD="15%"
 
 # Slightly tighter than the previous 0.10s / 0.18s settings.
 MARGIN_BEFORE="0.10s"
-MARGIN_AFTER="0.18s"
+MARGIN_AFTER="0.16s"
 
 # Keep the smoothing that already feels good.
 SMOOTH_MINCUT="0.15s"
