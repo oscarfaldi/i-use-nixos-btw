@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
+from dataclasses import dataclass
 from pathlib import Path
+import re
 import subprocess
 import sys
 import time
@@ -39,12 +41,32 @@ BEAM_SIZE = 1
 # Ignore long stretches without speech.
 VAD_FILTER = True
 
+# Word-level timestamps let us build short, mobile-friendly subtitles
+# instead of blindly using Whisper's long segment boundaries.
+WORD_TIMESTAMPS = True
+
+# Subtitle pacing
+#
+# Prefer natural 5-7 word captions, but allow shorter or slightly longer
+# groups when the phrasing/timing makes more sense.
+IDEAL_WORDS = 6
+MIN_WORDS = 3
+SOFT_MAX_WORDS = 7
+SHORT_CAPTION_MAX_WORDS = 8
+MAX_CAPTION_DURATION = 2.5
+SHORT_CAPTION_MAX_DURATION = 2.0
+MAX_CHARS_PER_LINE = 34
+MAX_TOTAL_CHARS = 68
+PAUSE_BREAK_SECONDS = 0.40
+
 # Domain vocabulary/context commonly used in your content.
-# Keep this reasonably short to avoid over-biasing Whisper.
+# Keep this focused on words likely to recur in your actual videos.
 INITIAL_PROMPT = (
     "Indonesian content about business, productivity, personal branding, "
-    "content creation, marketing, audience, attention economy, long form, "
-    "short form, creator, leverage, YouTube, TikTok, Instagram, social media."
+    "content creation, marketing, branding, sales, audience, attention, "
+    "retention, algorithm, monetization, conversion, long form, short form, "
+    "creator, leverage, automation, startup, SaaS, API, AI, ChatGPT, Claude, "
+    "Gemini, OpenAI, Anthropic, YouTube, TikTok, Instagram, social media."
 )
 
 
@@ -74,6 +96,17 @@ MEDIA_EXTENSIONS = {
     ".opus",
     ".wma",
 }
+
+
+# ============================================================
+# Data Types
+# ============================================================
+
+@dataclass
+class CaptionWord:
+    text: str
+    start: float
+    end: float
 
 
 # ============================================================
@@ -191,6 +224,217 @@ def wait_before_close() -> None:
     input("Press Enter to close...")
 
 
+def clean_word(text: str) -> str:
+    """Remove commas while preserving useful sentence punctuation."""
+    text = text.replace(",", "")
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def caption_text(words: list[CaptionWord]) -> str:
+    """Join caption words into clean subtitle text."""
+    text = " ".join(word.text for word in words)
+    return clean_word(text)
+
+
+def caption_char_count(words: list[CaptionWord]) -> int:
+    """Return visible character count for a caption."""
+    return len(caption_text(words))
+
+
+def caption_duration(words: list[CaptionWord]) -> float:
+    """Return spoken duration for a caption."""
+    if not words:
+        return 0.0
+
+    return max(0.0, words[-1].end - words[0].start)
+
+
+def ends_sentence(word: CaptionWord) -> bool:
+    """Whether a word ends with sentence-level punctuation."""
+    return bool(re.search(r"[.!?…]$", word.text.strip()))
+
+
+def pause_after(words: list[CaptionWord], next_word: CaptionWord) -> float:
+    """Return the spoken pause between two caption groups."""
+    if not words:
+        return 0.0
+
+    return max(0.0, next_word.start - words[-1].end)
+
+
+def wrap_caption(text: str) -> str:
+    """Wrap a caption to at most two mobile-friendly lines."""
+    words = text.split()
+
+    if not words:
+        return ""
+
+    if len(text) <= MAX_CHARS_PER_LINE:
+        return text
+
+    best_split = None
+    best_score = float("inf")
+
+    for index in range(1, len(words)):
+        left = " ".join(words[:index])
+        right = " ".join(words[index:])
+
+        if len(left) > MAX_CHARS_PER_LINE:
+            continue
+
+        if len(right) > MAX_CHARS_PER_LINE:
+            continue
+
+        imbalance = abs(len(left) - len(right))
+        score = imbalance
+
+        if score < best_score:
+            best_score = score
+            best_split = index
+
+    if best_split is None:
+        return text
+
+    return (
+        " ".join(words[:best_split])
+        + "\n"
+        + " ".join(words[best_split:])
+    )
+
+
+def choose_chunk_size(words: list[CaptionWord], start: int) -> int:
+    """Choose a dynamic caption size centered around 4-5 words."""
+    remaining = len(words) - start
+
+    if remaining <= SOFT_MAX_WORDS:
+        candidate = remaining
+
+        if (
+            candidate > MIN_WORDS
+            and caption_duration(words[start:start + candidate])
+            > MAX_CAPTION_DURATION
+        ):
+            return min(3, remaining)
+
+        if candidate > 0 and caption_char_count(
+            words[start:start + candidate]
+        ) <= MAX_TOTAL_CHARS:
+            return candidate
+
+    # Six spoken words can stay together when they are short and fast.
+    if remaining == SHORT_CAPTION_MAX_WORDS:
+        candidate_words = words[start:start + SHORT_CAPTION_MAX_WORDS]
+        if (
+            caption_duration(candidate_words)
+            <= SHORT_CAPTION_MAX_DURATION
+            and caption_char_count(candidate_words)
+            <= MAX_TOTAL_CHARS
+        ):
+            return SHORT_CAPTION_MAX_WORDS
+
+        return 3
+
+    # For longer material, prefer balanced 4-5 word chunks while making
+    # sure the remaining tail is never reduced to a useless 1-2 words.
+    candidate_sizes = [4, 5, 3]
+
+    if remaining >= 10:
+        candidate_sizes = [5, 4, 3]
+
+    valid_sizes = []
+
+    for size in candidate_sizes:
+        if size > remaining:
+            continue
+
+        leftover = remaining - size
+
+        if leftover == 0 or leftover >= MIN_WORDS:
+            valid_sizes.append(size)
+
+    if not valid_sizes:
+        return min(remaining, IDEAL_WORDS)
+
+    best_size = valid_sizes[0]
+    best_score = float("inf")
+
+    for size in valid_sizes:
+        chunk = words[start:start + size]
+        next_word = words[start + size] if start + size < len(words) else None
+
+        duration = caption_duration(chunk)
+        chars = caption_char_count(chunk)
+
+        score = abs(size - IDEAL_WORDS) * 2
+
+        if duration > MAX_CAPTION_DURATION:
+            score += (duration - MAX_CAPTION_DURATION) * 8
+
+        if chars > MAX_TOTAL_CHARS:
+            score += (chars - MAX_TOTAL_CHARS) * 0.5
+
+        if next_word is not None:
+            if ends_sentence(chunk[-1]):
+                score -= 7
+
+            if pause_after(chunk, next_word) >= PAUSE_BREAK_SECONDS:
+                score -= 4
+
+        if size == 5:
+            score -= 0.5
+
+        if score < best_score:
+            best_score = score
+            best_size = size
+
+    return best_size
+
+
+def build_caption_groups(
+    words: list[CaptionWord],
+) -> list[list[CaptionWord]]:
+    """Split word timestamps into short, readable subtitle groups."""
+    groups: list[list[CaptionWord]] = []
+    index = 0
+
+    while index < len(words):
+        size = choose_chunk_size(words, index)
+        group = words[index:index + size]
+
+        if not group:
+            break
+
+        groups.append(group)
+        index += size
+
+    return groups
+
+
+def segment_words(segment) -> list[CaptionWord]:
+    """Convert a faster-whisper segment into timestamped words."""
+    if not getattr(segment, "words", None):
+        return []
+
+    words: list[CaptionWord] = []
+
+    for word in segment.words:
+        text = clean_word(str(word.word))
+
+        if not text:
+            continue
+
+        words.append(
+            CaptionWord(
+                text=text,
+                start=float(word.start),
+                end=float(word.end),
+            )
+        )
+
+    return words
+
+
 # ============================================================
 # Validation
 # ============================================================
@@ -293,7 +537,7 @@ def run_transcription(media_path: Path) -> int:
 
     print()
     print_separator()
-    print(" TRANSCRIBE MEDIA TO SRT")
+    print(" TRANSCRIBE VIDEO TO SRT")
     print_separator()
     print()
 
@@ -306,6 +550,9 @@ def run_transcription(media_path: Path) -> int:
     print(f"Beam     : {BEAM_SIZE}")
     print(
         f"VAD      : {'ON' if VAD_FILTER else 'OFF'}"
+    )
+    print(
+        f"Word TS  : {'ON' if WORD_TIMESTAMPS else 'OFF'}"
     )
 
     print()
@@ -358,6 +605,7 @@ def run_transcription(media_path: Path) -> int:
             beam_size=BEAM_SIZE,
             vad_filter=VAD_FILTER,
             initial_prompt=INITIAL_PROMPT,
+            word_timestamps=WORD_TIMESTAMPS,
         )
 
         total_duration = float(info.duration)
@@ -369,7 +617,7 @@ def run_transcription(media_path: Path) -> int:
 
         print()
 
-        segment_count = 0
+        subtitle_count = 0
         last_processed = 0.0
         last_reported_second = -1
 
@@ -379,10 +627,7 @@ def run_transcription(media_path: Path) -> int:
             encoding="utf-8",
         ) as srt:
 
-            for segment_count, segment in enumerate(
-                segments,
-                start=1,
-            ):
+            for segment in segments:
 
                 processed = min(
                     float(segment.end),
@@ -413,20 +658,53 @@ def run_transcription(media_path: Path) -> int:
 
                 last_processed = processed
 
-                # Write SRT entry.
-                srt.write(
-                    f"{segment_count}\n"
-                )
+                words = segment_words(segment)
 
-                srt.write(
-                    f"{format_srt_timestamp(segment.start)}"
-                    f" --> "
-                    f"{format_srt_timestamp(segment.end)}\n"
-                )
+                # Word timestamps are expected to be available here.
+                # If the installed faster-whisper version does not return
+                # them, fall back to the original segment-level subtitle.
+                if not words:
+                    text = clean_word(
+                        segment.text.strip()
+                    )
 
-                srt.write(
-                    f"{segment.text.strip()}\n\n"
-                )
+                    if text:
+                        subtitle_count += 1
+                        srt.write(
+                            f"{subtitle_count}\n"
+                        )
+                        srt.write(
+                            f"{format_srt_timestamp(segment.start)}"
+                            f" --> "
+                            f"{format_srt_timestamp(segment.end)}\n"
+                        )
+                        srt.write(
+                            f"{wrap_caption(text)}\n\n"
+                        )
+
+                    continue
+
+                groups = build_caption_groups(words)
+
+                for group in groups:
+                    text = caption_text(group)
+
+                    if not text:
+                        continue
+
+                    subtitle_count += 1
+
+                    srt.write(
+                        f"{subtitle_count}\n"
+                    )
+                    srt.write(
+                        f"{format_srt_timestamp(group[0].start)}"
+                        f" --> "
+                        f"{format_srt_timestamp(group[-1].end)}\n"
+                    )
+                    srt.write(
+                        f"{wrap_caption(text)}\n\n"
+                    )
 
                 srt.flush()
 
@@ -457,29 +735,14 @@ def run_transcription(media_path: Path) -> int:
         print()
         print(f"Input     : {media_path.name}")
         print(f"Output    : {srt_path.name}")
-        print(f"Segments  : {segment_count}")
-        print(
-            f"Duration  : "
-            f"{format_timestamp(total_duration)}"
-        )
-        print(
-            f"Load      : "
-            f"{format_timestamp(load_elapsed)}"
-        )
-        print(
-            f"Transcribe: "
-            f"{format_timestamp(transcription_elapsed)}"
-        )
-        print(
-            f"Total     : "
-            f"{format_timestamp(total_elapsed)}"
-        )
+        print(f"Subtitles : {subtitle_count}")
+        print(f"Duration  : {format_timestamp(total_duration)}")
+        print(f"Load      : {format_timestamp(load_elapsed)}")
+        print(f"Transcribe: {format_timestamp(transcription_elapsed)}")
+        print(f"Total     : {format_timestamp(total_elapsed)}")
         print(
             f"Speed     : "
-            f"{format_speed("
-            f"total_duration or last_processed, "
-            f"transcription_elapsed"
-            f")}"
+            f"{format_speed(total_duration or last_processed, transcription_elapsed)}"
         )
 
         print()
