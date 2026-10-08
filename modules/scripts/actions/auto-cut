@@ -5,6 +5,9 @@
 #
 # Detects inactive audio sections and exports a Kdenlive
 # project without modifying the original video.
+#
+# Designed to work from both Thunar/UCA and Ghostty while
+# keeping the terminal visible until the user presses Enter.
 # ============================================================
 
 set -u
@@ -13,23 +16,26 @@ set -u
 # Settings
 # ------------------------------------------------------------
 
-AUDIO_THRESHOLD="6%"
+# Keep the proven threshold.
+AUDIO_THRESHOLD="15%"
 
-MARGIN_BEFORE="0.10s"
-MARGIN_AFTER="0.18s"
+# Current values were:
+#   0.10s before / 0.18s after
+#
+# Tightened by roughly 10% without making cuts feel abrupt.
+MARGIN_BEFORE="0.09s"
+MARGIN_AFTER="0.16s"
 
+# Keep the current smoothing because the pacing already feels good.
 SMOOTH_MINCUT="0.15s"
 SMOOTH_MINCLIP="0.10s"
 
-FRAME_RATE="ntsc"
-
+# Do not force a frame rate.
+# Auto-Editor should use the source video's native frame rate.
 OUTPUT_SUFFIX="_autoedit"
 
-LOG_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/auto-editor-rough-cut"
-
-
 # ------------------------------------------------------------
-# Functions
+# Notifications
 # ------------------------------------------------------------
 
 notify() {
@@ -38,10 +44,58 @@ notify() {
     fi
 }
 
+# ------------------------------------------------------------
+# UI Helpers
+# ------------------------------------------------------------
+
+print_separator() {
+    printf '%s\n' '================================================================'
+}
+
+format_duration() {
+    local total_seconds="$1"
+
+    if [[ ! "$total_seconds" =~ ^[0-9]+$ ]]; then
+        printf '%s\n' "Unknown"
+        return
+    fi
+
+    local hours=$((total_seconds / 3600))
+    local minutes=$(((total_seconds % 3600) / 60))
+    local seconds=$((total_seconds % 60))
+
+    printf '%02d:%02d:%02d\n' "$hours" "$minutes" "$seconds"
+}
+
+wait_before_close() {
+    printf '\n\n'
+    read -r -p "Press Enter to close..."
+}
+
+# ------------------------------------------------------------
+# Error Handling
+# ------------------------------------------------------------
+
 die() {
-    notify "Auto-Cut Failed" "$1"
+    local message="$1"
+
+    printf '\n'
+    print_separator
+    printf '%s\n' ' FAILED'
+    print_separator
+    printf '\n'
+    printf 'Error: %s\n' "$message"
+    printf '\n'
+
+    notify "Auto-Cut Failed" "$message"
+
+    wait_before_close
     exit 1
 }
+
+# ------------------------------------------------------------
+# Output Path
+# ------------------------------------------------------------
 
 unique_output_path() {
     local directory="$1"
@@ -52,53 +106,59 @@ unique_output_path() {
 
     while [[ -e "$candidate" ]]; do
         candidate="${directory}/${stem}-${counter}.kdenlive"
-        ((counter++))
+        counter=$((counter + 1))
     done
 
     printf '%s\n' "$candidate"
 }
 
+# ------------------------------------------------------------
+# Dependency Checks
+# ------------------------------------------------------------
+
+command -v auto-editor >/dev/null 2>&1 \
+    || die "auto-editor was not found in PATH."
+
+command -v realpath >/dev/null 2>&1 \
+    || die "realpath was not found in PATH."
 
 # ------------------------------------------------------------
-# Dependency check
-# ------------------------------------------------------------
-
-if ! command -v auto-editor >/dev/null 2>&1; then
-    die "auto-editor was not found in PATH."
-fi
-
-if ! command -v realpath >/dev/null 2>&1; then
-    die "realpath was not found."
-fi
-
-mkdir -p "$LOG_DIR"
-
-
-# ------------------------------------------------------------
-# Input check
+# Input Validation
 # ------------------------------------------------------------
 
 if [[ "$#" -eq 0 ]]; then
-    die "No files were selected."
+    die "No video files were selected."
 fi
 
+# ------------------------------------------------------------
+# Start Notification
+# ------------------------------------------------------------
+
+if [[ "$#" -eq 1 ]]; then
+    notify "Starting Auto-Cut" "Processing selected video..."
+else
+    notify "Starting Auto-Cut" "Processing $# selected videos..."
+fi
 
 # ------------------------------------------------------------
-# Counters
+# Main Processing
 # ------------------------------------------------------------
 
 success_count=0
 failure_count=0
 
-
-# ------------------------------------------------------------
-# Process selected files
-# ------------------------------------------------------------
-
 for input in "$@"; do
 
     if [[ ! -f "$input" ]]; then
-        ((failure_count++))
+        failure_count=$((failure_count + 1))
+
+        print_separator
+        printf '%s\n' ' SKIPPED'
+        print_separator
+        printf '\n'
+        printf 'File not found: %s\n' "$input"
+        printf '\n'
+
         continue
     fi
 
@@ -111,54 +171,93 @@ for input in "$@"; do
     output_stem="${stem}${OUTPUT_SUFFIX}"
     output="$(unique_output_path "$directory" "$output_stem")"
 
-    logfile="${LOG_DIR}/${stem}.log"
+    printf '\n'
+    print_separator
+    printf '%s\n' ' AUTO-CUT VIDEO'
+    print_separator
+    printf '\n'
+
+    printf 'Input     : %s\n' "$filename"
+    printf 'Output    : %s\n' "$(basename "$output")"
+    printf 'Threshold : %s\n' "$AUDIO_THRESHOLD"
+    printf 'Margin    : %s before / %s after\n' \
+        "$MARGIN_BEFORE" \
+        "$MARGIN_AFTER"
+    printf 'Smooth    : %s min cut / %s min clip\n' \
+        "$SMOOTH_MINCUT" \
+        "$SMOOTH_MINCLIP"
+    printf 'Frame rate: source/native\n'
+
+    printf '\n'
+    print_separator
+    printf '\n'
+    printf 'Starting Auto-Editor...\n'
+    printf '\n'
 
     if auto-editor "$input" \
         --edit "audio:threshold=${AUDIO_THRESHOLD}" \
         --margin "${MARGIN_BEFORE},${MARGIN_AFTER}" \
         --smooth "${SMOOTH_MINCUT},${SMOOTH_MINCLIP}" \
-        -r "$FRAME_RATE" \
         --export kdenlive \
-        -o "$output" \
-        >"$logfile" 2>&1
+        -o "$output"
     then
-        ((success_count++))
+        success_count=$((success_count + 1))
+
+        printf '\n'
+        print_separator
+        printf '%s\n' ' COMPLETE'
+        print_separator
+        printf '\n'
+        printf 'Input  : %s\n' "$filename"
+        printf 'Output : %s\n' "$(basename "$output")"
+        printf '\n'
+
     else
-        ((failure_count++))
+        failure_count=$((failure_count + 1))
         rm -f -- "$output"
+
+        printf '\n'
+        print_separator
+        printf '%s\n' ' FAILED'
+        print_separator
+        printf '\n'
+        printf 'Auto-Editor failed for:\n'
+        printf '%s\n' "$filename"
+        printf '\n'
     fi
 
 done
 
+# ------------------------------------------------------------
+# Final Status
+# ------------------------------------------------------------
 
-# ------------------------------------------------------------
-# Notifications
-# ------------------------------------------------------------
+printf '\n'
+print_separator
 
 if [[ "$failure_count" -eq 0 ]]; then
-
-    if [[ "$success_count" -eq 1 ]]; then
-        notify \
-            "Auto-Cut Complete" \
-            "Kdenlive rough cut is ready in the source folder."
-    else
-        notify \
-            "Auto-Cut Complete" \
-            "${success_count} videos processed successfully."
-    fi
-
+    printf '%s\n' ' ALL AUTO-CUT JOBS COMPLETE'
 else
-
-    if [[ "$success_count" -eq 0 ]]; then
-        notify \
-            "Auto-Cut Failed" \
-            "All selected files failed. Check logs in ${LOG_DIR}."
-    else
-        notify \
-            "Auto-Cut Finished with Errors" \
-            "${success_count} succeeded, ${failure_count} failed."
-    fi
-
+    printf '%s\n' ' AUTO-CUT FINISHED WITH ERRORS'
 fi
+
+print_separator
+printf '\n'
+
+printf 'Successful: %d\n' "$success_count"
+printf 'Failed    : %d\n' "$failure_count"
+printf '\n'
+
+if [[ "$failure_count" -eq 0 ]]; then
+    notify \
+        "Auto-Cut Complete" \
+        "${success_count} video(s) processed successfully."
+else
+    notify \
+        "Auto-Cut Finished with Errors" \
+        "${success_count} succeeded, ${failure_count} failed."
+fi
+
+wait_before_close
 
 exit 0
