@@ -45,6 +45,9 @@
   # NetworkManager for internet / normal LAN
   networking.networkmanager.enable = true;
 
+  # Cloudflare WARP for VPN enabler
+  services.cloudflare-warp.enable = true;
+
   networking.hostName = "rainier"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
