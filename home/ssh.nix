@@ -10,5 +10,11 @@
       User = "root";
       IdentityFile = "~/.ssh/id_ed25519_cascade";
     };
+
+    settings."github.com" = {
+      User = "git";
+      IdentityFile = "~/.ssh/id_ed25519_github";
+      IdentitiesOnly = true;
+    };
   };
 }
