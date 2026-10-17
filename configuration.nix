@@ -139,6 +139,11 @@
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
+  # Allow Hermes Agent to SSH into this user.
+  users.users.oscarfaldi.openssh.authorizedKeys.keys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwwdQhkFTuiUfSjYqHW6nEw67VZJ7+kozdpZ4vuZKKk hermes-container@unraid"
+  ];
+
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
