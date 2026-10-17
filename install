@@ -392,6 +392,41 @@ Installation will continue normally."
     chmod 600 "$SSH_PRIVATE_KEY"
     chmod 644 "$SSH_PUBLIC_KEY"
 
+    # --------------------------------------------------------------------------
+    # Optional: GitHub identity (used for `git push`). Non-fatal.
+    # Not fetched over SMB with id_ed25519_cascade; pulled over SSH from
+    # the NAS using the cascade key installed just above.
+    # --------------------------------------------------------------------------
+    if [[ ! -s "$SSH_CONFIG_DIR/id_ed25519_github" ]]; then
+        if ssh -i "$SSH_PRIVATE_KEY" -o IdentitiesOnly=yes -o BatchMode=yes \
+               -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 \
+               root@10.10.10.10 'cat /mnt/user/toolkit/SSH/id_ed25519_github' \
+               > "$TEMP_DIR/id_ed25519_github" 2>/dev/null \
+           && [[ -s "$TEMP_DIR/id_ed25519_github" ]]; then
+            install -m 0600 "$TEMP_DIR/id_ed25519_github" "$SSH_CONFIG_DIR/id_ed25519_github"
+            ssh -i "$SSH_PRIVATE_KEY" -o IdentitiesOnly=yes -o BatchMode=yes \
+                -o ConnectTimeout=10 root@10.10.10.10 \
+                'cat /mnt/user/toolkit/SSH/id_ed25519_github.pub' \
+                > "$SSH_CONFIG_DIR/id_ed25519_github.pub" 2>/dev/null || true
+            if [[ -s "$SSH_CONFIG_DIR/id_ed25519_github.pub" ]]; then
+                chmod 644 "$SSH_CONFIG_DIR/id_ed25519_github.pub"
+            else
+                rm -f "$SSH_CONFIG_DIR/id_ed25519_github.pub"
+            fi
+            echo "  GitHub key → $SSH_CONFIG_DIR/id_ed25519_github"
+        else
+            print_warning \
+                "Could not fetch the GitHub identity from the NAS (10.10.10.10).
+git push will need manual setup. Installation continues normally."
+        fi
+    fi
+
+    # Make `git push` work immediately (the initial clone is HTTPS; push needs SSH).
+    if [[ -d "$CONFIG_DIR/.git" ]]; then
+        git -C "$CONFIG_DIR" remote set-url origin \
+            git@github.com:oscarfaldi/i-use-nixos-btw.git 2>/dev/null || true
+    fi
+
     echo
     echo "✓ SSH identity restored successfully."
     echo
