@@ -14,6 +14,7 @@
     ./theme-gruvbox.nix
     ./starship.nix
     ./ssh.nix
+    ./git.nix
   ];
 
   home.username = "oscarfaldi";
