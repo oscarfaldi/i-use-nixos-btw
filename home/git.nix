@@ -3,7 +3,9 @@
 {
   programs.git = {
     enable = true;
-    userName = "Oscar Faldi";
-    userEmail = "oscarfaldi@gmail.com";
+    settings.user = {
+      name = "Oscar Faldi";
+      email = "oscarfaldi@gmail.com";
+    };
   };
 }
